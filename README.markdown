@@ -14,7 +14,8 @@ Votifier has a simple and easy to use (if you know Java) vote listener system.  
 
 # Protocol Documentation
 
-The Votifier protocol is string based and simple.  A connection is made to the Votifier server, and immediately Votifier will send its version in the following packet:
+The Votifier protocol is string based and simple.
+A connection is made to the Votifier server, and immediately Votifier will send its version in the following packet:
 
     "VERSION <version>"
 
