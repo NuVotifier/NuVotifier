@@ -20,7 +20,7 @@ A connection is made to the Votifier server, and immediately Votifier will send 
 
     "VERSION <version>"
 
-Votifier then expects the following four strings in response:
+Votifier then expects the following four strings (separated by newline characters) in response:
 
 	"<serviceName>"
 	"<username>"
