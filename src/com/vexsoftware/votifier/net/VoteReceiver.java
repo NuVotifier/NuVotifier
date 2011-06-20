@@ -99,6 +99,11 @@ public class VoteReceiver extends Thread {
 				for (VoteListener listener : Votifier.getInstance().getListeners()) {
 					listener.voteMade(vote);
 				}
+
+				// Clean up.
+				writer.close();
+				in.close();
+				socket.close();
 			} catch (ClosedByInterruptException ex) {
 				return; // Shut down silently.
 			} catch (Exception ex) {
