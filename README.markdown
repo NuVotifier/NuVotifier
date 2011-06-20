@@ -24,10 +24,10 @@ A connection is made to the Votifier server, and immediately Votifier will send 
 
 Votifier then expects a 256 byte RSA encrypted block, with the following format:
 
-    byte 128
-	string serviceName
-	string username
-	string address
-	string timeStamp
+    byte <opcode> 128
+	string <serviceName>
+	string <username>
+	string <address>
+	string <timeStamp>
 
 The first byte of value 128 is an opcode check to ensure that RSA was encoded and decoded properly, if this value is wrong then Votifier assumes that there was a problem with encryption and drops the connection. `serviceName` is the name of the top list service, `username` is the username (entered by the voter) of the person who voted, `address` is the IP address of the voter, and `timeStamp` is the time stamp of the vote.
