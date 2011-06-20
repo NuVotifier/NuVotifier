@@ -59,6 +59,7 @@ public class VoteReceiver extends Thread {
 		while (true) {
 			try {
 				Socket socket = server.accept();
+				socket.setSoTimeout(5000); // Don't hang on slow connections.
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 				InputStream in = socket.getInputStream();
 

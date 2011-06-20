@@ -4,7 +4,9 @@ Votifier is a Bukkit plugin whose purpose is to be notified when a vote is made 
 
 ## Configuring Votifier
 
-Votifier configures itself the first time it is run.  If you want to customize Votifier, simply the edit `./plugins/votifier/config.yml` file.
+Votifier configures itself the first time it is run.
+
+If you want to customize Votifier, simply the edit `./plugins/votifier/config.yml` file.
 
 ## Writing Vote Listeners
 
@@ -29,5 +31,6 @@ Votifier then expects a 256 byte RSA encrypted block, with the following format:
 	string <username>
 	string <address>
 	string <timeStamp>
+	byte[] <space>
 
-The first byte of value 128 is an opcode check to ensure that RSA was encoded and decoded properly, if this value is wrong then Votifier assumes that there was a problem with encryption and drops the connection. `serviceName` is the name of the top list service, `username` is the username (entered by the voter) of the person who voted, `address` is the IP address of the voter, and `timeStamp` is the time stamp of the vote.
+The first byte of value 128 is an opcode check to ensure that RSA was encoded and decoded properly, if this value is wrong then Votifier assumes that there was a problem with encryption and drops the connection. `serviceName` is the name of the top list service, `username` is the username (entered by the voter) of the person who voted, `address` is the IP address of the voter, and `timeStamp` is the time stamp of the vote.  Each string is delimited by newline character `\n` (byte value 10).  The `space` block is the empty space that is left over, **the block must be exactly 256 bytes** regardless of how much information it holds.
