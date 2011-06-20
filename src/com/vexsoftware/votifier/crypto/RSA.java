@@ -25,9 +25,6 @@ public class RSA {
 	 *             If an error occurs
 	 */
 	public static byte[] encrypt(byte[] data, PublicKey key) throws Exception {
-		if (data.length > key.getEncoded().length) {
-			throw new IllegalArgumentException("Block too large!");
-		}
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.ENCRYPT_MODE, key);
 		return cipher.doFinal(data);
@@ -45,9 +42,6 @@ public class RSA {
 	 *             If an error occurs
 	 */
 	public static byte[] decrypt(byte[] data, PrivateKey key) throws Exception {
-		if (data.length > key.getEncoded().length) {
-			throw new IllegalArgumentException("Block too large!");
-		}
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, key);
 		return cipher.doFinal(data);
