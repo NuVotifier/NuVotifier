@@ -20,11 +20,13 @@ Votifier uses one-way RSA encryption to ensure that only a trusted toplist can t
 
 ## Protocol Documentation
 
-A connection is made to the Votifier server, and immediately Votifier will send its version in the following packet:
+This documentation is for server lists that wish to add Votifier support.
+
+A connection is made to the Votifier server by the server list, and immediately Votifier will send its version in the following packet:
 
     "VOTIFIER VERSION <version>"
 
-Votifier then expects a 256 byte RSA encrypted block, with the following format:
+Votifier then expects a 256 byte RSA encrypted block (the public key should be obtained by the Votifier user), with the following format:
 
     byte <opcode> 128
 	string <serviceName>
