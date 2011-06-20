@@ -1,9 +1,7 @@
 package com.vexsoftware.votifier.net;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -13,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.vexsoftware.votifier.Votifier;
+import com.vexsoftware.votifier.crypto.RSA;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VoteListener;
 
@@ -47,23 +46,47 @@ public class VoteReceiver extends Thread {
 
 	@Override
 	public void run() {
+		ServerSocket server;
 		try {
-			ServerSocket server = new ServerSocket();
+			server = new ServerSocket();
 			server.bind(new InetSocketAddress(host, port));
-			while (true) {
+		} catch (Exception ex) {
+			log.log(Level.SEVERE, "Error initializing vote receiver", ex);
+			return;
+		}
+
+		// Main loop.
+		while (true) {
+			try {
 				Socket socket = server.accept();
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				InputStream in = socket.getInputStream();
 
 				// Send them our version.
-				writer.write("VERSION " + Votifier.VERSION);
+				writer.write("VOTIFIER " + Votifier.VERSION);
 				writer.newLine();
+				writer.flush();
 
-				// Read the vote information.
-				String serviceName = reader.readLine();
-				String username = reader.readLine();
-				String address = reader.readLine();
-				String timeStamp = reader.readLine();
+				// Read the 256 byte block.
+				byte[] block = new byte[256];
+				in.read(block, 0, block.length);
+
+				// Decrypt the block.
+				block = RSA.decrypt(block, Votifier.getInstance().getKeyPair().getPrivate());
+				int position = 0;
+
+				// Perform the opcode check.
+				int opcode = block[position++];
+				if (opcode != 128) {
+					// Something went wrong in RSA.
+					throw new Exception("Unable to decode RSA");
+				}
+
+				// Parse the block.
+				String serviceName = readString(block);
+				String username = readString(block);
+				String address = readString(block);
+				String timeStamp = readString(block);
 
 				// Create the vote.
 				Vote vote = new Vote();
@@ -76,13 +99,30 @@ public class VoteReceiver extends Thread {
 				for (VoteListener listener : Votifier.getInstance().getListeners()) {
 					listener.voteMade(vote);
 				}
+			} catch (ClosedByInterruptException ex) {
+				return; // Shut down silently.
+			} catch (Exception ex) {
+				// Something went horribly wrong.
+				log.log(Level.SEVERE, "Error in vote receiver", ex);
 			}
-		} catch (ClosedByInterruptException ex) {
-			// Shut down silently.
-		} catch (IOException ex) {
-			// Something went wrong.
-			log.log(Level.SEVERE, "I/O error in VoteReceiver", ex);
 		}
+	}
+
+	/**
+	 * Reads a string from a block of data.
+	 * 
+	 * @param data
+	 *            The data to read from
+	 * @return The string
+	 */
+	private String readString(byte[] data) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < data.length; i++) {
+			if (data[i] == '\n')
+				break; // Delimiter reached.
+			builder.append((char) data[i]);
+		}
+		return builder.toString();
 	}
 
 }

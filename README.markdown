@@ -1,10 +1,10 @@
-# Votifier 1.0
+# Votifier 1.1
 
 Votifier is a Bukkit plugin whose purpose is to be notified when a vote is made on a Minecraft server top list for the server.  Votifier creates a lightweight server that waits for connections by Minecraft server lists and uses a simple protocol to get the required information.
 
 ## Configuring Votifier
 
-Votifier requires configuration before it can run.  Votifier looks for two keys in your server.properties file, 'votifier_host' and 'votifier_port'.  These values are used to determine the host IP address that Votifier listens on, and the port that Votifier will listen on.  The default Votifier address is *0.0.0.0* (which allows Java to pick the first available address) and the default Votifier port is *8192*.
+Votifier configures itself the first time it is run.  If you want to customize Votifier, simply the edit `./plugins/votifier/config.yml` file.
 
 ## Writing Vote Listeners
 
@@ -12,19 +12,22 @@ Votifier has a simple and easy to use (if you know Java) vote listener system.  
 
 *If you want to request a vote listener, send an email to votifier@vexsoftware.net and we may code it and package it along with Votifier.*
 
-## Protocol Documentation
+## Encryption
 
-The Votifier protocol is string based and simple.
+Votifier uses one-way RSA encryption to ensure that only a trusted toplist can tell Votifier when a vote has been made.  When it is first run, Votifier will generate a 2048 bit RSA key pair and store the keys in the `./plugins/votifier/rsa` directory.  When you link Votifier with a toplist, the toplist will ask you for your Votifier public key - this is located at `./plugins/votifier/rsa/public.key` and the toplist will use this key to encrypt vote data.  It is essential that you do not share these keys with your players, as a smart player can use the key to create a spoof packet and tell Votifier that they voted when they really didn't.
+
+## Protocol Documentation
 
 A connection is made to the Votifier server, and immediately Votifier will send its version in the following packet:
 
-    "VERSION <version>"
+    "VOTIFIER VERSION <version>"
 
-Votifier then expects the following four strings (separated by newline characters) in response:
+Votifier then expects a 256 byte RSA encrypted block, with the following format:
 
-	"<serviceName>"
-	"<username>"
-	"<address>"
-	"<timeStamp>"
+    byte 128
+	string serviceName
+	string username
+	string address
+	string timeStamp
 
-Where 'serviceName' is the name of the top list service, 'username' is the username (entered by the voter) of the person who voted, 'address' is the IP address of the voter, and 'timeStamp' is the time stamp of the vote.
+The first byte of value 128 is an opcode check to ensure that RSA was encoded and decoded properly. `serviceName` is the name of the top list service, `username` is the username (entered by the voter) of the person who voted, `address` is the IP address of the voter, and `timeStamp` is the time stamp of the vote.

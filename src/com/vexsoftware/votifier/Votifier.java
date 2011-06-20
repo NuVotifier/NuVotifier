@@ -1,14 +1,17 @@
 package com.vexsoftware.votifier;
 
-import java.io.FileReader;
+import java.io.File;
+import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.Configuration;
 
+import com.vexsoftware.votifier.crypto.RSAIO;
+import com.vexsoftware.votifier.crypto.RSAKeygen;
 import com.vexsoftware.votifier.model.VoteListener;
 import com.vexsoftware.votifier.model.listeners.BasicVoteListener;
 import com.vexsoftware.votifier.net.VoteReceiver;
@@ -20,11 +23,8 @@ import com.vexsoftware.votifier.net.VoteReceiver;
  */
 public class Votifier extends JavaPlugin {
 
-	/** The configuration file. */
-	public static final String CONFIG_FILE = "server.properties";
-
 	/** The current Votifier version. */
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "1.1";
 
 	/** The logger instance. */
 	private static final Logger log = Logger.getLogger("Votifier");
@@ -38,16 +38,44 @@ public class Votifier extends JavaPlugin {
 	/** The vote receiver. */
 	private VoteReceiver voteReceiver;
 
+	/** The RSA key pair. */
+	private KeyPair keyPair;
+
 	@Override
 	public void onEnable() {
 		try {
 			Votifier.instance = this;
-			Properties props = new Properties();
-			props.load(new FileReader(CONFIG_FILE));
 
-			// Start up the vote receiver.
-			String host = props.getProperty("votifier_host");
-			int port = Integer.parseInt(props.getProperty("votifier_port"));
+			// Handle configuration.
+			if (!getDataFolder().exists()) {
+				getDataFolder().mkdir();
+			}
+			Configuration cfg = getConfiguration();
+			File config = new File(getDataFolder() + "/config.yml");
+			File rsaDirectory = new File(getDataFolder() + "/rsa");
+			if (!config.exists()) {
+				// First time run - do some initialization.
+				log.info("Configuring Votifier for the first time...");
+
+				// Initialize the configuration file.
+				config.createNewFile();
+				cfg.setProperty("host", "0.0.0.0");
+				cfg.setProperty("port", 8192);
+				cfg.save();
+
+				// Generate the RSA key pair.
+				rsaDirectory.mkdir();
+				keyPair = RSAKeygen.generate(512);
+				RSAIO.save(rsaDirectory, keyPair);
+			} else {
+				// Load configuration.
+				keyPair = RSAIO.load(rsaDirectory);
+				cfg.load();
+			}
+
+			// Initialize the receiver.
+			String host = cfg.getString("host", "0.0.0.0");
+			int port = cfg.getInt("port", 8192);
 			voteReceiver = new VoteReceiver(host, port);
 			voteReceiver.start();
 
@@ -85,6 +113,24 @@ public class Votifier extends JavaPlugin {
 	 */
 	public List<VoteListener> getListeners() {
 		return listeners;
+	}
+
+	/**
+	 * Gets the vote receiver.
+	 * 
+	 * @return The vote receiver
+	 */
+	public VoteReceiver getVoteReceiver() {
+		return voteReceiver;
+	}
+
+	/**
+	 * Gets the keyPair.
+	 * 
+	 * @return The keyPair
+	 */
+	public KeyPair getKeyPair() {
+		return keyPair;
 	}
 
 }
