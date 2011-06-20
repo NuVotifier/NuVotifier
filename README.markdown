@@ -12,7 +12,7 @@ If you want to customize Votifier, simply the edit `./plugins/votifier/config.ym
 
 Votifier has a simple and easy to use (if you know Java) vote listener system.  In the future, Votifier will come with pre-made listeners - we just need to know what you want them to do.  In order to write a custom vote listener, make a Java class that implements the `com.vexsoftware.votifier.model.VoteListener` and add it to the list returned by `com.vexsoftware.votifier.Votifier.getListeners()` when Votifier is initialized.
 
-*If you want to request a vote listener, send an email to votifier@vexsoftware.net and we may code it and package it along with Votifier.*
+*If you want to request a vote listener, send an email to votifier@vexsoftware.com and we may code it and package it along with Votifier.*
 
 ## Encryption
 
