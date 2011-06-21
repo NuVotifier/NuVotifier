@@ -102,10 +102,14 @@ public class VoteReceiver extends Thread {
 				}
 
 				// Parse the block.
-				String serviceName = readString(block);
-				String username = readString(block);
-				String address = readString(block);
-				String timeStamp = readString(block);
+				String serviceName = readString(block, position, block.length);
+				position += serviceName.length() + 1;
+				String username = readString(block, position, block.length);
+				position += username.length() + 1;
+				String address = readString(block, position, block.length);
+				position += address.length() + 1;
+				String timeStamp = readString(block, position, block.length);
+				position += timeStamp.length() + 1;
 
 				// Create the vote.
 				Vote vote = new Vote();
@@ -139,9 +143,9 @@ public class VoteReceiver extends Thread {
 	 *            The data to read from
 	 * @return The string
 	 */
-	private String readString(byte[] data) {
+	private String readString(byte[] data, int offset, int length) {
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < data.length; i++) {
+		for (int i = offset; i < length; i++) {
 			if (data[i] == '\n')
 				break; // Delimiter reached.
 			builder.append((char) data[i]);
