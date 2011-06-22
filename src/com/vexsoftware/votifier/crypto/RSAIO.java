@@ -28,6 +28,8 @@ import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+import javax.xml.bind.DatatypeConverter;
+
 /**
  * Static utility methods for saving and loading RSA key pairs.
  * 
@@ -52,13 +54,13 @@ public class RSAIO {
 		// Store the public key.
 		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKey.getEncoded());
 		FileOutputStream out = new FileOutputStream(directory + "/public.key");
-		out.write(x509EncodedKeySpec.getEncoded());
+		out.write(DatatypeConverter.printBase64Binary(x509EncodedKeySpec.getEncoded()).getBytes());
 		out.close();
 
 		// Store the private key.
 		PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
 		out = new FileOutputStream(directory + "/private.key");
-		out.write(pkcs8EncodedKeySpec.getEncoded());
+		out.write(DatatypeConverter.printBase64Binary(pkcs8EncodedKeySpec.getEncoded()).getBytes());
 		out.close();
 	}
 
@@ -78,6 +80,7 @@ public class RSAIO {
 		FileInputStream in = new FileInputStream(directory + "/public.key");
 		byte[] encodedPublicKey = new byte[(int) publicKeyFile.length()];
 		in.read(encodedPublicKey);
+		encodedPublicKey = DatatypeConverter.parseBase64Binary(new String(encodedPublicKey));
 		in.close();
 
 		// Read the private key file.
@@ -85,6 +88,7 @@ public class RSAIO {
 		in = new FileInputStream(directory + "/private.key");
 		byte[] encodedPrivateKey = new byte[(int) privateKeyFile.length()];
 		in.read(encodedPrivateKey);
+		encodedPrivateKey = DatatypeConverter.parseBase64Binary(new String(encodedPrivateKey));
 		in.close();
 
 		// Instantiate and return the key pair.

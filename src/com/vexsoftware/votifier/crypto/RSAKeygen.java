@@ -43,7 +43,7 @@ public class RSAKeygen {
 	public static KeyPair generate(int bits) throws Exception {
 		log.info("Votifier is generating an RSA key pair...");
 		KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
-		RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4);
+		RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(bits, RSAKeyGenParameterSpec.F4);
 		keygen.initialize(spec);
 		return keygen.generateKeyPair();
 	}

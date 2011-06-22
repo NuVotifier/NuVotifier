@@ -83,7 +83,7 @@ public class Votifier extends JavaPlugin {
 
 				// Generate the RSA key pair.
 				rsaDirectory.mkdir();
-				keyPair = RSAKeygen.generate(512);
+				keyPair = RSAKeygen.generate(2048);
 				RSAIO.save(rsaDirectory, keyPair);
 			} else {
 				// Load configuration.
