@@ -24,7 +24,7 @@ This documentation is for server lists that wish to add Votifier support.
 
 A connection is made to the Votifier server by the server list, and immediately Votifier will send its version in the following packet:
 
-    "VOTIFIER VERSION <version>"
+    "VOTIFIER <version>"
 
 Votifier then expects a 256 byte RSA encrypted block (the public key should be obtained by the Votifier user), with the following format:
 
