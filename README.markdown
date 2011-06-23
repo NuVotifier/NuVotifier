@@ -28,7 +28,7 @@ A connection is made to the Votifier server by the server list, and immediately 
 
 Votifier then expects a 256 byte RSA encrypted block (the public key should be obtained by the Votifier user), with the following format:
 
-    byte <opcode> 128
+    byte 128
 	string <serviceName>
 	string <username>
 	string <address>

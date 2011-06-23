@@ -1,4 +1,4 @@
-name: votifier
+name: Votifier
 main: com.vexsoftware.votifier.Votifier
 version: 1.1
 description: A plugin that gets notified when votes are made for the server on toplists.
