@@ -30,8 +30,8 @@ import org.bukkit.util.config.Configuration;
 
 import com.vexsoftware.votifier.crypto.RSAIO;
 import com.vexsoftware.votifier.crypto.RSAKeygen;
+import com.vexsoftware.votifier.model.ListenerLoader;
 import com.vexsoftware.votifier.model.VoteListener;
-import com.vexsoftware.votifier.model.listeners.BasicVoteListener;
 import com.vexsoftware.votifier.net.VoteReceiver;
 
 /**
@@ -42,7 +42,7 @@ import com.vexsoftware.votifier.net.VoteReceiver;
 public class Votifier extends JavaPlugin {
 
 	/** The current Votifier version. */
-	public static final String VERSION = "1.1";
+	public static final String VERSION = "1.3";
 
 	/** The logger instance. */
 	private static final Logger log = Logger.getLogger("Votifier");
@@ -71,6 +71,7 @@ public class Votifier extends JavaPlugin {
 			Configuration cfg = getConfiguration();
 			File config = new File(getDataFolder() + "/config.yml");
 			File rsaDirectory = new File(getDataFolder() + "/rsa");
+			String listenerDirectory = getDataFolder() + "/listeners";
 			if (!config.exists()) {
 				// First time run - do some initialization.
 				log.info("Configuring Votifier for the first time...");
@@ -79,10 +80,12 @@ public class Votifier extends JavaPlugin {
 				config.createNewFile();
 				cfg.setProperty("host", "0.0.0.0");
 				cfg.setProperty("port", 8192);
+				cfg.setProperty("listener_folder", listenerDirectory);
 				cfg.save();
 
 				// Generate the RSA key pair.
 				rsaDirectory.mkdir();
+				new File(listenerDirectory).mkdir();
 				keyPair = RSAKeygen.generate(2048);
 				RSAIO.save(rsaDirectory, keyPair);
 			} else {
@@ -91,14 +94,15 @@ public class Votifier extends JavaPlugin {
 				cfg.load();
 			}
 
+			// Load the vote listeners.
+			listenerDirectory = cfg.getString("listener_folder");
+			listeners.addAll(ListenerLoader.load(listenerDirectory));
+
 			// Initialize the receiver.
 			String host = cfg.getString("host", "0.0.0.0");
 			int port = cfg.getInt("port", 8192);
 			voteReceiver = new VoteReceiver(host, port);
 			voteReceiver.start();
-
-			// Add the vote listeners.
-			listeners.add(new BasicVoteListener());
 
 			log.info("Votifier enabled.");
 		} catch (Exception ex) {

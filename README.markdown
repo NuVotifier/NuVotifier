@@ -10,9 +10,7 @@ If you want to customize Votifier, simply the edit `./plugins/votifier/config.ym
 
 ## Writing Vote Listeners
 
-Votifier has a simple and easy to use (if you know Java) vote listener system.  In the future, Votifier will come with pre-made listeners - we just need to know what you want them to do.  In order to write a custom vote listener, make a Java class that implements the `com.vexsoftware.votifier.model.VoteListener` and add it to the list returned by `com.vexsoftware.votifier.Votifier.getListeners()` when Votifier is initialized.
-
-*If you want to request a vote listener, send an email to votifier@vexsoftware.com and we may code it and package it along with Votifier.*
+Votifier has a vote listener system where listeners are notified when Votifier receives a vote notification. Sort of like the Bukkit plugin system itself. Each of these listeners can carry out their own task (i.e. rewarding the player via iConomy, etc.) in response to the vote. Vote listeners can be found on the Github download page.  To install a vote listener, simply put it in Votifiers "listeners" folder.  Note that you must run Votifier first before this folder is made.
 
 ## Encryption
 
