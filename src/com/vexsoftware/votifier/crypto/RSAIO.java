@@ -26,6 +26,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -51,7 +52,7 @@ public class RSAIO {
 		PublicKey publicKey = keyPair.getPublic();
 
 		// Store the public key.
-		PKCS8EncodedKeySpec publicSpec = new PKCS8EncodedKeySpec(publicKey.getEncoded());
+		X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(publicKey.getEncoded());
 		FileOutputStream out = new FileOutputStream(directory + "/public.key");
 		out.write(DatatypeConverter.printBase64Binary(publicSpec.getEncoded()).getBytes());
 		out.close();
@@ -92,7 +93,7 @@ public class RSAIO {
 
 		// Instantiate and return the key pair.
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		PKCS8EncodedKeySpec publicKeySpec = new PKCS8EncodedKeySpec(encodedPublicKey);
+		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedPublicKey);
 		PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
 		PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
 		PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);

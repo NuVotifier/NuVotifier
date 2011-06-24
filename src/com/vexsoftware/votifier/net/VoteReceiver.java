@@ -24,7 +24,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.channels.ClosedByInterruptException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,6 +48,12 @@ public class VoteReceiver extends Thread {
 	/** The port to listen on. */
 	private final int port;
 
+	/** The server socket. */
+	private ServerSocket server;
+
+	/** The running flag. */
+	private boolean running = true;
+
 	/**
 	 * Instantiates a new vote receiver.
 	 * 
@@ -62,19 +67,32 @@ public class VoteReceiver extends Thread {
 		this.port = port;
 	}
 
+	/**
+	 * Shuts the vote receiver down cleanly.
+	 */
+	public void shutdown() {
+		running = false;
+		if (server == null)
+			return;
+		try {
+			server.close();
+		} catch (Exception ex) {
+			log.log(Level.WARNING, "Unable to shut down vote receiver cleanly.");
+		}
+	}
+
 	@Override
 	public void run() {
-		ServerSocket server;
 		try {
 			server = new ServerSocket();
 			server.bind(new InetSocketAddress(host, port));
 		} catch (Exception ex) {
-			log.log(Level.SEVERE, "Error initializing vote receiver", ex);
+			log.log(Level.SEVERE, "Error initializing vote receiver");
 			return;
 		}
 
 		// Main loop.
-		while (true) {
+		while (running) {
 			try {
 				Socket socket = server.accept();
 				socket.setSoTimeout(5000); // Don't hang on slow connections.
@@ -128,11 +146,8 @@ public class VoteReceiver extends Thread {
 				writer.close();
 				in.close();
 				socket.close();
-			} catch (ClosedByInterruptException ex) {
-				return; // Shut down silently.
 			} catch (Exception ex) {
-				// Something went horribly wrong.
-				log.log(Level.SEVERE, "Error in vote receiver", ex);
+				// Shut up and dealwithit.gif
 			}
 		}
 	}

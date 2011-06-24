@@ -110,7 +110,7 @@ public class Votifier extends JavaPlugin {
 	public void onDisable() {
 		// Interrupt the vote receiver.
 		if (voteReceiver != null) {
-			voteReceiver.interrupt();
+			voteReceiver.shutdown();
 		}
 		log.info("Votifier disabled.");
 	}
