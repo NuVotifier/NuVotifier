@@ -39,23 +39,23 @@ Votifier then expects a 256 byte RSA encrypted block (the public key should be o
 	</tr>
 	<tr>
 		<td>string</td>
-		<td><serviceName></td>
+		<td>serviceName</td>
 	</tr>
 	<tr>
 		<td>string</td>
-		<td><username></td>
+		<td>username</td>
 	</tr>
 	<tr>
 		<td>string</td>
-		<td><address></td>
+		<td>address</td>
 	</tr>
 	<tr>
 		<td>string</td>
-		<td><timeStamp></td>
+		<td>timeStamp</td>
 	</tr>
 	<tr>
 		<td>byte[]</td>
-		<td><empty></td>
+		<td>empty</td>
 	</tr>
 </table>
 
