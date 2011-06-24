@@ -95,8 +95,9 @@ public class VoteReceiver extends Thread {
 				int position = 0;
 
 				// Perform the opcode check.
-				int opcode = block[position++];
-				if (opcode != 128) {
+				String opcode = readString(block, position);
+				position += opcode.length() + 1;
+				if (!opcode.equals("VOTE")) {
 					// Something went wrong in RSA.
 					throw new Exception("Unable to decode RSA");
 				}
