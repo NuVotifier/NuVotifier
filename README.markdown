@@ -29,24 +29,34 @@ A connection is made to the Votifier server by the server list, and immediately 
 Votifier then expects a 256 byte RSA encrypted block (the public key should be obtained by the Votifier user), with the following format:
 
 <table>
-	<td>
-		<tr><b>Type</b></tr>
-		<tr>byte</tr>
-		<tr>string</tr>
-		<tr>string</tr>
-		<tr>string</tr>
-		<tr>string</tr>
-		<tr>byte[]</tr>
-	</td>
-	<td>
-		<tr><b>Value</b></tr>
-		<tr>128</tr>
-		<tr><serviceName</tr>
-		<tr><username></tr>
-		<tr><address></tr>
-		<tr><timeStamp></tr>
-		<tr><empty></tr>
-	</td>
+	<tr>
+		<th>Type</th>
+		<th>Value</th>
+	</tr>
+	<tr>
+		<td>byte</td>
+		<td>128</td>
+	</tr>
+	<tr>
+		<td>string</td>
+		<td><serviceName></td>
+	</tr>
+	<tr>
+		<td>string</td>
+		<td><username></td>
+	</tr>
+	<tr>
+		<td>string</td>
+		<td><address></td>
+	</tr>
+	<tr>
+		<td>string</td>
+		<td><timeStamp></td>
+	</tr>
+	<tr>
+		<td>byte[]</td>
+		<td><empty></td>
+	</tr>
 </table>
 
 The first byte of value 128 is an opcode check to ensure that RSA was encoded and decoded properly, if this value is wrong then Votifier assumes that there was a problem with encryption and drops the connection. `serviceName` is the name of the top list service, `username` is the username (entered by the voter) of the person who voted, `address` is the IP address of the voter, and `timeStamp` is the time stamp of the vote.  Each string is delimited by the newline character `\n` (byte value 10).  The `space` block is the empty space that is left over, **the block must be exactly 256 bytes** regardless of how much information it holds.
