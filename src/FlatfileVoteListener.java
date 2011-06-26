@@ -28,6 +28,7 @@ public class FlatfileVoteListener implements VoteListener {
 			// Append the vote to the file.
 			writer.write(vote.toString());
 			writer.newLine();
+			writer.flush();
 
 			// All done.
 			writer.close();
