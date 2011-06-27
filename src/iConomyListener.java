@@ -38,7 +38,7 @@ public class iConomyListener implements VoteListener {
 			}
 
 			// Load the configuration.
-			props.load(new FileReader("./plugins/Votifier/iConomyListener.ini"));
+			props.load(new FileReader(configFile));
 			amount = Integer.parseInt(props.getProperty("reward_amount", "100"));
 		} catch (Exception ex) {
 			logger.log(Level.WARNING, "Unable to load iConomyListener.ini, using default reward value of: " + amount);
