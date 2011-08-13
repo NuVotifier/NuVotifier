@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.Integer;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
