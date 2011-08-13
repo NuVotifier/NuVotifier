@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.lang.Integer;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,10 +37,18 @@ public class iConomyListener implements VoteListener {
 			File configFile = new File("./plugins/Votifier/iConomyListener.ini");
 			if (!configFile.exists()) {
 				configFile.createNewFile();
+
+				// Load the configuration.
+				props.load(new FileReader(configFile));
+
+				// Write the default configuration.
+				props.setProperty("reward_amount", Integer.toString(amount));
+				props.store(new FileWriter(configFile), "iConomy Listener Configuration");
+			} else {
+				// Load the configuration.
+				props.load(new FileReader(configFile));
 			}
 
-			// Load the configuration.
-			props.load(new FileReader(configFile));
 			amount = Integer.parseInt(props.getProperty("reward_amount", "100"));
 		} catch (Exception ex) {
 			logger.log(Level.WARNING, "Unable to load iConomyListener.ini, using default reward value of: " + amount);
