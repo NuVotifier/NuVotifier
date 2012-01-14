@@ -1,0 +1,43 @@
+<project name="Votifier" default="dist" basedir=".">
+	<description>
+		Automates the build process for the Votifier Bukkit plugin.
+	</description>
+	
+	<!-- Script properties -->
+	<property name="src" location="./java"/>
+	<property name="build" location="./bin"/>
+	<property name="dist" location="./dist"/>
+	<property name="resources" location="./resources"/>
+	<property name="bukkit" location="./lib/craftbukkit-1.0.1-R1.jar"/>
+	
+	<!-- Initializes the build by creating the build directory -->
+	<target name="init" depends="clean">
+		<tstamp/>
+		<mkdir dir="${build}"/>
+		<mkdir dir="${dist}"/>
+	</target>
+	
+	<!-- Compiles the Java source code into bytecode -->
+	<target name="compile" depends="init">
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true" debuglevel="lines,source">
+			<classpath>
+				<pathelement path="${bukkit}"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<!-- Distributes the compiled bytecode into a plugin JAR file -->
+	<target name="dist" depends="compile">
+		<jar destfile="${dist}/Votifier.jar">
+			<fileset dir="${build}"/>
+			<fileset dir="${resources}"/>
+		</jar>
+	</target>
+	
+	<!-- Cleans the build and distribution directories -->
+	<target name="clean">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+	
+</project>

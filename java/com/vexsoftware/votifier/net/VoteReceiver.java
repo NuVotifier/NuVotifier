@@ -36,6 +36,7 @@ import com.vexsoftware.votifier.model.VoteListener;
  * The vote receiving server.
  * 
  * @author Blake Beaupain
+ * @author Kramer Campbell
  */
 public class VoteReceiver extends Thread {
 
@@ -139,7 +140,11 @@ public class VoteReceiver extends Thread {
 
 				// Dispatch the vote to all listeners.
 				for (VoteListener listener : Votifier.getInstance().getListeners()) {
-					listener.voteMade(vote);
+					try {
+						listener.voteMade(vote);
+					} catch (Exception ex) {
+						log.log(Level.WARNING, "Exception caught while sending the vote notification to a listener", ex);
+					}
 				}
 
 				// Clean up.
@@ -147,7 +152,7 @@ public class VoteReceiver extends Thread {
 				in.close();
 				socket.close();
 			} catch (Exception ex) {
-				// Shut up and dealwithit.gif
+				log.log(Level.WARNING, "Exception caught while receiving a vote notification", ex);
 			}
 		}
 	}
