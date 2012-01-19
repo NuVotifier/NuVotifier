@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Vex Software LLC
+ * Copyright (C) 2012 Vex Software LLC
  * This file is part of Votifier.
  * 
  * Votifier is free software: you can redistribute it and/or modify
@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
 import com.vexsoftware.votifier.crypto.RSAIO;
 import com.vexsoftware.votifier.crypto.RSAKeygen;
@@ -69,8 +69,8 @@ public class Votifier extends JavaPlugin {
 			if (!getDataFolder().exists()) {
 				getDataFolder().mkdir();
 			}
-			Configuration cfg = getConfiguration();
 			File config = new File(getDataFolder() + "/config.yml");
+			YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
 			File rsaDirectory = new File(getDataFolder() + "/rsa");
 			String listenerDirectory = getDataFolder() + "/listeners";
 			if (!config.exists()) {
@@ -79,10 +79,10 @@ public class Votifier extends JavaPlugin {
 
 				// Initialize the configuration file.
 				config.createNewFile();
-				cfg.setProperty("host", "0.0.0.0");
-				cfg.setProperty("port", 8192);
-				cfg.setProperty("listener_folder", listenerDirectory);
-				cfg.save();
+				cfg.set("host", "0.0.0.0");
+				cfg.set("port", 8192);
+				cfg.set("listener_folder", listenerDirectory);
+				cfg.save(config);
 
 				// Generate the RSA key pair.
 				rsaDirectory.mkdir();
@@ -92,7 +92,7 @@ public class Votifier extends JavaPlugin {
 			} else {
 				// Load configuration.
 				keyPair = RSAIO.load(rsaDirectory);
-				cfg.load();
+				cfg = YamlConfiguration.loadConfiguration(config);
 			}
 
 			// Load the vote listeners.
