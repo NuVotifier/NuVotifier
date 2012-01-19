@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Vex Software LLC
+ * Copyright (C) 2012 Vex Software LLC
  * This file is part of Votifier.
  * 
  * Votifier is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -151,6 +152,8 @@ public class VoteReceiver extends Thread {
 				writer.close();
 				in.close();
 				socket.close();
+			} catch (SocketException ignored) {
+				// Ignore SocketException
 			} catch (Exception ex) {
 				log.log(Level.WARNING, "Exception caught while receiving a vote notification", ex);
 			}
