@@ -7,14 +7,17 @@
 	<property name="src" location="./java"/>
 	<property name="build" location="./bin"/>
 	<property name="dist" location="./dist"/>
+    <property name="lib" location="./lib"/>
 	<property name="resources" location="./resources"/>
-	<property name="bukkit" location="./lib/craftbukkit-1.0.1-R1.jar"/>
+	<property name="bukkit" location="./lib/craftbukkit.jar"/>
+    <get src="http://dl.bukkit.org/latest-rb/craftbukkit.jar" dest="lib/craftbukkit.jar"/>
 	
 	<!-- Initializes the build by creating the build directory -->
 	<target name="init" depends="clean">
 		<tstamp/>
 		<mkdir dir="${build}"/>
 		<mkdir dir="${dist}"/>
+        <mkdir dir="$(lib)"/>
 	</target>
 	
 	<!-- Compiles the Java source code into bytecode -->
