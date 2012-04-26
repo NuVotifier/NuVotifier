@@ -17,7 +17,7 @@
 		<tstamp/>
 		<mkdir dir="${build}"/>
 		<mkdir dir="${dist}"/>
-		<mkdir dir="$(lib)"/>
+		<mkdir dir="${lib}"/>
 	</target>
 	
 	<!-- Compiles the Java source code into bytecode -->

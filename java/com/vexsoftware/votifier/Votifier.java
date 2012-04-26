@@ -43,7 +43,7 @@ import com.vexsoftware.votifier.net.VoteReceiver;
 public class Votifier extends JavaPlugin {
 
 	/** The current Votifier version. */
-	public static final String VERSION = "1.6";
+	public static final String VERSION = "1.7";
 
 	/** The logger instance. */
 	private static final Logger log = Logger.getLogger("Votifier");

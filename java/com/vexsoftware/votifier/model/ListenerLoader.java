@@ -30,6 +30,9 @@ public class ListenerLoader {
 		// Load the vote listener instances.
 		ClassLoader loader = new URLClassLoader(new URL[] { dir.toURI().toURL() }, VoteListener.class.getClassLoader());
 		for (File file : dir.listFiles()) {
+			if (!file.getName().endsWith(".class")) {
+				continue; // Only load class files!
+			}
 			String name = file.getName().substring(0, file.getName().lastIndexOf("."));
 			Class<?> clazz = loader.loadClass(name);
 			Object object = clazz.newInstance();
