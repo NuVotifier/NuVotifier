@@ -142,7 +142,7 @@ public class Votifier extends JavaPlugin {
 			}
 		}
 		catch ( Exception ex ) {
-			log( Level.SEVERE, "Error reading configuration file or RSA keys", ex );
+			log( Level.SEVERE, "Error creating/reading RSA keys", ex );
 			gracefulExit();
 			return;
 		}
