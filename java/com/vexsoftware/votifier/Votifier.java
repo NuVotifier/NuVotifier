@@ -62,7 +62,7 @@ public class Votifier extends JavaPlugin {
 
 	/** The RSA key pair. */
 	private KeyPair						keyPair;
-	
+
 	/** Debug mode flag */
 	private boolean						debug;
 
@@ -81,14 +81,16 @@ public class Votifier extends JavaPlugin {
 		String listenerDirectory = getDataFolder() + "/listeners";
 
 		/*
-		 * Use IP address from server.properties as a default for configurations. Do not use
-		 * InetAddress.getLocalHost() as it most likely will return the main server address
-		 * instead of the address assigned to the server. 
+		 * Use IP address from server.properties as a default for configurations. Do not use InetAddress.getLocalHost() as it
+		 * most likely will return the main server address instead of the address assigned to the server.
 		 */
 		String hostAddr = Bukkit.getServer().getIp();
 		if ( hostAddr == null || hostAddr.length() == 0 )
 			hostAddr = "0.0.0.0";
 
+		/*
+		 * Create configuration file if it does not exists; otherwise, load it
+		 */
 		if ( !config.exists() ) {
 			try {
 				// First time run - do some initialization.
@@ -113,35 +115,38 @@ public class Votifier extends JavaPlugin {
 
 				cfg.set( "listener_folder", listenerDirectory );
 				cfg.save( config );
-
-				// Generate the RSA key pair.
-				rsaDirectory.mkdir();
-				new File( listenerDirectory ).mkdir();
-				keyPair = RSAKeygen.generate( 2048 );
-				if ( keyPair == null )
-					return;
-
-				RSAIO.save( rsaDirectory, keyPair );
 			}
 			catch ( Exception ex ) {
-				log( Level.SEVERE, "Error creating configuration file or RSA keys", ex );
+				log( Level.SEVERE, "Error creating configuration file", ex );
 				gracefulExit();
 				return;
 			}
 		}
 		else {
-			try {
-				// Load configuration.
-				keyPair = RSAIO.load( rsaDirectory );
-				cfg = YamlConfiguration.loadConfiguration( config );
-			}
-			catch ( Exception ex ) {
-				log( Level.SEVERE, "Error reading configuration file or RSA keys", ex );
-				gracefulExit();
-				return;
-			}
+			cfg = YamlConfiguration.loadConfiguration( config );
 		}
 
+		/*
+		 * Create RSA directory and keys if it does not exist; otherwise, read keys.
+		 */
+		try {
+			if ( !rsaDirectory.exists() ) {
+				logInfo( "Could not find RSA directory, creating directory and a new set of RSA keys!" );
+				rsaDirectory.mkdir();
+				new File( listenerDirectory ).mkdir();
+				keyPair = RSAKeygen.generate( 2048 );
+				RSAIO.save( rsaDirectory, keyPair );
+			}
+			else {
+				keyPair = RSAIO.load( rsaDirectory );
+			}
+		}
+		catch ( Exception ex ) {
+			log( Level.SEVERE, "Error reading configuration file or RSA keys", ex );
+			gracefulExit();
+			return;
+		}
+		
 		// Load the vote listeners.
 		listenerDirectory = cfg.getString( "listener_folder" );
 		listeners.addAll( ListenerLoader.load( listenerDirectory ) );
@@ -266,7 +271,7 @@ public class Votifier extends JavaPlugin {
 		logger.log( level, logPrefix + msg, ex );
 	}
 
-	
+
 	public boolean isDebug() {
 		return debug;
 	}
