@@ -30,22 +30,23 @@ import java.util.logging.Logger;
  */
 public class RSAKeygen {
 
-	/** The logger instance. */
-	private static final Logger log = Logger.getLogger("RSAKeygen");
+    /** The logger instance. */
+    private static final Logger LOG = Logger.getLogger("Votifier");
 
-	/**
-	 * Generates an RSA key pair.
-	 * 
-	 * @param bits
-	 *            The amount of bits
-	 * @return The key pair
-	 */
-	public static KeyPair generate(int bits) throws Exception {
-		log.info("Votifier is generating an RSA key pair...");
-		KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
-		RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(bits, RSAKeyGenParameterSpec.F4);
-		keygen.initialize(spec);
-		return keygen.generateKeyPair();
-	}
+    /**
+     * Generates an RSA key pair.
+     * 
+     * @param bits
+     *            The amount of bits
+     * @return The key pair
+     */
+    public static KeyPair generate(int bits) throws Exception {
+	LOG.info("Votifier is generating an RSA key pair...");
+	KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
+	RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(bits,
+		RSAKeyGenParameterSpec.F4);
+	keygen.initialize(spec);
+	return keygen.generateKeyPair();
+    }
 
 }

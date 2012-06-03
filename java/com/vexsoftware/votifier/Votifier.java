@@ -18,16 +18,14 @@
 
 package com.vexsoftware.votifier;
 
-import java.io.File;
+import java.io.*;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import java.util.logging.*;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import com.vexsoftware.votifier.crypto.RSAIO;
 import com.vexsoftware.votifier.crypto.RSAKeygen;
 import com.vexsoftware.votifier.model.ListenerLoader;
@@ -42,118 +40,191 @@ import com.vexsoftware.votifier.net.VoteReceiver;
  */
 public class Votifier extends JavaPlugin {
 
-	/** The current Votifier version. */
-	public static final String VERSION = "1.7";
+    /** The current Votifier version. */
+    public static final String VERSION = "1.8";
 
-	/** The logger instance. */
-	private static final Logger log = Logger.getLogger("Votifier");
+    /** The logger instance. */
+    private static final Logger LOG = Logger.getLogger("Votifier");
 
-	/** The Votifier instance. */
-	private static Votifier instance;
+    /** Log entry prefix */
+    private static final String logPrefix = "[Votifier] ";
 
-	/** The vote listeners. */
-	private final List<VoteListener> listeners = new ArrayList<VoteListener>();
+    /** The Votifier instance. */
+    private static Votifier instance;
 
-	/** The vote receiver. */
-	private VoteReceiver voteReceiver;
+    /** The vote listeners. */
+    private final List<VoteListener> listeners = new ArrayList<VoteListener>();
 
-	/** The RSA key pair. */
-	private KeyPair keyPair;
+    /** The vote receiver. */
+    private VoteReceiver voteReceiver;
 
-	@Override
-	public void onEnable() {
-		try {
-			Votifier.instance = this;
+    /** The RSA key pair. */
+    private KeyPair keyPair;
 
-			// Handle configuration.
-			if (!getDataFolder().exists()) {
-				getDataFolder().mkdir();
-			}
-			File config = new File(getDataFolder() + "/config.yml");
-			YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
-			File rsaDirectory = new File(getDataFolder() + "/rsa");
-			String listenerDirectory = getDataFolder() + "/listeners";
-			if (!config.exists()) {
-				// First time run - do some initialization.
-				log.info("Configuring Votifier for the first time...");
+    /** Debug mode flag */
+    private boolean debug;
 
-				// Initialize the configuration file.
-				config.createNewFile();
-				cfg.set("host", "0.0.0.0");
-				cfg.set("port", 8192);
-				cfg.set("listener_folder", listenerDirectory);
-				cfg.save(config);
+    /**
+     * Attach custom log filter to logger.
+     */
+    static {
+	LOG.setFilter(new LogFilter(logPrefix));
+    }
 
-				// Generate the RSA key pair.
-				rsaDirectory.mkdir();
-				new File(listenerDirectory).mkdir();
-				keyPair = RSAKeygen.generate(2048);
-				RSAIO.save(rsaDirectory, keyPair);
-			} else {
-				// Load configuration.
-				keyPair = RSAIO.load(rsaDirectory);
-				cfg = YamlConfiguration.loadConfiguration(config);
-			}
+    @Override
+    public void onEnable() {
+	Votifier.instance = this;
 
-			// Load the vote listeners.
-			listenerDirectory = cfg.getString("listener_folder");
-			listeners.addAll(ListenerLoader.load(listenerDirectory));
-
-			// Initialize the receiver.
-			String host = cfg.getString("host", "0.0.0.0");
-			int port = cfg.getInt("port", 8192);
-			voteReceiver = new VoteReceiver(host, port);
-			voteReceiver.start();
-
-			log.info("Votifier enabled.");
-		} catch (Exception ex) {
-			log.log(Level.SEVERE, "Unable to enable Votifier.", ex);
-		}
+	// Handle configuration.
+	if (!getDataFolder().exists()) {
+	    getDataFolder().mkdir();
 	}
+	File config = new File(getDataFolder() + "/config.yml");
+	YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
+	File rsaDirectory = new File(getDataFolder() + "/rsa");
+	String listenerDirectory = getDataFolder() + "/listeners";
 
-	@Override
-	public void onDisable() {
-		// Interrupt the vote receiver.
-		if (voteReceiver != null) {
-			voteReceiver.shutdown();
-		}
-		log.info("Votifier disabled.");
-	}
-
-	/**
-	 * Gets the instance.
-	 * 
-	 * @return The instance
+	/*
+	 * Use IP address from server.properties as a default for
+	 * configurations. Do not use InetAddress.getLocalHost() as it most
+	 * likely will return the main server address instead of the address
+	 * assigned to the server.
 	 */
-	public static Votifier getInstance() {
-		return instance;
+	String hostAddr = Bukkit.getServer().getIp();
+	if (hostAddr == null || hostAddr.length() == 0)
+	    hostAddr = "0.0.0.0";
+
+	/*
+	 * Create configuration file if it does not exists; otherwise, load it
+	 */
+	if (!config.exists()) {
+	    try {
+		// First time run - do some initialization.
+		LOG.info("Configuring Votifier for the first time...");
+
+		// Initialize the configuration file.
+		config.createNewFile();
+
+		cfg.set("host", hostAddr);
+		cfg.set("port", 8192);
+		cfg.set("debug", false);
+
+		/*
+		 * Remind hosted server admins to be sure they have the right
+		 * port number.
+		 */
+		LOG.info("------------------------------------------------------------------------------");
+		LOG.info("Assigning Votifier to listen on port 8192. If you are hosting Craftbukkit on a");
+		LOG.info("shared server please check with your hosting provider to verify that this port");
+		LOG.info("is available for your use. Chances are that your hosting provider will assign");
+		LOG.info("a different port, which you need to specify in config.yml");
+		LOG.info("------------------------------------------------------------------------------");
+
+		cfg.set("listener_folder", listenerDirectory);
+		cfg.save(config);
+	    } catch (Exception ex) {
+		LOG.log(Level.SEVERE, "Error creating configuration file", ex);
+		gracefulExit();
+		return;
+	    }
+	} else {
+	    // Load configuration.
+	    cfg = YamlConfiguration.loadConfiguration(config);
 	}
 
-	/**
-	 * Gets the listeners.
-	 * 
-	 * @return The listeners
+	/*
+	 * Create RSA directory and keys if it does not exist; otherwise, read
+	 * keys.
 	 */
-	public List<VoteListener> getListeners() {
-		return listeners;
+	try {
+	    if (!rsaDirectory.exists()) {
+		rsaDirectory.mkdir();
+		new File(listenerDirectory).mkdir();
+		keyPair = RSAKeygen.generate(2048);
+		RSAIO.save(rsaDirectory, keyPair);
+	    } else {
+		keyPair = RSAIO.load(rsaDirectory);
+	    }
+	} catch (Exception ex) {
+	    LOG.log(Level.SEVERE,
+		    "Error reading configuration file or RSA keys", ex);
+	    gracefulExit();
+	    return;
 	}
 
-	/**
-	 * Gets the vote receiver.
-	 * 
-	 * @return The vote receiver
-	 */
-	public VoteReceiver getVoteReceiver() {
-		return voteReceiver;
-	}
+	// Load the vote listeners.
+	listenerDirectory = cfg.getString("listener_folder");
+	listeners.addAll(ListenerLoader.load(listenerDirectory));
 
-	/**
-	 * Gets the keyPair.
-	 * 
-	 * @return The keyPair
-	 */
-	public KeyPair getKeyPair() {
-		return keyPair;
+	// Initialize the receiver.
+	String host = cfg.getString("host", hostAddr);
+	int port = cfg.getInt("port", 8192);
+	debug = cfg.getBoolean("debug", false);
+	if (debug)
+	    LOG.info("DEBUG mode enabled!");
+
+	try {
+	    voteReceiver = new VoteReceiver(this, host, port);
+	    voteReceiver.start();
+
+	    LOG.info("Votifier enabled.");
+	} catch (Exception ex) {
+	    gracefulExit();
+	    return;
 	}
+    }
+
+    @Override
+    public void onDisable() {
+	// Interrupt the vote receiver.
+	if (voteReceiver != null) {
+	    voteReceiver.shutdown();
+	}
+	LOG.info("Votifier disabled.");
+    }
+
+    private void gracefulExit() {
+	LOG.log(Level.SEVERE, "Votifier did not initialize properly!");
+    }
+
+    /**
+     * Gets the instance.
+     * 
+     * @return The instance
+     */
+    public static Votifier getInstance() {
+	return instance;
+    }
+
+    /**
+     * Gets the listeners.
+     * 
+     * @return The listeners
+     */
+    public List<VoteListener> getListeners() {
+	return listeners;
+    }
+
+    /**
+     * Gets the vote receiver.
+     * 
+     * @return The vote receiver
+     */
+    public VoteReceiver getVoteReceiver() {
+	return voteReceiver;
+    }
+
+    /**
+     * Gets the keyPair.
+     * 
+     * @return The keyPair
+     */
+    public KeyPair getKeyPair() {
+	return keyPair;
+    }
+
+    public boolean isDebug() {
+	return debug;
+    }
 
 }
