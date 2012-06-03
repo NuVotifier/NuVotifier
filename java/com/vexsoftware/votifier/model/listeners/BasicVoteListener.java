@@ -30,12 +30,11 @@ import com.vexsoftware.votifier.model.VoteListener;
  */
 public class BasicVoteListener implements VoteListener {
 
-	/** The logger instance. */
-	private Logger log = Logger.getLogger("BasicVoteListener");
+    /** The logger instance. */
+    private Logger log = Logger.getLogger("BasicVoteListener");
 
-	@Override
-	public void voteMade(Vote vote) {
-		log.info("Received: " + vote);
-	}
+    public void voteMade(Vote vote) {
+	log.info("Received: " + vote);
+    }
 
 }
