@@ -26,6 +26,14 @@ public class ListenerLoader {
 	List<VoteListener> listeners = new ArrayList<VoteListener>();
 	File dir = new File(directory);
 
+	// Verify configured vote listener directory exists
+	if (!dir.exists()) {
+	    LOG.log(Level.WARNING,
+		    "No listeners loaded! Cannot find listener directory '"
+			    + dir + "' ");
+	    return listeners;
+	}
+
 	// Load the vote listener instances.
 	ClassLoader loader;
 	try {
