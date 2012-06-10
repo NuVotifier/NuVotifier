@@ -82,7 +82,8 @@ public class Votifier extends JavaPlugin {
 	File config = new File(getDataFolder() + "/config.yml");
 	YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
 	File rsaDirectory = new File(getDataFolder() + "/rsa");
-	String listenerDirectory = getDataFolder() + "/listeners";
+	// Replace to remove a bug with Windows paths - SmilingDevil
+	String listenerDirectory = getDataFolder().toString().replace("\\", "/") + "/listeners";
 
 	/*
 	 * Use IP address from server.properties as a default for
