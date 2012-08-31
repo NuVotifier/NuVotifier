@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.vexsoftware</groupId>
     <artifactId>votifier</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
     <name>Votifier</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

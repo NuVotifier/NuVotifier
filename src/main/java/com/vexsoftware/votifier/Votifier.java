@@ -40,9 +40,6 @@ import com.vexsoftware.votifier.net.VoteReceiver;
  */
 public class Votifier extends JavaPlugin {
 
-	/** The current Votifier version. */
-	public static final String VERSION = "1.8";
-
 	/** The logger instance. */
 	private static final Logger LOG = Logger.getLogger("Votifier");
 
@@ -51,6 +48,9 @@ public class Votifier extends JavaPlugin {
 
 	/** The Votifier instance. */
 	private static Votifier instance;
+
+	/** The current Votifier version. */
+	private String version;
 
 	/** The vote listeners. */
 	private final List<VoteListener> listeners = new ArrayList<VoteListener>();
@@ -74,6 +74,9 @@ public class Votifier extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		Votifier.instance = this;
+
+		// Set the plugin version.
+		version = getDescription().getVersion();
 
 		// Handle configuration.
 		if (!getDataFolder().exists()) {
@@ -196,6 +199,15 @@ public class Votifier extends JavaPlugin {
 	 */
 	public static Votifier getInstance() {
 		return instance;
+	}
+
+	/**
+	 * Gets the version.
+	 * 
+	 * @return The version
+	 */
+	public String getVersion() {
+		return version;
 	}
 
 	/**
