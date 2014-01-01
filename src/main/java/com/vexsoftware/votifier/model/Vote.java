@@ -69,7 +69,7 @@ public class Vote {
 	 *            The new username
 	 */
 	public void setUsername(String username) {
-		this.username = username;
+		this.username = username.length() <= 16 ? username : username.substring(0, 16);
 	}
 
 	/**
