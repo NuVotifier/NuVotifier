@@ -19,18 +19,30 @@
 package com.vexsoftware.votifier;
 
 import java.io.*;
+import java.net.URL;
 import java.security.KeyPair;
-import java.util.ArrayList;
-import java.util.List;
+import java.security.PublicKey;
+import java.util.*;
 import java.util.logging.*;
+
+import com.vexsoftware.votifier.net.VoteInboundHandler;
+import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
+import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.vexsoftware.votifier.crypto.RSAIO;
 import com.vexsoftware.votifier.crypto.RSAKeygen;
 import com.vexsoftware.votifier.model.ListenerLoader;
 import com.vexsoftware.votifier.model.VoteListener;
-import com.vexsoftware.votifier.net.VoteReceiver;
 
 /**
  * The main Votifier plugin class.
@@ -55,14 +67,20 @@ public class Votifier extends JavaPlugin {
 	/** The vote listeners. */
 	private final List<VoteListener> listeners = new ArrayList<VoteListener>();
 
-	/** The vote receiver. */
-	private VoteReceiver voteReceiver;
+	/** The server channel. */
+	private Channel serverChannel;
+
+	/** The event group handling the channel. */
+	private NioEventLoopGroup serverGroup;
 
 	/** The RSA key pair. */
 	private KeyPair keyPair;
 
 	/** Debug mode flag */
 	private boolean debug;
+
+	/** Keys used for websites. */
+	private Map<String, PublicKey> keys = new HashMap<>();
 
 	/**
 	 * Attach custom log filter to logger.
@@ -113,6 +131,7 @@ public class Votifier extends JavaPlugin {
 				cfg.set("host", hostAddr);
 				cfg.set("port", 8192);
 				cfg.set("debug", false);
+				cfg.set("websites", Collections.emptyMap());
 
 				/*
 				 * Remind hosted server admins to be sure they have the right
@@ -161,6 +180,28 @@ public class Votifier extends JavaPlugin {
 		listenerDirectory = cfg.getString("listener_folder");
 		listeners.addAll(ListenerLoader.load(listenerDirectory));
 
+		// Load Votifier keys.
+		ConfigurationSection websiteSection = cfg.getConfigurationSection("websites");
+
+		if (websiteSection != null) {
+			Map<String, Object> websites = websiteSection.getValues(false);
+			for (Map.Entry<String, Object> website : websites.entrySet()) {
+				try {
+					keys.put(website.getKey(), RSAIO.loadPublicKey(new URL((String) website.getValue())));
+					if (!(website.getKey().startsWith("https://") || website.getKey().startsWith("file://"))) {
+						LOG.warning("You are loading a public key (" + website.getKey() + ") over a non-SSL connection. This is insecure!");
+					}
+					LOG.info("Loaded public key for website: " + website.getKey());
+				} catch (Exception exception) {
+					LOG.log(Level.WARNING,
+							"Error loading public key for website: " + website.getKey(),
+							exception);
+				}
+			}
+		} else {
+			LOG.warning("No websites are listed in your configuration.");
+		}
+
 		// Initialize the receiver.
 		String host = cfg.getString("host", hostAddr);
 		int port = cfg.getInt("port", 8192);
@@ -168,23 +209,30 @@ public class Votifier extends JavaPlugin {
 		if (debug)
 			LOG.info("DEBUG mode enabled!");
 
-		try {
-			voteReceiver = new VoteReceiver(this, host, port);
-			voteReceiver.start();
+		serverGroup = new NioEventLoopGroup(1);
+		serverChannel = new ServerBootstrap()
+				.channel(NioServerSocketChannel.class)
+				.group(serverGroup)
+				.childHandler(new ChannelInitializer<NioSocketChannel>() {
+					@Override
+					protected void initChannel(NioSocketChannel channel) throws Exception {
+						channel.attr(VotifierSession.KEY).set(new VotifierSession());
+						channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
+						channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator());
+						channel.pipeline().addLast("voteHandler", new VoteInboundHandler());
+					}
+				})
+				.bind(host, port)
+				.channel();
 
-			LOG.info("Votifier enabled.");
-		} catch (Exception ex) {
-			gracefulExit();
-			return;
-		}
+		LOG.info("Votifier enabled.");
 	}
 
 	@Override
 	public void onDisable() {
-		// Interrupt the vote receiver.
-		if (voteReceiver != null) {
-			voteReceiver.shutdown();
-		}
+		// Shut down the network handlers.
+		serverChannel.close();
+		serverGroup.shutdownGracefully();
 		LOG.info("Votifier disabled.");
 	}
 
@@ -220,15 +268,6 @@ public class Votifier extends JavaPlugin {
 	}
 
 	/**
-	 * Gets the vote receiver.
-	 * 
-	 * @return The vote receiver
-	 */
-	public VoteReceiver getVoteReceiver() {
-		return voteReceiver;
-	}
-
-	/**
 	 * Gets the keyPair.
 	 * 
 	 * @return The keyPair
@@ -239,6 +278,10 @@ public class Votifier extends JavaPlugin {
 
 	public boolean isDebug() {
 		return debug;
+	}
+
+	public Map<String, PublicKey> getKeys() {
+		return keys;
 	}
 
 }

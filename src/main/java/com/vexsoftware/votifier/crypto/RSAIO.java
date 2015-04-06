@@ -18,9 +18,13 @@
 
 package com.vexsoftware.votifier.crypto;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URL;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -32,8 +36,6 @@ import javax.xml.bind.DatatypeConverter;
 
 /**
  * Static utility methods for saving and loading RSA key pairs.
- * 
- * @author Blake Beaupain
  */
 public class RSAIO {
 
@@ -81,21 +83,15 @@ public class RSAIO {
 	public static KeyPair load(File directory) throws Exception {
 		// Read the public key file.
 		File publicKeyFile = new File(directory + "/public.key");
-		FileInputStream in = new FileInputStream(directory + "/public.key");
-		byte[] encodedPublicKey = new byte[(int) publicKeyFile.length()];
-		in.read(encodedPublicKey);
+		byte[] encodedPublicKey = FileUtils.readFileToByteArray(publicKeyFile);
 		encodedPublicKey = DatatypeConverter.parseBase64Binary(new String(
 				encodedPublicKey));
-		in.close();
 
 		// Read the private key file.
 		File privateKeyFile = new File(directory + "/private.key");
-		in = new FileInputStream(directory + "/private.key");
-		byte[] encodedPrivateKey = new byte[(int) privateKeyFile.length()];
-		in.read(encodedPrivateKey);
+		byte[] encodedPrivateKey = FileUtils.readFileToByteArray(privateKeyFile);
 		encodedPrivateKey = DatatypeConverter.parseBase64Binary(new String(
 				encodedPrivateKey));
-		in.close();
 
 		// Instantiate and return the key pair.
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -106,6 +102,23 @@ public class RSAIO {
 				encodedPrivateKey);
 		PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
 		return new KeyPair(publicKey, privateKey);
+	}
+
+	/**
+	 * Loads an RSA public key from a URL.
+	 *
+	 * @param url
+	 *            The URL that has the public key
+	 * @return
+	 *            The public key
+	 * @throws Exception
+	 *            If an error occurs
+	 */
+	public static PublicKey loadPublicKey(URL url) throws Exception {
+		String publicKey = new String(IOUtils.toByteArray(url), "UTF-8").replaceAll("(-+BEGIN PUBLIC KEY-+\\r?\\n|-+END PUBLIC KEY-+\\r?\\n?)", "");
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(DatatypeConverter.parseBase64Binary(publicKey));
+		return keyFactory.generatePublic(publicKeySpec);
 	}
 
 }

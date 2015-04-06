@@ -23,6 +23,30 @@
             <artifactId>bukkit</artifactId>
             <version>1.7.2-R0.1</version>
             <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Netty Dependency -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.0.23.Final</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <!-- JSON Dependency -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20141113</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Apache Commons-IO -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -38,6 +62,32 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>io.netty</pattern>
+                            <shadedPattern>com.vexsoftware.votifier.netty</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.json</pattern>
+                            <shadedPattern>com.vexsoftware.votifier.json</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
             </plugin>
             <!-- Jar Plugin -->
