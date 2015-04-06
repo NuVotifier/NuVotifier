@@ -87,6 +87,10 @@
                             <pattern>org.json</pattern>
                             <shadedPattern>com.vexsoftware.votifier.json</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>org.apache.commons.io</pattern>
+                            <shadedPattern>com.vexsoftware.votifier.commons.io</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
             </plugin>
