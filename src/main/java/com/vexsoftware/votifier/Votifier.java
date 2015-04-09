@@ -31,6 +31,8 @@ import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
 import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -210,7 +212,8 @@ public class Votifier extends JavaPlugin {
 			LOG.info("DEBUG mode enabled!");
 
 		serverGroup = new NioEventLoopGroup(1);
-		serverChannel = new ServerBootstrap()
+
+		new ServerBootstrap()
 				.channel(NioServerSocketChannel.class)
 				.group(serverGroup)
 				.childHandler(new ChannelInitializer<NioSocketChannel>() {
@@ -223,15 +226,24 @@ public class Votifier extends JavaPlugin {
 					}
 				})
 				.bind(host, port)
-				.channel();
-
-		LOG.info("Votifier enabled.");
+				.addListener(new ChannelFutureListener() {
+					@Override
+					public void operationComplete(ChannelFuture future) throws Exception {
+						if (future.isSuccess()) {
+							serverChannel = future.channel();
+							LOG.info("Votifier enabled.");
+						} else {
+							LOG.log(Level.SEVERE, "Votifier was not able to bind to " + future.channel().localAddress(), future.cause());
+						}
+					}
+				});
 	}
 
 	@Override
 	public void onDisable() {
 		// Shut down the network handlers.
-		serverChannel.close();
+		if (serverChannel != null)
+			serverChannel.close();
 		serverGroup.shutdownGracefully();
 		LOG.info("Votifier disabled.");
 	}
