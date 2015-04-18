@@ -81,6 +81,9 @@ public class Votifier extends JavaPlugin {
 	/** Debug mode flag */
 	private boolean debug;
 
+	/** Token used for verifying votes. */
+	private String token;
+
 	/** Keys used for websites. */
 	private Map<String, PublicKey> keys = new HashMap<>();
 
@@ -146,6 +149,13 @@ public class Votifier extends JavaPlugin {
 				LOG.info("a different port, which you need to specify in config.yml");
 				LOG.info("------------------------------------------------------------------------------");
 
+				String token = TokenUtil.newToken();
+				cfg.set("token", token);
+				LOG.info("Your Votifier token is " + token + ".");
+				LOG.info("You will need to provide this token when you submit your server to a voting");
+				LOG.info("list.");
+				LOG.info("------------------------------------------------------------------------------");
+
 				cfg.set("listener_folder", listenerDirectory);
 				cfg.save(config);
 			} catch (Exception ex) {
@@ -208,6 +218,7 @@ public class Votifier extends JavaPlugin {
 		String host = cfg.getString("host", hostAddr);
 		int port = cfg.getInt("port", 8192);
 		debug = cfg.getBoolean("debug", false);
+		token = cfg.getString("token");
 		if (debug)
 			LOG.info("DEBUG mode enabled!");
 
@@ -296,4 +307,7 @@ public class Votifier extends JavaPlugin {
 		return keys;
 	}
 
+	public String getToken() {
+		return token;
+	}
 }

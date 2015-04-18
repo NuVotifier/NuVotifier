@@ -2,18 +2,15 @@ package com.vexsoftware.votifier.net;
 
 import io.netty.util.AttributeKey;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
+import static com.vexsoftware.votifier.TokenUtil.newToken;
 
 public class VotifierSession {
     public static final AttributeKey<VotifierSession> KEY = AttributeKey.valueOf("votifier_session");
-
-    private static final SecureRandom RANDOM = new SecureRandom();
     private ProtocolVersion version = ProtocolVersion.UNKNOWN;
     private final String challenge;
 
     public VotifierSession() {
-        challenge = new BigInteger(130, RANDOM).toString(32);
+        challenge = newToken();
     }
 
     public void setVersion(ProtocolVersion version) {

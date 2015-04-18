@@ -27,12 +27,18 @@ public class VotifierProtocol2VoteDecoder extends MessageToMessageDecoder<String
             throw new RuntimeException("Challenge is not valid");
         }
 
-        // Verify this key belongs to the service.
-        JSONObject votePayload = new JSONObject(voteMessage.getString("payload"));
-        PublicKey key = Votifier.getInstance().getKeys().get(votePayload.getString("serviceName"));
+        // Verify that the service exists.
+        PublicKey key = Votifier.getInstance().getKeys().get(voteMessage.getString("serviceName"));
 
         if (key == null) {
-            throw new RuntimeException("Unknown service '" + votePayload.getString("serviceName") + "'");
+            throw new RuntimeException("Unknown service '" + voteMessage.getString("serviceName") + "'");
+        }
+
+        // Verify that the service got a token from us.
+        String token = voteMessage.getString("token");
+
+        if (token == null || !token.equals(Votifier.getInstance().getToken())) {
+            throw new RuntimeException("Got invalid token " + token + ", wanted " + Votifier.getInstance().getToken());
         }
 
         // Verify signature.
@@ -46,8 +52,11 @@ public class VotifierProtocol2VoteDecoder extends MessageToMessageDecoder<String
             throw new RuntimeException("Signature is not valid");
         }
 
+        //
+        JSONObject votePayload = new JSONObject(voteMessage.getString("payload"));
+
         Vote vote = new Vote();
-        vote.setServiceName(votePayload.getString("serviceName"));
+        vote.setServiceName(voteMessage.getString("serviceName"));
         vote.setUsername(votePayload.getString("username"));
         vote.setAddress(votePayload.getString("address"));
         vote.setTimeStamp(votePayload.getString("timestamp"));
