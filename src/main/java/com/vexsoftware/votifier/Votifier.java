@@ -19,12 +19,12 @@
 package com.vexsoftware.votifier;
 
 import java.io.*;
-import java.net.URL;
+import java.security.Key;
 import java.security.KeyPair;
-import java.security.PublicKey;
 import java.util.*;
 import java.util.logging.*;
 
+import com.vexsoftware.votifier.crypto.KeyCreator;
 import com.vexsoftware.votifier.net.VoteInboundHandler;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
@@ -81,11 +81,8 @@ public class Votifier extends JavaPlugin {
 	/** Debug mode flag */
 	private boolean debug;
 
-	/** Token used for verifying votes. */
-	private String token;
-
 	/** Keys used for websites. */
-	private Map<String, PublicKey> keys = new HashMap<>();
+	private Map<String, Key> tokens = new HashMap<>();
 
 	/**
 	 * Attach custom log filter to logger.
@@ -136,7 +133,6 @@ public class Votifier extends JavaPlugin {
 				cfg.set("host", hostAddr);
 				cfg.set("port", 8192);
 				cfg.set("debug", false);
-				cfg.set("websites", Collections.emptyMap());
 
 				/*
 				 * Remind hosted server admins to be sure they have the right
@@ -150,8 +146,9 @@ public class Votifier extends JavaPlugin {
 				LOG.info("------------------------------------------------------------------------------");
 
 				String token = TokenUtil.newToken();
-				cfg.set("token", token);
-				LOG.info("Your Votifier token is " + token + ".");
+				ConfigurationSection tokenSection = cfg.createSection("tokens");
+				tokenSection.set("default", token);
+				LOG.info("Your default Votifier token is " + token + ".");
 				LOG.info("You will need to provide this token when you submit your server to a voting");
 				LOG.info("list.");
 				LOG.info("------------------------------------------------------------------------------");
@@ -183,7 +180,7 @@ public class Votifier extends JavaPlugin {
 			}
 		} catch (Exception ex) {
 			LOG.log(Level.SEVERE,
-					"Error reading configuration file or RSA keys", ex);
+					"Error reading configuration file or RSA tokens", ex);
 			gracefulExit();
 			return;
 		}
@@ -192,23 +189,14 @@ public class Votifier extends JavaPlugin {
 		listenerDirectory = cfg.getString("listener_folder");
 		listeners.addAll(ListenerLoader.load(listenerDirectory));
 
-		// Load Votifier keys.
-		ConfigurationSection websiteSection = cfg.getConfigurationSection("websites");
+		// Load Votifier tokens.
+		ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
 
-		if (websiteSection != null) {
-			Map<String, Object> websites = websiteSection.getValues(false);
+		if (tokenSection != null) {
+			Map<String, Object> websites = tokenSection.getValues(false);
 			for (Map.Entry<String, Object> website : websites.entrySet()) {
-				try {
-					keys.put(website.getKey(), RSAIO.loadPublicKey(new URL((String) website.getValue())));
-					if (!(website.getKey().startsWith("https://") || website.getKey().startsWith("file://"))) {
-						LOG.warning("You are loading a public key (" + website.getKey() + ") over a non-SSL connection. This is insecure!");
-					}
-					LOG.info("Loaded public key for website: " + website.getKey());
-				} catch (Exception exception) {
-					LOG.log(Level.WARNING,
-							"Error loading public key for website: " + website.getKey(),
-							exception);
-				}
+				tokens.put(website.getKey(), KeyCreator.createKeyFrom(website.getValue().toString()));
+				LOG.info("Loaded token for website: " + website.getKey());
 			}
 		} else {
 			LOG.warning("No websites are listed in your configuration.");
@@ -218,7 +206,6 @@ public class Votifier extends JavaPlugin {
 		String host = cfg.getString("host", hostAddr);
 		int port = cfg.getInt("port", 8192);
 		debug = cfg.getBoolean("debug", false);
-		token = cfg.getString("token");
 		if (debug)
 			LOG.info("DEBUG mode enabled!");
 
@@ -303,11 +290,7 @@ public class Votifier extends JavaPlugin {
 		return debug;
 	}
 
-	public Map<String, PublicKey> getKeys() {
-		return keys;
-	}
-
-	public String getToken() {
-		return token;
+	public Map<String, Key> getTokens() {
+		return tokens;
 	}
 }

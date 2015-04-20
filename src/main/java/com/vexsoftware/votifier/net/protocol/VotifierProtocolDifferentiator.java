@@ -23,25 +23,15 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
         // Determine the number of bytes that are available.
         int readable = buf.readableBytes();
         buf.retain();
+        buf.readerIndex(0);
+        short readMagic = buf.readShort();
+
+        // Reset reader index again
+        buf.readerIndex(0);
 
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
-        if (readable == 256) {
-            // 256 bytes = Protocol v1 Vote Message
-            ctx.pipeline().addAfter("protocolDifferentiator", "protocol1Handler", new VotifierProtocol1Decoder());
-            session.setVersion(VotifierSession.ProtocolVersion.ONE);
-            ctx.pipeline().remove(this);
-        } else if (readable > 0) {
-            buf.readerIndex(0);
-            short readMagic = buf.readShort();
-
-            if (readMagic != PROTOCOL_2_MAGIC) {
-                throw new CorruptedFrameException("Expected Protocol v2 magic 0x733A (29498) but got " + readMagic);
-            }
-
-            // Reset reader index again
-            buf.readerIndex(0);
-
+        if (readMagic == PROTOCOL_2_MAGIC) {
             // Short 0x733A + Message = Protocol v2 Vote
             ctx.pipeline().addAfter("protocolDifferentiator", "protocol2LengthDecoder", new LengthFieldBasedFrameDecoder(1024, 2, 2, 0, 4));
             ctx.pipeline().addAfter("protocol2LengthDecoder", "protocol2StringDecoder", new StringDecoder(StandardCharsets.UTF_8));
@@ -49,6 +39,13 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
             ctx.pipeline().addAfter("protocol2VoteDecoder", "protocol2StringEncoder", new StringEncoder(StandardCharsets.UTF_8));
             session.setVersion(VotifierSession.ProtocolVersion.TWO);
             ctx.pipeline().remove(this);
+        } else if (readable == 256) {
+            // 256 bytes = Protocol v1 Vote Message
+            ctx.pipeline().addAfter("protocolDifferentiator", "protocol1Handler", new VotifierProtocol1Decoder());
+            session.setVersion(VotifierSession.ProtocolVersion.ONE);
+            ctx.pipeline().remove(this);
+        } else {
+            throw new CorruptedFrameException("Unrecognized protocol (missing 0x733A header or 256-byte v1 block)");
         }
     }
 }

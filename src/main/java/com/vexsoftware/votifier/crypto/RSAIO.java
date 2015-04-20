@@ -104,21 +104,4 @@ public class RSAIO {
 		return new KeyPair(publicKey, privateKey);
 	}
 
-	/**
-	 * Loads an RSA public key from a URL.
-	 *
-	 * @param url
-	 *            The URL that has the public key
-	 * @return
-	 *            The public key
-	 * @throws Exception
-	 *            If an error occurs
-	 */
-	public static PublicKey loadPublicKey(URL url) throws Exception {
-		String publicKey = new String(IOUtils.toByteArray(url), "UTF-8").replaceAll("(-+BEGIN PUBLIC KEY-+\\r?\\n|-+END PUBLIC KEY-+\\r?\\n?)", "");
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(DatatypeConverter.parseBase64Binary(publicKey));
-		return keyFactory.generatePublic(publicKeySpec);
-	}
-
 }

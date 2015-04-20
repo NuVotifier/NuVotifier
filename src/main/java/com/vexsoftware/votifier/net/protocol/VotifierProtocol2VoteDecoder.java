@@ -7,10 +7,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import org.json.JSONObject;
 
+import javax.crypto.Mac;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
-import java.security.Signature;
+import java.security.Key;
 import java.util.List;
 
 /**
@@ -27,36 +27,33 @@ public class VotifierProtocol2VoteDecoder extends MessageToMessageDecoder<String
             throw new RuntimeException("Challenge is not valid");
         }
 
-        // Verify that the service exists.
-        PublicKey key = Votifier.getInstance().getKeys().get(voteMessage.getString("serviceName"));
+        // Deserialize the payload.
+        JSONObject votePayload = new JSONObject(voteMessage.getString("payload"));
+
+        // Verify that we have keys available.
+        Key key = Votifier.getInstance().getTokens().get(votePayload.getString("serviceName"));
 
         if (key == null) {
-            throw new RuntimeException("Unknown service '" + voteMessage.getString("serviceName") + "'");
-        }
-
-        // Verify that the service got a token from us.
-        String token = voteMessage.getString("token");
-
-        if (token == null || !token.equals(Votifier.getInstance().getToken())) {
-            throw new RuntimeException("Got invalid token " + token + ", wanted " + Votifier.getInstance().getToken());
+            key = Votifier.getInstance().getTokens().get("default");
+            if (key == null) {
+                throw new RuntimeException("Unknown service '" + votePayload.getString("serviceName") + "'");
+            }
         }
 
         // Verify signature.
         String sigHash = voteMessage.getString("signature");
-        byte[] sigArray = DatatypeConverter.parseBase64Binary(sigHash);
-        Signature signature = Signature.getInstance("SHA256withRSA");
-        signature.initVerify(key);
-        signature.update(voteMessage.getString("payload").getBytes(StandardCharsets.UTF_8));
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(key);
+        mac.update(voteMessage.getString("payload").getBytes(StandardCharsets.UTF_8));
+        String computed = DatatypeConverter.printBase64Binary(mac.doFinal());
 
-        if (!signature.verify(sigArray)) {
-            throw new RuntimeException("Signature is not valid");
+        if (!sigHash.equals(computed)) {
+            throw new RuntimeException("Signature is not valid (invalid token?)");
         }
 
-        //
-        JSONObject votePayload = new JSONObject(voteMessage.getString("payload"));
-
+        // Create the vote.
         Vote vote = new Vote();
-        vote.setServiceName(voteMessage.getString("serviceName"));
+        vote.setServiceName(votePayload.getString("serviceName"));
         vote.setUsername(votePayload.getString("username"));
         vote.setAddress(votePayload.getString("address"));
         vote.setTimeStamp(votePayload.getString("timestamp"));
