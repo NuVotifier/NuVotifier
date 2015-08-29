@@ -14,8 +14,8 @@ A vote listener implements the `VoteListener` interface which contains an implem
 
 A basic vote listener looks something like this:
 
-    import com.vexsoftware.votifier.model.Vote;
-    import com.vexsoftware.votifier.model.VoteListener;
+    import Vote;
+    import VoteListener;
 
     public class BasicVoteListener implements VoteListener {
 
