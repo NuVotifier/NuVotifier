@@ -46,8 +46,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.vexsoftware.votifier.model.ListenerLoader;
-import com.vexsoftware.votifier.model.VoteListener;
 
 /**
  * The main Votifier plugin class.
@@ -62,9 +60,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 
 	/** The current Votifier version. */
 	private String version;
-
-	/** The vote listeners. */
-	private final List<VoteListener> listeners = new ArrayList<VoteListener>();
 
 	/** The server channel. */
 	private Channel serverChannel;
@@ -95,9 +90,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 		File config = new File(getDataFolder() + "/config.yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
 		File rsaDirectory = new File(getDataFolder() + "/rsa");
-		// Replace to remove a bug with Windows paths - SmilingDevil
-		String listenerDirectory = getDataFolder().toString()
-				.replace("\\", "/") + "/listeners";
 
 		/*
 		 * Use IP address from server.properties as a default for
@@ -142,8 +134,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 				getLogger().info("You will need to provide this token when you submit your server to a voting");
 				getLogger().info("list.");
 				getLogger().info("------------------------------------------------------------------------------");
-
-				cfg.set("listener_folder", listenerDirectory);
 				cfg.save(config);
 			} catch (Exception ex) {
 				getLogger().log(Level.SEVERE, "Error creating configuration file", ex);
@@ -162,7 +152,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 		try {
 			if (!rsaDirectory.exists()) {
 				rsaDirectory.mkdir();
-				new File(listenerDirectory).mkdir();
 				keyPair = RSAKeygen.generate(2048);
 				RSAIO.save(rsaDirectory, keyPair);
 			} else {
@@ -174,10 +163,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 			gracefulExit();
 			return;
 		}
-
-		// Load the vote listeners.
-		listenerDirectory = cfg.getString("listener_folder");
-		listeners.addAll(ListenerLoader.load(listenerDirectory));
 
 		// Load Votifier tokens.
 		ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
@@ -259,15 +244,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 		return version;
 	}
 
-	/**
-	 * Gets the listeners.
-	 * 
-	 * @return The listeners
-	 */
-	public List<VoteListener> getListeners() {
-		return listeners;
-	}
-
 	public boolean isDebug() {
 		return debug;
 	}
@@ -291,13 +267,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 				getLogger().info("Got a protocol v2 vote record -> " + vote);
 			}
 		}
-        for (VoteListener listener : listeners) {
-            try {
-                listener.voteMade(vote);
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Could not pass vote to " + listener.getClass().getName(), e);
-            }
-        }
         Bukkit.getPluginManager().callEvent(new VotifierEvent(vote));
 	}
 
