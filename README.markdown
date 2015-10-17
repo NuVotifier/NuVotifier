@@ -91,10 +91,6 @@ NuVotifier expects a 256 byte RSA encrypted block (the public key should be obta
 	<td>string</td>
 	<td>timeStamp</td>
   </tr>
-  <tr>
-	<td>byte[]</td>
-	<td>empty</td>
-  </tr>
 </table>
 
 The first string of value "VOTE" is an opcode check to ensure that RSA was encoded and decoded properly, if this value is wrong then NuVotifier assumes that there was a problem with encryption and drops the connection. `serviceName` is the name of the top list service, `username` is the username (entered by the voter) of the person who voted, `address` is the IP address of the voter, and `timeStamp` is the time stamp of the vote.  Each string is delimited by the newline character `\n` (byte value 10).  The `space` block is the empty space that is left over, **the block must be exactly 256 bytes** regardless of how much information it holds.
