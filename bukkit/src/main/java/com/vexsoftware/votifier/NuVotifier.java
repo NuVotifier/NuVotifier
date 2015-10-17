@@ -42,6 +42,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -82,6 +83,10 @@ public class NuVotifier extends JavaPlugin implements VoteHandler, VotifierPlugi
 
 		// Set the plugin version.
 		version = getDescription().getVersion();
+
+		if (!getDataFolder().exists()) {
+			getDataFolder().mkdir();
+		}
 
 		// Handle configuration.
 		File config = new File(getDataFolder() + "/config.yml");
