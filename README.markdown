@@ -11,7 +11,7 @@ Votifier has lagged in activity, has severe security flaws in its protocol, and 
 Yes. NuVotifier is compatible with Votifier server lists and Votifier listeners, with some differences:
 
 * The `Vote` object's setters are deprecated.
-* Support for standalone vote listeners (`.class` files) are removed, as handling `VotifierEvent` in non-Votifier plugins is more flexible.
+* Support for standalone vote listeners (`.class` files) has been removed, as handling `VotifierEvent` in non-Votifier plugins is more flexible.
 
 ### Why a new protocol?
 
@@ -23,7 +23,7 @@ The old Votifier protocol has three major flaws, which we feel are corrected in 
 
 ## Configuring NuVotifier
 
-NuVotifier configures itself the first time it is run.
+NuVotifier configures itself the first time it is run. If you have an existing Votifier configuration, NuVotifier will copy it over and use it.
 
 If you want to customize NuVotifier, simply the edit `./plugins/NuVotifier/config.yml` file.
 
@@ -51,7 +51,7 @@ The challenge will not be present in version 1.x servers.
 
 ### Protocol v2
 
-NuVotifier expects a message composed of `0x733A` (in big-endian) and the length of the following JSON message (as big-endian bytes) sent plus the message.
+NuVotifier expects a message composed of `0x733A` (16-bit big-endian integer) and the length of the following JSON message (as a 16-bit big-endian integer) sent plus the message.
 
 The message is JSON-encoded containing the following data:
 
@@ -59,6 +59,8 @@ The message is JSON-encoded containing the following data:
 * `signature` is a HMAC-SHA256 digest of the payload with a owner-provided key.
 
 A response is given after the vote has been received and parsed, but not yet processed.
+
+For your convenience, the NuVotifier team has provided client libraries in [https://github.com/minecrafter/votifier-js JavaScript]. If you are stuck, these libraries may help you.
 
 ### Protocol v1 (deprecated)
 
