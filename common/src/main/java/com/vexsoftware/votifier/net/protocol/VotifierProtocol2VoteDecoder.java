@@ -22,13 +22,13 @@ public class VotifierProtocol2VoteDecoder extends MessageToMessageDecoder<String
         JSONObject voteMessage = new JSONObject(s);
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
-        // Verify challenge.
-        if (!voteMessage.getString("challenge").equals(session.getChallenge())) {
-            throw new RuntimeException("Challenge is not valid");
-        }
-
         // Deserialize the payload.
         JSONObject votePayload = new JSONObject(voteMessage.getString("payload"));
+
+        // Verify challenge.
+        if (!votePayload.getString("challenge").equals(session.getChallenge())) {
+            throw new RuntimeException("Challenge is not valid");
+        }
 
         // Verify that we have keys available.
         VotifierPlugin plugin = ctx.channel().attr(VotifierPlugin.KEY).get();
