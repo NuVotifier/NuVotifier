@@ -179,6 +179,7 @@ public class NuVotifier extends JavaPlugin implements VoteHandler, VotifierPlugi
 			String token = TokenUtil.newToken();
 			tokenSection = cfg.createSection("tokens");
 			tokenSection.set("default", token);
+			tokens.put("default", KeyCreator.createKeyFrom(token));
 			try {
 				cfg.save(config);
 			} catch (IOException e) {
