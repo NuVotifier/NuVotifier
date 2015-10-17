@@ -26,8 +26,14 @@ import java.util.logging.*;
 
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
-import com.vexsoftware.votifier.net.VoteHandler;
 import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
+import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
+import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
+import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
+import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.util.KeyCreator;
+import com.vexsoftware.votifier.util.TokenUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -49,7 +55,7 @@ import com.vexsoftware.votifier.model.VoteListener;
  * @author Blake Beaupain
  * @author Kramer Campbell
  */
-public class Votifier extends JavaPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin {
+public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin {
 
 	/** The Votifier instance. */
 	private static Votifier instance;
@@ -129,7 +135,7 @@ public class Votifier extends JavaPlugin implements VoteHandler, com.vexsoftware
 				getLogger().info("a different port, which you need to specify in config.yml");
 				getLogger().info("------------------------------------------------------------------------------");
 
-				String token = com.vexsoftware.votifier.util.TokenUtil.newToken();
+				String token = TokenUtil.newToken();
 				ConfigurationSection tokenSection = cfg.createSection("tokens");
 				tokenSection.set("default", token);
 				getLogger().info("Your default Votifier token is " + token + ".");
@@ -157,10 +163,10 @@ public class Votifier extends JavaPlugin implements VoteHandler, com.vexsoftware
 			if (!rsaDirectory.exists()) {
 				rsaDirectory.mkdir();
 				new File(listenerDirectory).mkdir();
-				keyPair = com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen.generate(2048);
-				com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO.save(rsaDirectory, keyPair);
+				keyPair = RSAKeygen.generate(2048);
+				RSAIO.save(rsaDirectory, keyPair);
 			} else {
-				keyPair = com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO.load(rsaDirectory);
+				keyPair = RSAIO.load(rsaDirectory);
 			}
 		} catch (Exception ex) {
 			getLogger().log(Level.SEVERE,
@@ -179,7 +185,7 @@ public class Votifier extends JavaPlugin implements VoteHandler, com.vexsoftware
 		if (tokenSection != null) {
 			Map<String, Object> websites = tokenSection.getValues(false);
 			for (Map.Entry<String, Object> website : websites.entrySet()) {
-				tokens.put(website.getKey(), com.vexsoftware.votifier.util.KeyCreator.createKeyFrom(website.getValue().toString()));
+				tokens.put(website.getKey(), KeyCreator.createKeyFrom(website.getValue().toString()));
 				getLogger().info("Loaded token for website: " + website.getKey());
 			}
 		} else {
@@ -202,10 +208,10 @@ public class Votifier extends JavaPlugin implements VoteHandler, com.vexsoftware
 					@Override
 					protected void initChannel(NioSocketChannel channel) throws Exception {
 						channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                        channel.attr(com.vexsoftware.votifier.VotifierPlugin.KEY).set(Votifier.this);
-						channel.pipeline().addLast("greetingHandler", new com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler());
-						channel.pipeline().addLast("protocolDifferentiator", new com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator());
-						channel.pipeline().addLast("voteHandler", new com.vexsoftware.votifier.net.protocol.VoteInboundHandler(Votifier.this));
+                        channel.attr(VotifierPlugin.KEY).set(Votifier.this);
+						channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
+						channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator());
+						channel.pipeline().addLast("voteHandler", new VoteInboundHandler(Votifier.this));
 					}
 				})
 				.bind(host, port)

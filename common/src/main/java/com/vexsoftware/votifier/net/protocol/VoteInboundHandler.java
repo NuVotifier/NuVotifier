@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.net.protocol;
 
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VoteHandler;
+import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.net.VotifierSession;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
