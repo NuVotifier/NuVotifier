@@ -87,7 +87,7 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 		// Handle configuration.
 		boolean movedFromOldVotifier = false;
 		if (!getDataFolder().exists()) {
-			File oldVotifierDir = new File(getDataFolder(), "../Votifier");
+			File oldVotifierDir = new File(getDataFolder().getParentFile(), "Votifier");
 			if (oldVotifierDir.exists() && oldVotifierDir.isDirectory()) {
 				getLogger().info("We noticed an old Votifier directory. We're going to copy it over to save you some trouble.");
 				try {
