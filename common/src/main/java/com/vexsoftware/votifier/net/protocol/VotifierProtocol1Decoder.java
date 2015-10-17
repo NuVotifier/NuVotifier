@@ -54,12 +54,7 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
         position += timeStamp.length() + 1;
 
         // Create the vote.
-        final Vote vote = new Vote();
-        vote.setServiceName(serviceName);
-        vote.setUsername(username);
-        vote.setAddress(address);
-        vote.setTimeStamp(timeStamp);
-
+        Vote vote = new Vote(serviceName, username, address, timeStamp);
         list.add(vote);
 
         // We are done, remove ourselves. Why? Sometimes, we will decode multiple vote messages.
