@@ -85,21 +85,6 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 		version = getDescription().getVersion();
 
 		// Handle configuration.
-		boolean movedFromOldVotifier = false;
-		if (!getDataFolder().exists()) {
-			File oldVotifierDir = new File(getDataFolder().getParentFile(), "Votifier");
-			if (oldVotifierDir.exists() && oldVotifierDir.isDirectory()) {
-				getLogger().info("We noticed an old Votifier directory. We're going to copy it over to save you some trouble.");
-				try {
-					FileUtils.copyDirectory(oldVotifierDir, getDataFolder());
-					movedFromOldVotifier = true;
-				} catch (IOException e) {
-					getLogger().log(Level.SEVERE, "Unable to copy your old Votifier directory over.", e);
-				}
-			} else {
-				getDataFolder().mkdir();
-			}
-		}
 		File config = new File(getDataFolder() + "/config.yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
 		File rsaDirectory = new File(getDataFolder() + "/rsa");
@@ -187,25 +172,23 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 				getLogger().info("Loaded token for website: " + website.getKey());
 			}
 		} else {
-			if (movedFromOldVotifier) {
-				String token = TokenUtil.newToken();
-				tokenSection = cfg.createSection("tokens");
-				tokenSection.set("default", token);
-				try {
-					cfg.save(config);
-				} catch (IOException e) {
-					getLogger().log(Level.SEVERE,
-							"Error generating Votifier token", e);
-					gracefulExit();
-					return;
-				}
-				getLogger().info("------------------------------------------------------------------------------");
-				getLogger().info("Your default Votifier token is " + token + ".");
-				getLogger().info("You will need to provide this token when you submit your server to a voting");
-				getLogger().info("list.");
-				getLogger().info("------------------------------------------------------------------------------");
+			String token = TokenUtil.newToken();
+			tokenSection = cfg.createSection("tokens");
+			tokenSection.set("default", token);
+			try {
+				cfg.save(config);
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE,
+						"Error generating Votifier token", e);
+				gracefulExit();
+				return;
 			}
-			getLogger().warning("No websites are listed in your configuration.");
+			getLogger().info("------------------------------------------------------------------------------");
+			getLogger().info("No tokens were found in your configuration, so we've generated one for you.");
+			getLogger().info("Your default Votifier token is " + token + ".");
+			getLogger().info("You will need to provide this token when you submit your server to a voting");
+			getLogger().info("list.");
+			getLogger().info("------------------------------------------------------------------------------");
 		}
 
 		// Initialize the receiver.
