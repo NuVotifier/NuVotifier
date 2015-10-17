@@ -32,7 +32,7 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
         try {
             block = RSA.decrypt(block, plugin.getProtocolV1Key().getPrivate());
         } catch (Exception e) {
-            throw new CorruptedFrameException("Could not decrypt data", e);
+            throw new CorruptedFrameException("Could not decrypt data (is your key correct?)", e);
         }
         int position = 0;
 
@@ -51,7 +51,6 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
         String address = readString(block, position);
         position += address.length() + 1;
         String timeStamp = readString(block, position);
-        position += timeStamp.length() + 1;
 
         // Create the vote.
         Vote vote = new Vote(serviceName, username, address, timeStamp);
