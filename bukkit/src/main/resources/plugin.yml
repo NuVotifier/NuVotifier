@@ -1,5 +1,5 @@
-name: Votifier
+name: NuVotifier
 main: com.vexsoftware.votifier.Votifier
 version: maven-version-number
 description: A plugin that gets notified when votes are made for the server on toplists.
-authors: [blakeman8192, Kramer]
+authors: [blakeman8192, Kramer, tuxed]

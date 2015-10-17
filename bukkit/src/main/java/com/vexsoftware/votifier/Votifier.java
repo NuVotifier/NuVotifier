@@ -42,6 +42,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -84,8 +85,20 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 		version = getDescription().getVersion();
 
 		// Handle configuration.
+		boolean movedFromOldVotifier = false;
 		if (!getDataFolder().exists()) {
-			getDataFolder().mkdir();
+			File oldVotifierDir = new File(getDataFolder(), "../Votifier");
+			if (oldVotifierDir.exists() && oldVotifierDir.isDirectory()) {
+				getLogger().info("We noticed an old Votifier directory. We're going to copy it over to save you some trouble.");
+				try {
+					FileUtils.copyDirectory(oldVotifierDir, getDataFolder());
+					movedFromOldVotifier = true;
+				} catch (IOException e) {
+					getLogger().log(Level.SEVERE, "Unable to copy your old Votifier directory over.", e);
+				}
+			} else {
+				getDataFolder().mkdir();
+			}
 		}
 		File config = new File(getDataFolder() + "/config.yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
@@ -174,6 +187,24 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 				getLogger().info("Loaded token for website: " + website.getKey());
 			}
 		} else {
+			if (movedFromOldVotifier) {
+				String token = TokenUtil.newToken();
+				tokenSection = cfg.createSection("tokens");
+				tokenSection.set("default", token);
+				try {
+					cfg.save(config);
+				} catch (IOException e) {
+					getLogger().log(Level.SEVERE,
+							"Error generating Votifier token", e);
+					gracefulExit();
+					return;
+				}
+				getLogger().info("------------------------------------------------------------------------------");
+				getLogger().info("Your default Votifier token is " + token + ".");
+				getLogger().info("You will need to provide this token when you submit your server to a voting");
+				getLogger().info("list.");
+				getLogger().info("------------------------------------------------------------------------------");
+			}
 			getLogger().warning("No websites are listed in your configuration.");
 		}
 
@@ -259,7 +290,7 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
     }
 
     @Override
-	public void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+	public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
 		if (debug) {
 			if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
 				getLogger().info("Got a protocol v1 vote record -> " + vote);
@@ -267,11 +298,20 @@ public class Votifier extends JavaPlugin implements VoteHandler, VotifierPlugin 
 				getLogger().info("Got a protocol v2 vote record -> " + vote);
 			}
 		}
-        Bukkit.getPluginManager().callEvent(new VotifierEvent(vote));
+		Bukkit.getScheduler().runTask(this, new Runnable() {
+			@Override
+			public void run() {
+				Bukkit.getPluginManager().callEvent(new VotifierEvent(vote));
+			}
+		});
 	}
 
 	@Override
-	public void onError(Throwable throwable) {
-		getLogger().log(Level.SEVERE, "Unable to process vote", throwable);
+	public void onError(Channel channel, Throwable throwable) {
+		if (debug) {
+			getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress(), throwable);
+		} else {
+			getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress());
+		}
 	}
 }

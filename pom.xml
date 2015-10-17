@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.vexsoftware</groupId>
-    <artifactId>votifier</artifactId>
+    <artifactId>nuvotifier</artifactId>
     <packaging>pom</packaging>
     <version>2.0</version>
     <modules>
         <module>common</module>
         <module>bukkit</module>
     </modules>
-    <name>Votifier</name>
+    <name>NuVotifier</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

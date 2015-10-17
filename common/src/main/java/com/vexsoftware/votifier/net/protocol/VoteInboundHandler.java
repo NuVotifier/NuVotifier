@@ -34,7 +34,7 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
-        handler.onError(cause);
+        handler.onError(ctx.channel(), cause);
 
         if (session.getVersion() == VotifierSession.ProtocolVersion.TWO) {
             JSONObject object = new JSONObject();
