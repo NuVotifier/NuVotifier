@@ -2,9 +2,11 @@ package com.vexsoftware.votifier.net.protocol;
 
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.net.VotifierSession;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 
 import java.nio.charset.StandardCharsets;
 
@@ -18,6 +20,8 @@ public class VotifierGreetingHandler extends ChannelInboundHandlerAdapter {
         VotifierPlugin plugin = ctx.channel().attr(VotifierPlugin.KEY).get();
 
         String version = "VOTIFIER " + plugin.getVersion() + " " + session.getChallenge() + "\n";
-        ctx.writeAndFlush(Unpooled.copiedBuffer(version, StandardCharsets.UTF_8));
+        ByteBuf versionBuf = Unpooled.copiedBuffer(version, StandardCharsets.UTF_8);
+        ctx.writeAndFlush(versionBuf);
+        ReferenceCountUtil.safeRelease(versionBuf);
     }
 }
