@@ -25,7 +25,7 @@ The old Votifier protocol has three major flaws, which we feel are corrected in 
 
 NuVotifier configures itself the first time it is run. If you have an existing Votifier configuration, NuVotifier will copy it over and use it.
 
-If you want to customize NuVotifier, simply the edit `./plugins/NuVotifier/config.yml` file.
+If you want to customize NuVotifier, simply the edit `./plugins/(Nu)Votifier/config.yml` file.
 
 ### Tokens
 
@@ -33,7 +33,7 @@ In `config.yml`, you will notice a `tokens` section. NuVotifier has a new protoc
 
 ### RSA Keys
 
-RSA keys for use with the old Votifier protocol are available under the `plugins/NuVotifier/rsa` directory.
+RSA keys for use with the old Votifier protocol are available under the `plugins/(Nu)Votifier/rsa` directory.
 
 ## Protocol Documentation
 
