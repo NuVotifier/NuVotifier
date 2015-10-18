@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>nuvotifier-bukkit</artifactId>
+    <artifactId>nuvotifier-bungeecord</artifactId>
 
     <build>
         <plugins>
@@ -26,7 +26,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <file>target/classes/plugin.yml</file>
+                    <file>target/classes/bungee.yml</file>
                     <replacements>
                         <replacement>
                             <token>maven-version-number</token>
@@ -50,17 +50,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.8-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.vexsoftware</groupId>
             <artifactId>nuvotifier-common</artifactId>
             <version>2.0</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.7.2-R0.1</version>
-            <type>jar</type>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

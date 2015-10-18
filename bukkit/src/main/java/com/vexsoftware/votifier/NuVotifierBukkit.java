@@ -42,7 +42,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -54,10 +53,10 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author Blake Beaupain
  * @author Kramer Campbell
  */
-public class NuVotifier extends JavaPlugin implements VoteHandler, VotifierPlugin {
+public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, VotifierPlugin {
 
 	/** The Votifier instance. */
-	private static NuVotifier instance;
+	private static NuVotifierBukkit instance;
 
 	/** The current Votifier version. */
 	private String version;
@@ -79,7 +78,7 @@ public class NuVotifier extends JavaPlugin implements VoteHandler, VotifierPlugi
 
 	@Override
 	public void onEnable() {
-		NuVotifier.instance = this;
+		NuVotifierBukkit.instance = this;
 
 		// Set the plugin version.
 		version = getDescription().getVersion();
@@ -212,10 +211,10 @@ public class NuVotifier extends JavaPlugin implements VoteHandler, VotifierPlugi
 					@Override
 					protected void initChannel(NioSocketChannel channel) throws Exception {
 						channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                        channel.attr(VotifierPlugin.KEY).set(NuVotifier.this);
+                        channel.attr(VotifierPlugin.KEY).set(NuVotifierBukkit.this);
 						channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
 						channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator());
-						channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifier.this));
+						channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifierBukkit.this));
 					}
 				})
 				.bind(host, port)
@@ -250,7 +249,7 @@ public class NuVotifier extends JavaPlugin implements VoteHandler, VotifierPlugi
 	 * 
 	 * @return The instance
 	 */
-	public static NuVotifier getInstance() {
+	public static NuVotifierBukkit getInstance() {
 		return instance;
 	}
 

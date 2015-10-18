@@ -8,6 +8,8 @@
     <modules>
         <module>common</module>
         <module>bukkit</module>
+        <module>bungeecord</module>
+        <module>universal</module>
     </modules>
     <name>NuVotifier</name>
     <properties>
