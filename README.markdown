@@ -35,6 +35,11 @@ In `config.yml`, you will notice a `tokens` section. NuVotifier has a new protoc
 
 RSA keys for use with the old Votifier protocol are available under the `plugins/(Nu)Votifier/rsa` directory.
 
+
+## Building NuVotifier
+
+NuVotifier can be built by running `mvn clean package` from within the root directory of NuVotifier. A universal Bukkit/Spigot & BungeeCord plugin will be built to `universal/target/nuvotifier-universal-{version}.jar`
+
 ## Protocol Documentation
 
 This documentation is for server lists that wish to add NuVotifier support.
