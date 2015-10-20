@@ -53,8 +53,7 @@ public class VotifierProtocol2VoteDecoder extends MessageToMessageDecoder<String
         }
 
         // Create the vote.
-        Vote vote = new Vote(votePayload.getString("serviceName"), votePayload.getString("username"),
-                votePayload.getString("address"), Long.toString(votePayload.getLong("timestamp")));
+        Vote vote = new Vote(votePayload);
         list.add(vote);
 
         ctx.pipeline().remove(this);

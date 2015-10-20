@@ -18,6 +18,8 @@
 
 package com.vexsoftware.votifier.model;
 
+import org.json.JSONObject;
+
 /**
  * A model for a vote.
  *
@@ -46,6 +48,10 @@ public class Vote {
         this.username = username;
         this.address = address;
         this.timeStamp = timeStamp;
+    }
+
+    public Vote(JSONObject jsonObject){
+        this(jsonObject.getString("serviceName"),jsonObject.getString("username"),jsonObject.getString("address"),Long.toString(jsonObject.getLong("timestamp")));
     }
 
     @Override
@@ -134,4 +140,13 @@ public class Vote {
         return timeStamp;
     }
 
+
+    public JSONObject serialize(){
+        JSONObject ret = new JSONObject();
+        ret.put("serviceName",serviceName);
+        ret.put("username", username);
+        ret.put("address", address);
+        ret.put("timestamp", timeStamp);
+        return ret;
+    }
 }
