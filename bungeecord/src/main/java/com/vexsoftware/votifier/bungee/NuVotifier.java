@@ -298,4 +298,6 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
     public String getVersion() {
         return getDescription().getVersion();
     }
+
+    public boolean isDebug(){ return debug; }
 }

@@ -23,7 +23,7 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
 
     public BungeePluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache) {
         ProxyServer.getInstance().registerChannel(channel);
-        ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier,this);
+        ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
         this.channel = channel;
         this.nuVotifier = nuVotifier;
         this.cache = cache;
@@ -43,11 +43,12 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
             return;
         }
         for (ServerInfo s : ProxyServer.getInstance().getServers().values()) {
-            if(!forwardSpecific(s,rawData)){
+            if (!forwardSpecific(s, rawData)) {
                 if (cache != null) {
                     cache.addToCache(v, s.getName());
-                    nuVotifier.getLogger().info("Added to forwarding cache: " + v.toString() + " -> " + s.getName());
-                } else
+                    if (nuVotifier.isDebug())
+                        nuVotifier.getLogger().info("Added to forwarding cache: " + v.toString() + " -> " + s.getName());
+                } else if (nuVotifier.isDebug())
                     nuVotifier.getLogger().severe("Could not immediately send vote to backend, vote lost! " + v.toString() + " -> " + s.getName());
             }
         }
@@ -78,19 +79,19 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
 
     @EventHandler
     public void onPluginMessage(PluginMessageEvent e) {
-        if(e.getTag().equals(channel)) e.setCancelled(true);
+        if (e.getTag().equals(channel)) e.setCancelled(true);
     }
 
     @EventHandler
     public void onServerConnected(ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
         if (cache == null) return;
         String serverName = e.getServer().getInfo().getName();
-        if(cache.hasVotes(serverName)){
+        if (cache.hasVotes(serverName)) {
             Collection<Vote> cachedVotes = cache.evict(serverName);
-            for(Vote v : cachedVotes){
-                forwardSpecific(e.getServer().getInfo(),v);
+            for (Vote v : cachedVotes) {
+                forwardSpecific(e.getServer().getInfo(), v);
             }
-            nuVotifier.getLogger().info("Evicted "+cachedVotes.size()+" votes to server '"+serverName+"'.");
+            if(nuVotifier.isDebug()) nuVotifier.getLogger().info("Evicted " + cachedVotes.size() + " votes to server '" + serverName + "'.");
         }
     }
 }
