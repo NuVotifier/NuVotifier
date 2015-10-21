@@ -24,6 +24,9 @@ import java.security.KeyPair;
 import java.util.*;
 import java.util.logging.*;
 
+import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
+import com.vexsoftware.votifier.forwarding.ForwardedVoteListener;
+import com.vexsoftware.votifier.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import com.vexsoftware.votifier.net.VotifierSession;
@@ -49,11 +52,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * The main Votifier plugin class.
- * 
+ *
  * @author Blake Beaupain
  * @author Kramer Campbell
  */
-public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, VotifierPlugin {
+public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, VotifierPlugin, ForwardedVoteListener {
 
 	/** The Votifier instance. */
 	private static NuVotifierBukkit instance;
@@ -76,21 +79,23 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 	/** Keys used for websites. */
 	private Map<String, Key> tokens = new HashMap<>();
 
-	@Override
-	public void onEnable() {
-		NuVotifierBukkit.instance = this;
+    private ForwardingVoteSink forwardingMethod;
 
-		// Set the plugin version.
-		version = getDescription().getVersion();
+    @Override
+    public void onEnable() {
+        NuVotifierBukkit.instance = this;
 
-		if (!getDataFolder().exists()) {
-			getDataFolder().mkdir();
-		}
+        // Set the plugin version.
+        version = getDescription().getVersion();
 
-		// Handle configuration.
-		File config = new File(getDataFolder() + "/config.yml");
-		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(config);
-		File rsaDirectory = new File(getDataFolder() + "/rsa");
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdir();
+        }
+
+        // Handle configuration.
+        File config = new File(getDataFolder() + "/config.yml");
+        YamlConfiguration cfg;
+        File rsaDirectory = new File(getDataFolder() + "/rsa");
 
 		/*
 		 * Use IP address from server.properties as a default for
@@ -113,25 +118,26 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 				// Initialize the configuration file.
 				config.createNewFile();
 
-				cfg.set("host", hostAddr);
-				cfg.set("port", 8192);
-				cfg.set("debug", false);
+                //Load configuration from resources to maintain comments
+                cfg = YamlConfiguration.loadConfiguration(getResource("bukkitConfig.yml"));
+
+                cfg.set("host", hostAddr);
 
 				/*
 				 * Remind hosted server admins to be sure they have the right
 				 * port number.
 				 */
 				getLogger().info("------------------------------------------------------------------------------");
-				getLogger().info("Assigning Votifier to listen on port 8192. If you are hosting Craftbukkit on a");
+				getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting Craftbukkit on a");
 				getLogger().info("shared server please check with your hosting provider to verify that this port");
 				getLogger().info("is available for your use. Chances are that your hosting provider will assign");
 				getLogger().info("a different port, which you need to specify in config.yml");
 				getLogger().info("------------------------------------------------------------------------------");
 
 				String token = TokenUtil.newToken();
-				ConfigurationSection tokenSection = cfg.createSection("tokens");
+				ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
 				tokenSection.set("default", token);
-				getLogger().info("Your default Votifier token is " + token + ".");
+				getLogger().info("Your default NuVotifier token is " + token + ".");
 				getLogger().info("You will need to provide this token when you submit your server to a voting");
 				getLogger().info("list.");
 				getLogger().info("------------------------------------------------------------------------------");
@@ -150,126 +156,156 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 		 * Create RSA directory and keys if it does not exist; otherwise, read
 		 * keys.
 		 */
-		try {
-			if (!rsaDirectory.exists()) {
-				rsaDirectory.mkdir();
-				keyPair = RSAKeygen.generate(2048);
-				RSAIO.save(rsaDirectory, keyPair);
-			} else {
-				keyPair = RSAIO.load(rsaDirectory);
-			}
-		} catch (Exception ex) {
-			getLogger().log(Level.SEVERE,
-					"Error reading configuration file or RSA tokens", ex);
-			gracefulExit();
-			return;
-		}
+        try {
+            if (!rsaDirectory.exists()) {
+                rsaDirectory.mkdir();
+                keyPair = RSAKeygen.generate(2048);
+                RSAIO.save(rsaDirectory, keyPair);
+            } else {
+                keyPair = RSAIO.load(rsaDirectory);
+            }
+        } catch (Exception ex) {
+            getLogger().log(Level.SEVERE,
+                    "Error reading configuration file or RSA tokens", ex);
+            gracefulExit();
+            return;
+        }
 
-		// Load Votifier tokens.
-		ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
+        debug = cfg.getBoolean("debug", false);
 
-		if (tokenSection != null) {
-			Map<String, Object> websites = tokenSection.getValues(false);
-			for (Map.Entry<String, Object> website : websites.entrySet()) {
-				tokens.put(website.getKey(), KeyCreator.createKeyFrom(website.getValue().toString()));
-				getLogger().info("Loaded token for website: " + website.getKey());
-			}
-		} else {
-			String token = TokenUtil.newToken();
-			tokenSection = cfg.createSection("tokens");
-			tokenSection.set("default", token);
-			tokens.put("default", KeyCreator.createKeyFrom(token));
-			try {
-				cfg.save(config);
-			} catch (IOException e) {
-				getLogger().log(Level.SEVERE,
-						"Error generating Votifier token", e);
-				gracefulExit();
-				return;
-			}
-			getLogger().info("------------------------------------------------------------------------------");
-			getLogger().info("No tokens were found in your configuration, so we've generated one for you.");
-			getLogger().info("Your default Votifier token is " + token + ".");
-			getLogger().info("You will need to provide this token when you submit your server to a voting");
-			getLogger().info("list.");
-			getLogger().info("------------------------------------------------------------------------------");
-		}
+        boolean setUpPort = cfg.getBoolean("enableExternal", true); //Always default to running the external port
 
-		// Initialize the receiver.
-		String host = cfg.getString("host", hostAddr);
-		int port = cfg.getInt("port", 8192);
-		debug = cfg.getBoolean("debug", false);
-		if (debug)
-			getLogger().info("DEBUG mode enabled!");
+        if (setUpPort) {
+            // Load Votifier tokens.
+            ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
 
-		serverGroup = new NioEventLoopGroup(1);
+            if (tokenSection != null) {
+                Map<String, Object> websites = tokenSection.getValues(false);
+                for (Map.Entry<String, Object> website : websites.entrySet()) {
+                    tokens.put(website.getKey(), KeyCreator.createKeyFrom(website.getValue().toString()));
+                    getLogger().info("Loaded token for website: " + website.getKey());
+                }
+            } else {
+                String token = TokenUtil.newToken();
+                tokenSection = cfg.createSection("tokens");
+                tokenSection.set("default", token);
+                tokens.put("default", KeyCreator.createKeyFrom(token));
+                try {
+                    cfg.save(config);
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE,
+                            "Error generating Votifier token", e);
+                    gracefulExit();
+                    return;
+                }
+                getLogger().info("------------------------------------------------------------------------------");
+                getLogger().info("No tokens were found in your configuration, so we've generated one for you.");
+                getLogger().info("Your default Votifier token is " + token + ".");
+                getLogger().info("You will need to provide this token when you submit your server to a voting");
+                getLogger().info("list.");
+                getLogger().info("------------------------------------------------------------------------------");
+            }
 
-		new ServerBootstrap()
-				.channel(NioServerSocketChannel.class)
-				.group(serverGroup)
-				.childHandler(new ChannelInitializer<NioSocketChannel>() {
-					@Override
-					protected void initChannel(NioSocketChannel channel) throws Exception {
-						channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                        channel.attr(VotifierPlugin.KEY).set(NuVotifierBukkit.this);
-						channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-						channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator());
-						channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifierBukkit.this));
-					}
-				})
-				.bind(host, port)
-				.addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future) throws Exception {
-						if (future.isSuccess()) {
-							serverChannel = future.channel();
-							getLogger().info("Votifier enabled.");
-						} else {
-							getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + future.channel().localAddress(), future.cause());
-						}
-					}
-				});
-	}
+            // Initialize the receiver.
+            String host = cfg.getString("host", hostAddr);
+            int port = cfg.getInt("port", 8192);
+            if (debug)
+                getLogger().info("DEBUG mode enabled!");
 
-	@Override
-	public void onDisable() {
-		// Shut down the network handlers.
-		if (serverChannel != null)
-			serverChannel.close();
-		serverGroup.shutdownGracefully();
-		getLogger().info("Votifier disabled.");
-	}
+            serverGroup = new NioEventLoopGroup(1);
 
-	private void gracefulExit() {
-		getLogger().log(Level.SEVERE, "Votifier did not initialize properly!");
-	}
+            new ServerBootstrap()
+                    .channel(NioServerSocketChannel.class)
+                    .group(serverGroup)
+                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                        @Override
+                        protected void initChannel(NioSocketChannel channel) throws Exception {
+                            channel.attr(VotifierSession.KEY).set(new VotifierSession());
+                            channel.attr(VotifierPlugin.KEY).set(NuVotifierBukkit.this);
+                            channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
+                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator());
+                            channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifierBukkit.this));
+                        }
+                    })
+                    .bind(host, port)
+                    .addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (future.isSuccess()) {
+                                serverChannel = future.channel();
+                                getLogger().info("Votifier enabled.");
+                            } else {
+                                getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + future.channel().localAddress(), future.cause());
+                            }
+                        }
+                    });
+        } else {
+            getLogger().info("You have enableExternal set to false in your config.yml. NuVotifier will NOT listen to votes coming in from an external voting list.");
+        }
 
-	/**
-	 * Gets the instance.
-	 * 
-	 * @return The instance
-	 */
-	public static NuVotifierBukkit getInstance() {
-		return instance;
-	}
-
-	/**
-	 * Gets the version.
-	 * 
-	 * @return The version
-	 */
-	public String getVersion() {
-		return version;
-	}
-
-	public boolean isDebug() {
-		return debug;
-	}
+        ConfigurationSection forwardingConfig = cfg.getConfigurationSection("forwarding");
+        if (forwardingConfig != null) {
+            String method = forwardingConfig.getString("method", "none").toLowerCase(); //Default to lower case for case-insensitive searches
+            if ("none".equals(method)) {
+                getLogger().info("Method none selected for vote forwarding: Votes will not be received from a forwarder.");
+            } else if ("pluginmessaging".equals(method)) {
+                String channel = forwardingConfig.getString("pluginMessaging.channel", "NuVotifier");
+                try {
+                    forwardingMethod = new BukkitPluginMessagingForwardingSink(this, channel, this);
+                    getLogger().info("Receiving votes over PluginMessaging channel '" + channel + "'.");
+                } catch (RuntimeException e) {
+                    getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
+                }
+            } else {
+                getLogger().severe("No vote forwarding method '"+method+"' known. Defaulting to noop implementation.");
+            }
+        }
+    }
 
     @Override
-	public Map<String, Key> getTokens() {
-		return tokens;
-	}
+    public void onDisable() {
+        // Shut down the network handlers.
+        if (serverGroup != null) {
+            if (serverChannel != null)
+                serverChannel.close();
+            serverGroup.shutdownGracefully();
+        }
+        if (forwardingMethod != null) {
+            forwardingMethod.halt();
+        }
+        getLogger().info("Votifier disabled.");
+    }
+
+    private void gracefulExit() {
+        getLogger().log(Level.SEVERE, "Votifier did not initialize properly!");
+    }
+
+    /**
+     * Gets the instance.
+     *
+     * @return The instance
+     */
+    public static NuVotifierBukkit getInstance() {
+        return instance;
+    }
+
+    /**
+     * Gets the version.
+     *
+     * @return The version
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    @Override
+    public Map<String, Key> getTokens() {
+        return tokens;
+    }
 
     @Override
     public KeyPair getProtocolV1Key() {
@@ -277,28 +313,41 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     }
 
     @Override
-	public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
-		if (debug) {
-			if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
-				getLogger().info("Got a protocol v1 vote record -> " + vote);
-			} else {
-				getLogger().info("Got a protocol v2 vote record -> " + vote);
-			}
-		}
-		Bukkit.getScheduler().runTask(this, new Runnable() {
-			@Override
-			public void run() {
-				Bukkit.getPluginManager().callEvent(new VotifierEvent(vote));
-			}
-		});
-	}
+    public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+        if (debug) {
+            if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
+                getLogger().info("Got a protocol v1 vote record -> " + vote);
+            } else {
+                getLogger().info("Got a protocol v2 vote record -> " + vote);
+            }
+        }
+        Bukkit.getScheduler().runTask(this, new Runnable() {
+            @Override
+            public void run() {
+                Bukkit.getPluginManager().callEvent(new VotifierEvent(vote));
+            }
+        });
+    }
 
-	@Override
-	public void onError(Channel channel, Throwable throwable) {
-		if (debug) {
-			getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress(), throwable);
-		} else {
-			getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress());
-		}
-	}
+    @Override
+    public void onError(Channel channel, Throwable throwable) {
+        if (debug) {
+            getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress(), throwable);
+        } else {
+            getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress());
+        }
+    }
+
+    @Override
+    public void onForward(final Vote v) {
+        if (debug) {
+            getLogger().info("Got a forwarded vote -> " + v);
+        }
+        Bukkit.getScheduler().runTask(this, new Runnable() {
+            @Override
+            public void run() {
+                Bukkit.getPluginManager().callEvent(new VotifierEvent(v));
+            }
+        });
+    }
 }
