@@ -65,8 +65,7 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
     /**
      * Reads a string from a block of data.
      *
-     * @param data
-     *            The data to read from
+     * @param data The data to read from
      * @return The string
      */
     private static String readString(byte[] data, int offset) {

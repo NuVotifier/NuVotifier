@@ -10,6 +10,8 @@ public interface VotifierPlugin {
     AttributeKey<VotifierPlugin> KEY = AttributeKey.valueOf("votifier_plugin");
 
     Map<String, Key> getTokens();
+
     KeyPair getProtocolV1Key();
+
     String getVersion();
 }

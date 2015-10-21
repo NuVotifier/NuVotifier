@@ -18,13 +18,15 @@ public interface VoteCache {
 
     /**
      * Adds a vote to the vote cache for later sending
-     * @param v Vote to add to cache
-     * @param server    Server to add vote under
+     *
+     * @param v      Vote to add to cache
+     * @param server Server to add vote under
      */
     void addToCache(Vote v, String server);
 
     /**
      * Evicts all votes from the vote cache and returns a collection of vote objects
+     *
      * @param server Server name of which to evict the votes from the cache
      * @return A collection of all votes which were previously in the cache under the server
      */
@@ -32,6 +34,7 @@ public interface VoteCache {
 
     /**
      * Returns whether the cache has votes present within it ready for evicting
+     *
      * @param server Server name of server to check
      * @return Whether the passed server has votes ready for eviction
      */

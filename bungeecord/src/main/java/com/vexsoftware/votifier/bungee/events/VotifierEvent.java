@@ -8,7 +8,9 @@ import net.md_5.bungee.api.plugin.Event;
  * asynchronously allowing other plugins to listen for votes.
  */
 public class VotifierEvent extends Event {
-    /** The vote. **/
+    /**
+     * The vote.
+     **/
     private final Vote vote;
 
     public VotifierEvent(Vote vote) {

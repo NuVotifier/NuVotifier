@@ -18,12 +18,6 @@
 
 package com.vexsoftware.votifier;
 
-import java.io.*;
-import java.security.Key;
-import java.security.KeyPair;
-import java.util.*;
-import java.util.logging.*;
-
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.forwarding.ForwardingVoteSink;
@@ -50,6 +44,14 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.Key;
+import java.security.KeyPair;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
 /**
  * The main Votifier plugin class.
  *
@@ -58,26 +60,40 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, VotifierPlugin, ForwardedVoteListener {
 
-	/** The Votifier instance. */
-	private static NuVotifierBukkit instance;
+    /**
+     * The Votifier instance.
+     */
+    private static NuVotifierBukkit instance;
 
-	/** The current Votifier version. */
-	private String version;
+    /**
+     * The current Votifier version.
+     */
+    private String version;
 
-	/** The server channel. */
-	private Channel serverChannel;
+    /**
+     * The server channel.
+     */
+    private Channel serverChannel;
 
-	/** The event group handling the channel. */
-	private NioEventLoopGroup serverGroup;
+    /**
+     * The event group handling the channel.
+     */
+    private NioEventLoopGroup serverGroup;
 
-	/** The RSA key pair. */
-	private KeyPair keyPair;
+    /**
+     * The RSA key pair.
+     */
+    private KeyPair keyPair;
 
-	/** Debug mode flag */
-	private boolean debug;
+    /**
+     * Debug mode flag
+     */
+    private boolean debug;
 
-	/** Keys used for websites. */
-	private Map<String, Key> tokens = new HashMap<>();
+    /**
+     * Keys used for websites.
+     */
+    private Map<String, Key> tokens = new HashMap<>();
 
     private ForwardingVoteSink forwardingMethod;
 
@@ -98,25 +114,25 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         File rsaDirectory = new File(getDataFolder() + "/rsa");
 
 		/*
-		 * Use IP address from server.properties as a default for
+         * Use IP address from server.properties as a default for
 		 * configurations. Do not use InetAddress.getLocalHost() as it most
 		 * likely will return the main server address instead of the address
 		 * assigned to the server.
 		 */
-		String hostAddr = Bukkit.getServer().getIp();
-		if (hostAddr == null || hostAddr.length() == 0)
-			hostAddr = "0.0.0.0";
+        String hostAddr = Bukkit.getServer().getIp();
+        if (hostAddr == null || hostAddr.length() == 0)
+            hostAddr = "0.0.0.0";
 
 		/*
 		 * Create configuration file if it does not exists; otherwise, load it
 		 */
-		if (!config.exists()) {
-			try {
-				// First time run - do some initialization.
-				getLogger().info("Configuring Votifier for the first time...");
+        if (!config.exists()) {
+            try {
+                // First time run - do some initialization.
+                getLogger().info("Configuring Votifier for the first time...");
 
-				// Initialize the configuration file.
-				config.createNewFile();
+                // Initialize the configuration file.
+                config.createNewFile();
 
                 //Load configuration from resources to maintain comments
                 cfg = YamlConfiguration.loadConfiguration(getResource("bukkitConfig.yml"));
@@ -127,30 +143,30 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 				 * Remind hosted server admins to be sure they have the right
 				 * port number.
 				 */
-				getLogger().info("------------------------------------------------------------------------------");
-				getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting Craftbukkit on a");
-				getLogger().info("shared server please check with your hosting provider to verify that this port");
-				getLogger().info("is available for your use. Chances are that your hosting provider will assign");
-				getLogger().info("a different port, which you need to specify in config.yml");
-				getLogger().info("------------------------------------------------------------------------------");
+                getLogger().info("------------------------------------------------------------------------------");
+                getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting Craftbukkit on a");
+                getLogger().info("shared server please check with your hosting provider to verify that this port");
+                getLogger().info("is available for your use. Chances are that your hosting provider will assign");
+                getLogger().info("a different port, which you need to specify in config.yml");
+                getLogger().info("------------------------------------------------------------------------------");
 
-				String token = TokenUtil.newToken();
-				ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
-				tokenSection.set("default", token);
-				getLogger().info("Your default NuVotifier token is " + token + ".");
-				getLogger().info("You will need to provide this token when you submit your server to a voting");
-				getLogger().info("list.");
-				getLogger().info("------------------------------------------------------------------------------");
-				cfg.save(config);
-			} catch (Exception ex) {
-				getLogger().log(Level.SEVERE, "Error creating configuration file", ex);
-				gracefulExit();
-				return;
-			}
-		} else {
-			// Load configuration.
-			cfg = YamlConfiguration.loadConfiguration(config);
-		}
+                String token = TokenUtil.newToken();
+                ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
+                tokenSection.set("default", token);
+                getLogger().info("Your default NuVotifier token is " + token + ".");
+                getLogger().info("You will need to provide this token when you submit your server to a voting");
+                getLogger().info("list.");
+                getLogger().info("------------------------------------------------------------------------------");
+                cfg.save(config);
+            } catch (Exception ex) {
+                getLogger().log(Level.SEVERE, "Error creating configuration file", ex);
+                gracefulExit();
+                return;
+            }
+        } else {
+            // Load configuration.
+            cfg = YamlConfiguration.loadConfiguration(config);
+        }
 
 		/*
 		 * Create RSA directory and keys if it does not exist; otherwise, read
@@ -257,7 +273,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                     getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }
             } else {
-                getLogger().severe("No vote forwarding method '"+method+"' known. Defaulting to noop implementation.");
+                getLogger().severe("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
             }
         }
     }

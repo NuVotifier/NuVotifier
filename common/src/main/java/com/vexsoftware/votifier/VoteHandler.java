@@ -6,5 +6,6 @@ import io.netty.channel.Channel;
 
 public interface VoteHandler {
     void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception;
+
     void onError(Channel channel, Throwable throwable);
 }

@@ -9,6 +9,7 @@ public interface ForwardingVoteSource {
 
     /**
      * Forwards a vote to all servers set up to receive votes.
+     *
      * @param v Vote to forward to servers
      */
     void forward(Vote v);

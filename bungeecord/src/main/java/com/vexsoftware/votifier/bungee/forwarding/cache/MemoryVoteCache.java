@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class MemoryVoteCache implements VoteCache {
 
-    public MemoryVoteCache(int initialSize){
+    public MemoryVoteCache(int initialSize) {
         voteCache = new HashMap<>(initialSize);
     }
 
@@ -31,9 +31,9 @@ public class MemoryVoteCache implements VoteCache {
     public void addToCache(Vote v, String server) {
         cacheLock.lock();
         Collection<Vote> voteCollection = voteCache.get(server);
-        if(voteCollection == null){
+        if (voteCollection == null) {
             voteCollection = new LinkedHashSet<>();
-            voteCache.put(server,voteCollection);
+            voteCache.put(server, voteCollection);
         }
         voteCollection.add(v);
         cacheLock.unlock();

@@ -27,16 +27,24 @@ import org.json.JSONObject;
  */
 public class Vote {
 
-    /** The name of the vote service. */
+    /**
+     * The name of the vote service.
+     */
     private String serviceName;
 
-    /** The username of the voter. */
+    /**
+     * The username of the voter.
+     */
     private String username;
 
-    /** The address of the voter. */
+    /**
+     * The address of the voter.
+     */
     private String address;
 
-    /** The date and time of the vote. */
+    /**
+     * The date and time of the vote.
+     */
     private String timeStamp;
 
     @Deprecated
@@ -50,8 +58,8 @@ public class Vote {
         this.timeStamp = timeStamp;
     }
 
-    public Vote(JSONObject jsonObject){
-        this(jsonObject.getString("serviceName"),jsonObject.getString("username"),jsonObject.getString("address"),jsonObject.getString("timestamp"));
+    public Vote(JSONObject jsonObject) {
+        this(jsonObject.getString("serviceName"), jsonObject.getString("username"), jsonObject.getString("address"), jsonObject.getString("timestamp"));
     }
 
     @Override
@@ -63,8 +71,7 @@ public class Vote {
     /**
      * Sets the serviceName.
      *
-     * @param serviceName
-     *            The new serviceName
+     * @param serviceName The new serviceName
      */
     @Deprecated
     public void setServiceName(String serviceName) {
@@ -83,8 +90,7 @@ public class Vote {
     /**
      * Sets the username.
      *
-     * @param username
-     *            The new username
+     * @param username The new username
      */
     @Deprecated
     public void setUsername(String username) {
@@ -103,8 +109,7 @@ public class Vote {
     /**
      * Sets the address.
      *
-     * @param address
-     *            The new address
+     * @param address The new address
      */
     @Deprecated
     public void setAddress(String address) {
@@ -123,8 +128,7 @@ public class Vote {
     /**
      * Sets the time stamp.
      *
-     * @param timeStamp
-     *            The new time stamp
+     * @param timeStamp The new time stamp
      */
     @Deprecated
     public void setTimeStamp(String timeStamp) {
@@ -141,9 +145,9 @@ public class Vote {
     }
 
 
-    public JSONObject serialize(){
+    public JSONObject serialize() {
         JSONObject ret = new JSONObject();
-        ret.put("serviceName",serviceName);
+        ret.put("serviceName", serviceName);
         ret.put("username", username);
         ret.put("address", address);
         ret.put("timestamp", timeStamp);

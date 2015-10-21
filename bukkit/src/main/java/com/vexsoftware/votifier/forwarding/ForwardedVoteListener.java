@@ -9,6 +9,7 @@ public interface ForwardedVoteListener {
 
     /**
      * Called whenever a vote is forwarded from a {@link ForwardingVoteSink}
+     *
      * @param v Vote that was forwarded
      */
     void onForward(Vote v);
