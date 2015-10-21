@@ -4,6 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
+import com.vexsoftware.votifier.bungee.forwarding.BungeePluginMessagingForwardingSource;
+import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
+import com.vexsoftware.votifier.bungee.forwarding.cache.MemoryVoteCache;
+import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
@@ -21,6 +25,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -36,20 +41,35 @@ import java.util.logging.Level;
 
 public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
 
-    /** The server channel. */
+    /**
+     * The server channel.
+     */
     private Channel serverChannel;
 
-    /** The event group handling the channel. */
+    /**
+     * The event group handling the channel.
+     */
     private NioEventLoopGroup serverGroup;
 
-    /** The RSA key pair. */
+    /**
+     * The RSA key pair.
+     */
     private KeyPair keyPair;
 
-    /** Debug mode flag */
+    /**
+     * Debug mode flag
+     */
     private boolean debug;
 
-    /** Keys used for websites. */
+    /**
+     * Keys used for websites.
+     */
     private Map<String, Key> tokens = new HashMap<>();
+
+    /**
+     * Method used to forward votes to downstream servers
+     */
+    private ForwardingVoteSource forwardingMethod;
 
     @Override
     public void onEnable() {
@@ -76,14 +96,10 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 // Initialize the configuration file.
                 config.createNewFile();
 
-                configuration = new Configuration();
-                // With BungeeCord, we can usually assume 0.0.0.0 as the host, but we should have the user check it.
-                configuration.set("host", "0.0.0.0");
-                configuration.set("port", 8192);
-                configuration.set("debug", false);
+                configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(getResourceAsStream("bungeeConfig.yml"));
 
 				/*
-				 * Remind hosted server admins to be sure they have the right
+                 * Remind hosted server admins to be sure they have the right
 				 * port number.
 				 */
                 getLogger().info("------------------------------------------------------------------------------");
@@ -91,6 +107,11 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 getLogger().info("shared server please check with your hosting provider to verify that this port");
                 getLogger().info("is available for your use. Chances are that your hosting provider will assign");
                 getLogger().info("a different port, which you need to specify in config.yml");
+                getLogger().info("------------------------------------------------------------------------------");
+
+                getLogger().info("Assigning NuVotifier to listen to interface 0.0.0.0. This is usually alright,");
+                getLogger().info("however, if you want NuVotifier to only listen to one interface for security ");
+                getLogger().info("reasons, you may change this in the config.yml");
                 getLogger().info("------------------------------------------------------------------------------");
 
                 String token = TokenUtil.newToken();
@@ -106,7 +127,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
         }
 
         /*
-		 * Create RSA directory and keys if it does not exist; otherwise, read
+         * Create RSA directory and keys if it does not exist; otherwise, read
 		 * keys.
 		 */
         try {
@@ -186,7 +207,32 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                         });
             }
         });
+
+        Configuration fwdCfg = configuration.getSection("forwarding");
+        String fwdMethod = fwdCfg.getString("method", "none").toLowerCase();
+        if ("none".equals(fwdMethod)) {
+            getLogger().info("Method none selected for vote forwarding: Votes will not be forwarded to backend servers.");
+        } else if ("pluginmessaging".equals(fwdMethod)) {
+            String channel = fwdCfg.getString("pluginMessaging.channel", "NuVotifier");
+            String cacheMethod = fwdCfg.getString("pluginMessaging.cache", "memory").toLowerCase();
+            VoteCache voteCache = null;
+            if ("none".equals(cacheMethod)) {
+                getLogger().info("Vote cache none selected for caching: votes that cannot be immediately delivered will be lost.");
+            } else if ("memory".equals(cacheMethod)) {
+                voteCache = new MemoryVoteCache(ProxyServer.getInstance().getServers().size());
+                getLogger().info("Using in-memory cache for votes that are not able to be delivered.");
+            }
+            try {
+                forwardingMethod = new BungeePluginMessagingForwardingSource(channel, this, voteCache);
+                getLogger().info("Forwarding votes over PluginMessaging channel '" + channel + "' for vote forwarding!");
+            } catch (RuntimeException e) {
+                getLogger().log(Level.SEVERE, "NuVotifier could no set up PluginMessaging for vote forwarding!", e);
+            }
+        } else {
+            getLogger().severe("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");
+        }
     }
+
 
     @Override
     public void onDisable() {
@@ -194,6 +240,11 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
         if (serverChannel != null)
             serverChannel.close();
         serverGroup.shutdownGracefully();
+
+        if (forwardingMethod != null) {
+            forwardingMethod.halt();
+        }
+
         getLogger().info("Votifier disabled.");
     }
 
@@ -213,6 +264,15 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 getProxy().getPluginManager().callEvent(new VotifierEvent(vote));
             }
         });
+
+        if (forwardingMethod != null) {
+            getProxy().getScheduler().runAsync(this, new Runnable() {
+                @Override
+                public void run() {
+                    forwardingMethod.forward(vote);
+                }
+            });
+        }
     }
 
     @Override
@@ -238,4 +298,6 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
     public String getVersion() {
         return getDescription().getVersion();
     }
+
+    public boolean isDebug(){ return debug; }
 }
