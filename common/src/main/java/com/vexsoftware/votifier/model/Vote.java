@@ -51,7 +51,7 @@ public class Vote {
     }
 
     public Vote(JSONObject jsonObject){
-        this(jsonObject.getString("serviceName"),jsonObject.getString("username"),jsonObject.getString("address"),Long.toString(jsonObject.getLong("timestamp")));
+        this(jsonObject.getString("serviceName"),jsonObject.getString("username"),jsonObject.getString("address"),jsonObject.getString("timestamp"));
     }
 
     @Override
