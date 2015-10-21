@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Decodes protocol 2 JSON votes.
  */
-public class VotifierProtocol2VoteDecoder extends MessageToMessageDecoder<String> {
+public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
     @Override
     protected void decode(ChannelHandlerContext ctx, String s, List<Object> list) throws Exception {
         JSONObject voteMessage = new JSONObject(s);

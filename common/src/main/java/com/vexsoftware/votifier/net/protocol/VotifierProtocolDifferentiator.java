@@ -35,7 +35,7 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
             // Short 0x733A + Message = Protocol v2 Vote
             ctx.pipeline().addAfter("protocolDifferentiator", "protocol2LengthDecoder", new LengthFieldBasedFrameDecoder(1024, 2, 2, 0, 4));
             ctx.pipeline().addAfter("protocol2LengthDecoder", "protocol2StringDecoder", new StringDecoder(StandardCharsets.UTF_8));
-            ctx.pipeline().addAfter("protocol2StringDecoder", "protocol2VoteDecoder", new VotifierProtocol2VoteDecoder());
+            ctx.pipeline().addAfter("protocol2StringDecoder", "protocol2VoteDecoder", new VotifierProtocol2Decoder());
             ctx.pipeline().addAfter("protocol2VoteDecoder", "protocol2StringEncoder", new StringEncoder(StandardCharsets.UTF_8));
             session.setVersion(VotifierSession.ProtocolVersion.TWO);
             ctx.pipeline().remove(this);
