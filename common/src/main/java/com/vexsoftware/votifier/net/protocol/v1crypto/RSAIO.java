@@ -18,10 +18,9 @@
 
 package com.vexsoftware.votifier.net.protocol.v1crypto;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -80,13 +79,13 @@ public class RSAIO {
 	public static KeyPair load(File directory) throws Exception {
 		// Read the public key file.
 		File publicKeyFile = new File(directory + "/public.key");
-		byte[] encodedPublicKey = FileUtils.readFileToByteArray(publicKeyFile);
+		byte[] encodedPublicKey = Files.readAllBytes(publicKeyFile.toPath());
 		encodedPublicKey = DatatypeConverter.parseBase64Binary(new String(
 				encodedPublicKey));
 
 		// Read the private key file.
 		File privateKeyFile = new File(directory + "/private.key");
-		byte[] encodedPrivateKey = FileUtils.readFileToByteArray(privateKeyFile);
+		byte[] encodedPrivateKey = Files.readAllBytes(privateKeyFile.toPath());
 		encodedPrivateKey = DatatypeConverter.parseBase64Binary(new String(
 				encodedPrivateKey));
 

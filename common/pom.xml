@@ -28,13 +28,5 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-        <!-- Apache Commons-IO -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>
