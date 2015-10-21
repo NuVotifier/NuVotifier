@@ -25,4 +25,5 @@ forwarding:
     #Sets which cache to use if there are no players on the server that teh vote is trying to reach. Supported caches:
     # none - Votes will simply be lost when no players are present
     # memory - Votes will be cached in memory when no players are present. When the bungee is restarted, the votes will be lost.
+    #  This method is NOT recommended for production systems!!!
     cache: memory
