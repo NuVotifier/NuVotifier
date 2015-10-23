@@ -1,7 +1,11 @@
 package com.vexsoftware.votifier.bungee.forwarding.cache;
 
 import com.google.common.io.Files;
+import com.vexsoftware.votifier.bungee.NuVotifier;
 import com.vexsoftware.votifier.model.Vote;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.scheduler.ScheduledTask;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -13,15 +17,29 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class FileVoteCache extends MemoryVoteCache {
 
     private final File cacheFile;
+    private final ScheduledTask saveTask;
 
-    public FileVoteCache(int initialMemorySize, File cacheFile) throws IOException {
+    public FileVoteCache(int initialMemorySize, final Plugin plugin, File cacheFile) throws IOException {
         super(initialMemorySize);
         this.cacheFile = cacheFile;
         load();
+
+        saveTask = ProxyServer.getInstance().getScheduler().schedule(plugin, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    save();
+                } catch (IOException e) {
+                    plugin.getLogger().log(Level.SEVERE, "Unable to save cached votes, votes will be lost if you restart.", e);
+                }
+            }
+        }, 3, 3, TimeUnit.MINUTES);
     }
 
     private void load() throws IOException {
@@ -60,6 +78,11 @@ public class FileVoteCache extends MemoryVoteCache {
         try (BufferedWriter writer = Files.newWriter(cacheFile, StandardCharsets.UTF_8)) {
             votesObject.write(writer);
         }
+    }
+
+    public void halt() throws IOException {
+        saveTask.cancel();
+        save();
     }
 
 }

@@ -64,7 +64,7 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
 
         if (cache != null && cache instanceof FileVoteCache) {
             try {
-                ((FileVoteCache) cache).save();
+                ((FileVoteCache) cache).halt();
             } catch (IOException e) {
                 nuVotifier.getLogger().log(Level.SEVERE, "Unable to save cached votes, votes will be lost.", e);
             }

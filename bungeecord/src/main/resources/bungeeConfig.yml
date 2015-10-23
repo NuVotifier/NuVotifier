@@ -26,7 +26,7 @@ forwarding:
     # - none - Votes will simply be lost when no players are present on the server.
     # - memory - Votes will be cached in memory when no players are present. When Bungee is restarted, the votes will be lost.
     #   This method is NOT recommended for production systems!
-    # - file - Votes will be saved to a local file on shutdown and reloaded when Bungee is restarted. This is suitable for
+    # - file - Votes will be saved to a local file every 3 minutes and on shutdown and reloaded when Bungee is restarted. This is suitable for
     #   most set ups.
     cache: file
     # Options for file caching.

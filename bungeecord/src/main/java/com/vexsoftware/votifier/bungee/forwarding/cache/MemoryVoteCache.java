@@ -15,9 +15,9 @@ public class MemoryVoteCache implements VoteCache {
         voteCache = new HashMap<>(initialSize);
     }
 
-    final Map<String, Collection<Vote>> voteCache;
+    protected final Map<String, Collection<Vote>> voteCache;
 
-    final ReentrantLock cacheLock = new ReentrantLock();
+    protected final ReentrantLock cacheLock = new ReentrantLock();
 
     @Override
     public Collection<String> getCachedServers() {
