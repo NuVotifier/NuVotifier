@@ -18,6 +18,8 @@
 
 package com.vexsoftware.votifier;
 
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.forwarding.ForwardingVoteSink;
@@ -46,6 +48,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
@@ -134,10 +137,11 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 // Initialize the configuration file.
                 config.createNewFile();
 
-                //Load configuration from resources to maintain comments
-                cfg = YamlConfiguration.loadConfiguration(getResource("bukkitConfig.yml"));
-
-                cfg.set("host", hostAddr);
+                // Load and manually replace variables in the configuration.
+                String cfgStr = new String(ByteStreams.toByteArray(getResource("bukkitConfig.yml")), StandardCharsets.UTF_8);
+                String token = TokenUtil.newToken();
+                cfgStr = cfgStr.replace("%default_token%", token).replace("%ip%", hostAddr);
+                Files.write(cfgStr, config, StandardCharsets.UTF_8);
 
 				/*
 				 * Remind hosted server admins to be sure they have the right
@@ -149,24 +153,19 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 getLogger().info("is available for your use. Chances are that your hosting provider will assign");
                 getLogger().info("a different port, which you need to specify in config.yml");
                 getLogger().info("------------------------------------------------------------------------------");
-
-                String token = TokenUtil.newToken();
-                ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
-                tokenSection.set("default", token);
                 getLogger().info("Your default NuVotifier token is " + token + ".");
                 getLogger().info("You will need to provide this token when you submit your server to a voting");
                 getLogger().info("list.");
                 getLogger().info("------------------------------------------------------------------------------");
-                cfg.save(config);
             } catch (Exception ex) {
                 getLogger().log(Level.SEVERE, "Error creating configuration file", ex);
                 gracefulExit();
                 return;
             }
-        } else {
-            // Load configuration.
-            cfg = YamlConfiguration.loadConfiguration(config);
         }
+
+        // Load configuration.
+        cfg = YamlConfiguration.loadConfiguration(config);
 
 		/*
 		 * Create RSA directory and keys if it does not exist; otherwise, read

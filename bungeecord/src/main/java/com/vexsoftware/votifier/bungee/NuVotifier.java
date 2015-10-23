@@ -1,6 +1,8 @@
 package com.vexsoftware.votifier.bungee;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
@@ -34,6 +36,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
@@ -83,13 +86,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
         File rsaDirectory = new File(getDataFolder() + "/rsa");
         Configuration configuration;
 
-        if (config.exists()) {
-            try {
-                configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(config);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to load configuration", e);
-            }
-        } else {
+        if (!config.exists()) {
             try {
                 // First time run - do some initialization.
                 getLogger().info("Configuring Votifier for the first time...");
@@ -97,34 +94,39 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 // Initialize the configuration file.
                 config.createNewFile();
 
-                configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(getResourceAsStream("bungeeConfig.yml"));
+                String cfgStr = new String(ByteStreams.toByteArray(getResourceAsStream("bungeeConfig.yml")), StandardCharsets.UTF_8);
+                String token = TokenUtil.newToken();
+                cfgStr = cfgStr.replace("%default_token%", token);
+                Files.write(cfgStr, config, StandardCharsets.UTF_8);
 
 				/*
                  * Remind hosted server admins to be sure they have the right
 				 * port number.
 				 */
                 getLogger().info("------------------------------------------------------------------------------");
-                getLogger().info("Assigning Votifier to listen on port 8192. If you are hosting Craftbukkit on a");
+                getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting BungeeCord on a");
                 getLogger().info("shared server please check with your hosting provider to verify that this port");
                 getLogger().info("is available for your use. Chances are that your hosting provider will assign");
                 getLogger().info("a different port, which you need to specify in config.yml");
                 getLogger().info("------------------------------------------------------------------------------");
-
                 getLogger().info("Assigning NuVotifier to listen to interface 0.0.0.0. This is usually alright,");
                 getLogger().info("however, if you want NuVotifier to only listen to one interface for security ");
-                getLogger().info("reasons, you may change this in the config.yml");
+                getLogger().info("reasons (or you use a shared host), you may change this in the config.yml.");
                 getLogger().info("------------------------------------------------------------------------------");
-
-                String token = TokenUtil.newToken();
-                configuration.set("tokens", ImmutableMap.of("default", token));
                 getLogger().info("Your default Votifier token is " + token + ".");
                 getLogger().info("You will need to provide this token when you submit your server to a voting");
                 getLogger().info("list.");
                 getLogger().info("------------------------------------------------------------------------------");
-                ConfigurationProvider.getProvider(YamlConfiguration.class).save(configuration, config);
             } catch (Exception ex) {
                 throw new RuntimeException("Unable to create configuration file", ex);
             }
+        }
+
+        // Load the configuration.
+        try {
+            configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(config);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load configuration", e);
         }
 
         /*
@@ -140,7 +142,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 keyPair = RSAIO.load(rsaDirectory);
             }
         } catch (Exception ex) {
-            throw new RuntimeException("Error reading configuration file or RSA tokens", ex);
+            throw new RuntimeException("Error reading RSA tokens", ex);
         }
 
         // Load Votifier tokens.
