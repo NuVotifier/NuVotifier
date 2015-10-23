@@ -58,8 +58,16 @@ public class Vote {
         this.timeStamp = timeStamp;
     }
 
+    private static String getTimestamp(JSONObject object) {
+        try {
+            return Long.toString(object.getLong("timestamp"));
+        } catch (Exception e) {
+            return object.getString("timestamp");
+        }
+    }
+
     public Vote(JSONObject jsonObject) {
-        this(jsonObject.getString("serviceName"), jsonObject.getString("username"), jsonObject.getString("address"), Long.toString(jsonObject.getLong("timestamp")));
+        this(jsonObject.getString("serviceName"), jsonObject.getString("username"), jsonObject.getString("address"), getTimestamp(jsonObject));
     }
 
     @Override

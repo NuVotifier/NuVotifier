@@ -58,7 +58,6 @@ public class FileVoteCache extends MemoryVoteCache {
         cacheLock.unlock();
 
         try (BufferedWriter writer = Files.newWriter(cacheFile, StandardCharsets.UTF_8)) {
-            // Annoyingly, if the map is empty, "{"empty":true}" is serialized. Why?!?
             votesObject.write(writer);
         }
     }
