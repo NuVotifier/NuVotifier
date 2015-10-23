@@ -11,7 +11,7 @@ Votifier has lagged in activity, has severe security flaws in its protocol, and 
 Yes. NuVotifier is compatible with Votifier server lists and Votifier listeners, with some differences:
 
 * The `Vote` object's setters are deprecated.
-* Support for standalone vote listeners (`.class` files) has been removed, as handling `VotifierEvent` in non-Votifier plugins is more flexible.
+* Support for standalone vote listeners (`.class` files) has been removed, as handling `VotifierEvent` is more flexible.
 
 ### Why a new protocol?
 
@@ -35,6 +35,11 @@ In `config.yml`, you will notice a `tokens` section. NuVotifier has a new protoc
 
 RSA keys for use with the old Votifier protocol are available under the `plugins/(Nu)Votifier/rsa` directory.
 
+### Vote Forwarding
+
+Starting from NuVotifier 2.2, there is a feature to forward votes from NuVotifier running on BungeeCord to your Bukkit servers without complicated setup.
+
+You must enable the feature on both your Bukkit and BungeeCord servers. This feature is still in beta but is stable.
 
 ## Building NuVotifier
 
