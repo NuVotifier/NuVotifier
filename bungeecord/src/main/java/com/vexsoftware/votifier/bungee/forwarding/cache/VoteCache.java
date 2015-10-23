@@ -31,12 +31,4 @@ public interface VoteCache {
      * @return A collection of all votes which were previously in the cache under the server
      */
     Collection<Vote> evict(String server);
-
-    /**
-     * Returns whether the cache has votes present within it ready for evicting
-     *
-     * @param server Server name of server to check
-     * @return Whether the passed server has votes ready for eviction
-     */
-    boolean hasVotes(String server);
 }

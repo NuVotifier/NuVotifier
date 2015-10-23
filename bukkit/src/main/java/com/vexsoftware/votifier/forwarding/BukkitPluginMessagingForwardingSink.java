@@ -10,6 +10,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
 /**
@@ -37,12 +38,10 @@ public class BukkitPluginMessagingForwardingSink implements ForwardingVoteSink, 
     @Override
     public void onPluginMessageReceived(String s, Player player, byte[] bytes) {
         try {
-            String message = new String(bytes, "UTF-8");
+            String message = new String(bytes, StandardCharsets.UTF_8);
             JSONObject jsonObject = new JSONObject(message);
             Vote v = new Vote(jsonObject);
             listener.onForward(v);
-        } catch (UnsupportedEncodingException e) {
-            NuVotifierBukkit.getInstance().getLogger().log(Level.SEVERE, "The server does not support the required UTF-8 encoding!", e);
         } catch (RuntimeException e) {
             NuVotifierBukkit.getInstance().getLogger().log(Level.SEVERE, "There was an unknown error when processing a forwarded vote.", e);
         }

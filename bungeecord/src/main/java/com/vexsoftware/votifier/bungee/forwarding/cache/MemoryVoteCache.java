@@ -42,16 +42,8 @@ public class MemoryVoteCache implements VoteCache {
     @Override
     public Collection<Vote> evict(String server) {
         cacheLock.lock();
-        Collection<Vote> removedVotes = ImmutableSet.copyOf(voteCache.remove(server));
+        Collection<Vote> fromCollection = voteCache.remove(server);
         cacheLock.unlock();
-        return removedVotes;
-    }
-
-    @Override
-    public boolean hasVotes(String server) {
-        cacheLock.lock();
-        boolean b = voteCache.containsKey(server);
-        cacheLock.unlock();
-        return b;
+        return fromCollection != null ? ImmutableSet.copyOf(fromCollection) : ImmutableSet.<Vote>of();
     }
 }

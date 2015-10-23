@@ -13,6 +13,7 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.logging.Level;
 
@@ -35,13 +36,7 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
 
     @Override
     public void forward(Vote v) {
-        byte[] rawData;
-        try {
-            rawData = v.serialize().toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            nuVotifier.getLogger().log(Level.SEVERE, "The server does not support the required UTF-8 encoding!", e);
-            return;
-        }
+        byte[] rawData = v.serialize().toString().getBytes(StandardCharsets.UTF_8);
         for (ServerInfo s : ProxyServer.getInstance().getServers().values()) {
             if (!forwardSpecific(s, rawData)) {
                 if (cache != null) {
@@ -55,21 +50,12 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
     }
 
     protected boolean forwardSpecific(ServerInfo connection, Vote vote) {
-        byte[] rawData;
-        try {
-            rawData = vote.serialize().toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            nuVotifier.getLogger().log(Level.SEVERE, "The server does not support the required UTF-8 encoding!", e);
-            return false;
-        }
-
+        byte[] rawData = vote.serialize().toString().getBytes(StandardCharsets.UTF_8);
         return connection.sendData(channel, rawData, false);
     }
 
     private boolean forwardSpecific(ServerInfo connection, byte[] data) {
-        boolean b = connection.sendData(channel, data, false);
-        System.out.println(b);
-        return b;
+        return connection.sendData(channel, data, false);
     }
 
     @Override
@@ -94,8 +80,8 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
     public void onServerConnected(ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
         if (cache == null) return;
         String serverName = e.getServer().getInfo().getName();
-        if (cache.hasVotes(serverName)) {
-            Collection<Vote> cachedVotes = cache.evict(serverName);
+        Collection<Vote> cachedVotes = cache.evict(serverName);
+        if (!cachedVotes.isEmpty()) {
             for (Vote v : cachedVotes) {
                 forwardSpecific(e.getServer().getInfo(), v);
             }
