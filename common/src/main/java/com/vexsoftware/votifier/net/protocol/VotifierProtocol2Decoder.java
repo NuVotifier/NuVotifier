@@ -52,9 +52,6 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
             throw new RuntimeException("Signature is not valid (invalid token?)");
         }
 
-        // Make sure the timestamp is a long.
-        votePayload.getLong("timestamp");
-
         // Create the vote.
         Vote vote = new Vote(votePayload);
         list.add(vote);

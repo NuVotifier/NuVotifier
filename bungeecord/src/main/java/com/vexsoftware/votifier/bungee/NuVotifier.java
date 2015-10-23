@@ -6,6 +6,7 @@ import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
 import com.vexsoftware.votifier.bungee.forwarding.BungeePluginMessagingForwardingSource;
 import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
+import com.vexsoftware.votifier.bungee.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.MemoryVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.model.Vote;
@@ -221,6 +222,13 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
             } else if ("memory".equals(cacheMethod)) {
                 voteCache = new MemoryVoteCache(ProxyServer.getInstance().getServers().size());
                 getLogger().info("Using in-memory cache for votes that are not able to be delivered.");
+            } else if ("file".equals(cacheMethod)) {
+                try {
+                    voteCache = new FileVoteCache(ProxyServer.getInstance().getServers().size(), new File(getDataFolder(),
+                            fwdCfg.getString("pluginMessaging.file.name")));
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE, "Unload to load file cache. Votes will be lost!", e);
+                }
             }
             try {
                 forwardingMethod = new BungeePluginMessagingForwardingSource(channel, this, voteCache);

@@ -1,6 +1,7 @@
 package com.vexsoftware.votifier.bungee.forwarding;
 
 import com.vexsoftware.votifier.bungee.NuVotifier;
+import com.vexsoftware.votifier.bungee.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.model.Vote;
 import net.md_5.bungee.api.ProxyServer;
@@ -10,6 +11,7 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -73,6 +75,14 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
     @Override
     public void halt() {
         ProxyServer.getInstance().unregisterChannel(channel);
+
+        if (cache != null && cache instanceof FileVoteCache) {
+            try {
+                ((FileVoteCache) cache).save();
+            } catch (IOException e) {
+                nuVotifier.getLogger().log(Level.SEVERE, "Unable to save cached votes, votes will be lost.", e);
+            }
+        }
     }
 
     @EventHandler
