@@ -226,7 +226,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 getLogger().info("Using in-memory cache for votes that are not able to be delivered.");
             } else if ("file".equals(cacheMethod)) {
                 try {
-                    voteCache = new FileVoteCache(ProxyServer.getInstance().getServers().size(), new File(getDataFolder(),
+                    voteCache = new FileVoteCache(ProxyServer.getInstance().getServers().size(), this, new File(getDataFolder(),
                             fwdCfg.getString("pluginMessaging.file.name")));
                 } catch (IOException e) {
                     getLogger().log(Level.SEVERE, "Unload to load file cache. Votes will be lost!", e);
