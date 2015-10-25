@@ -217,7 +217,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
             getLogger().info("Method none selected for vote forwarding: Votes will not be forwarded to backend servers.");
         } else if ("pluginmessaging".equals(fwdMethod)) {
             String channel = fwdCfg.getString("pluginMessaging.channel", "NuVotifier");
-            String cacheMethod = fwdCfg.getString("pluginMessaging.cache", "memory").toLowerCase();
+            String cacheMethod = fwdCfg.getString("pluginMessaging.cache", "file").toLowerCase();
             VoteCache voteCache = null;
             if ("none".equals(cacheMethod)) {
                 getLogger().info("Vote cache none selected for caching: votes that cannot be immediately delivered will be lost.");
