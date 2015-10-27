@@ -12,6 +12,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Decodes protocol 2 JSON votes.
@@ -50,6 +51,11 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
 
         if (!sigHash.equals(computed)) {
             throw new RuntimeException("Signature is not valid (invalid token?)");
+        }
+
+        // Stopgap: verify the "uuid" field is valid, if provided.
+        if (votePayload.has("uuid")) {
+            UUID.fromString(votePayload.getString("uuid"));
         }
 
         // Create the vote.

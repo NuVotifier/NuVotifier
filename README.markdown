@@ -65,7 +65,7 @@ NuVotifier expects a message composed of `0x733A` (16-bit big-endian integer) an
 
 The message is JSON-encoded containing the following data:
 
-* `payload` contains the fully encoded vote. It is a JSON message containing the `serviceName` (string), `username` (string), `address` (string, but must be a valid IPv4 or IPv6 address), `timestamp` (a long with the time this vote was taken in _milliseconds_), and `challenge` (from the handshake).
+* `payload` contains the fully encoded vote. It is a JSON message containing the `serviceName` (string), `username` (string), `address` (string, but must be a valid IPv4 or IPv6 address), `timestamp` (a long with the time this vote was taken in _milliseconds_), and `challenge` (from the handshake). It is *highly* recommended to supply a `uuid` field with the player's UUID (with dashes, e.g. `652a2bc4-e8cd-405d-b7b6-98156ee2dc09`).
 * `signature` is a HMAC-SHA256 digest of the payload with a owner-provided key.
 
 A response is given after the vote has been received and parsed, but not yet processed.
