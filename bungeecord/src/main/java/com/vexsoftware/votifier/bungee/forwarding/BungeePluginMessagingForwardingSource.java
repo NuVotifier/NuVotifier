@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -77,16 +78,21 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
     }
 
     @EventHandler
-    public void onServerConnected(ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
+    public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
         if (cache == null) return;
-        String serverName = e.getServer().getInfo().getName();
-        Collection<Vote> cachedVotes = cache.evict(serverName);
+        final String serverName = e.getServer().getInfo().getName();
+        final Collection<Vote> cachedVotes = cache.evict(serverName);
         if (!cachedVotes.isEmpty()) {
-            for (Vote v : cachedVotes) {
-                forwardSpecific(e.getServer().getInfo(), v);
-            }
-            if (nuVotifier.isDebug())
-                nuVotifier.getLogger().info("Evicted " + cachedVotes.size() + " votes to server '" + serverName + "'.");
+            nuVotifier.getProxy().getScheduler().schedule(nuVotifier, new Runnable() {
+                @Override
+                public void run() {
+                    for (Vote v : cachedVotes) {
+                        forwardSpecific(e.getServer().getInfo(), v);
+                    }
+                    if (nuVotifier.isDebug())
+                        nuVotifier.getLogger().info("Evicted " + cachedVotes.size() + " votes to server '" + serverName + "'.");
+                }
+            }, 1, TimeUnit.SECONDS);
         }
     }
 }
