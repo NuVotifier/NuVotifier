@@ -86,11 +86,23 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
             nuVotifier.getProxy().getScheduler().schedule(nuVotifier, new Runnable() {
                 @Override
                 public void run() {
+                    int evicted = 0;
+                    int unsuccessfulEvictions = 0;
                     for (Vote v : cachedVotes) {
-                        forwardSpecific(e.getServer().getInfo(), v);
+                        if (forwardSpecific(e.getServer().getInfo(), v)) {
+                            evicted++;
+                        } else {
+                            // Re-add to cache to send later.
+                            cache.addToCache(v, serverName);
+                            unsuccessfulEvictions++;
+                        }
                     }
-                    if (nuVotifier.isDebug())
-                        nuVotifier.getLogger().info("Evicted " + cachedVotes.size() + " votes to server '" + serverName + "'.");
+                    if (nuVotifier.isDebug()) {
+                        nuVotifier.getLogger().info("Successfully evicted " + evicted + " votes to server '" + serverName + "'.");
+                        if (unsuccessfulEvictions > 0) {
+                            nuVotifier.getLogger().info("Held " + unsuccessfulEvictions + " votes for server '" + serverName + "'.");
+                        }
+                    }
                 }
             }, 1, TimeUnit.SECONDS);
         }
