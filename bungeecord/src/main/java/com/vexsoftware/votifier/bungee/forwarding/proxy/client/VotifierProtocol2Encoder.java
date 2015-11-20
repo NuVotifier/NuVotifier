@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.bungee.forwarding.proxy.client;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.json.JSONObject;
@@ -39,6 +39,8 @@ public class VotifierProtocol2Encoder extends MessageToByteEncoder<VoteRequest> 
         String finalMessage = object.toString();
         buf.writeShort(MAGIC);
         buf.writeShort(finalMessage.length());
-        ByteBufUtil.writeAscii(buf, finalMessage);
+        ByteBuf messageBytes = Unpooled.copiedBuffer(finalMessage, StandardCharsets.UTF_8);
+        buf.writeBytes(messageBytes);
+        messageBytes.release();
     }
 }
