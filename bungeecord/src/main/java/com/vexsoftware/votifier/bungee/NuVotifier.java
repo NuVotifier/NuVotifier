@@ -11,6 +11,7 @@ import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
 import com.vexsoftware.votifier.bungee.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.MemoryVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
+import com.vexsoftware.votifier.bungee.forwarding.proxy.ProxyForwardingVoteSource;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
@@ -36,11 +37,19 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 
 public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
@@ -178,10 +187,10 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
             getLogger().info("DEBUG mode enabled!");
 
         // Must set up server asynchronously due to BungeeCord goofiness.
-        getProxy().getScheduler().runAsync(this, new Runnable() {
+        FutureTask<?> initTask = new FutureTask<>(Executors.callable(new Runnable() {
             @Override
             public void run() {
-                serverGroup = new NioEventLoopGroup(1);
+                serverGroup = new NioEventLoopGroup(2);
 
                 new ServerBootstrap()
                         .channel(NioServerSocketChannel.class)
@@ -209,7 +218,13 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                             }
                         });
             }
-        });
+        }));
+        getProxy().getScheduler().runAsync(this, initTask);
+        try {
+            initTask.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Unable to start server", e);
+        }
 
         Configuration fwdCfg = configuration.getSection("forwarding");
         String fwdMethod = fwdCfg.getString("method", "none").toLowerCase();
@@ -238,6 +253,25 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
             } catch (RuntimeException e) {
                 getLogger().log(Level.SEVERE, "NuVotifier could no set up PluginMessaging for vote forwarding!", e);
             }
+        } else if ("proxy".equals(fwdMethod)) {
+            Configuration serverSection = fwdCfg.getSection("proxy");
+            List<ProxyForwardingVoteSource.BackendServer> serverList = new ArrayList<>();
+            for (String s : serverSection.getKeys()) {
+                Configuration section = serverSection.getSection(s);
+                InetAddress address;
+                try {
+                    address = InetAddress.getByName(section.getString("address"));
+                } catch (UnknownHostException e) {
+                    getLogger().info("Address " + section.getString("address") + " couldn't be looked up. Ignoring!");
+                    continue;
+                }
+                ProxyForwardingVoteSource.BackendServer server = new ProxyForwardingVoteSource.BackendServer(s,
+                        new InetSocketAddress(address, section.getShort("port")), KeyCreator.createKeyFrom(section.getString("key")));
+                serverList.add(server);
+            }
+
+            forwardingMethod = new ProxyForwardingVoteSource(this, serverGroup, serverList, null);
+            getLogger().info("Forwarding votes from this NuVotifier instance to another NuVotifier server.");
         } else {
             getLogger().severe("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");
         }

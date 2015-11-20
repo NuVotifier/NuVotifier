@@ -18,7 +18,8 @@ tokens:
 forwarding:
   # Sets whether to set up a remote method for fowarding. Supported methods:
   # - none - Does not set up a forwarding method.
-  # - pluginMessaging - Sets up plugin messaging
+  # - pluginMessaging - Sets up plugin messaging.
+  # - proxy - Proxies votes to other NuVotifier servers from this server.
   method: none
   pluginMessaging:
     channel: NuVotifier
@@ -32,3 +33,9 @@ forwarding:
     # Options for file caching.
     file:
       name: cached-votes.json
+  # Specify servers to proxy votes for.
+  proxy:
+    Hub:
+      address: 127.0.0.1
+      port: 8193
+      key: MyKeyHere

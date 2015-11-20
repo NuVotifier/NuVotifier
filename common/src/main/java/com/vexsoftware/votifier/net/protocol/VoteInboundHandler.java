@@ -26,7 +26,7 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
         } else {
             JSONObject object = new JSONObject();
             object.put("status", "ok");
-            ctx.writeAndFlush(object.toString()).addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(object.toString() + "\n").addListener(ChannelFutureListener.CLOSE);
         }
     }
 
@@ -41,7 +41,7 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
             object.put("status", "error");
             object.put("cause", cause.getClass().getSimpleName());
             object.put("error", cause.getMessage());
-            ctx.writeAndFlush(object.toString()).addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(object.toString() + "\n").addListener(ChannelFutureListener.CLOSE);
         } else {
             ctx.close();
         }
