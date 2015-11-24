@@ -48,14 +48,14 @@ public class FileVoteCache extends MemoryVoteCache {
             JSONObject object = new JSONObject(Files.toString(cacheFile, StandardCharsets.UTF_8));
 
             // Deserialize all votes contained
-            for (String server : object.keySet()) {
-                JSONArray voteArray = object.optJSONArray(server);
+            for (Object server : object.keySet()) {
+                JSONArray voteArray = object.optJSONArray(((String) server));
                 if (voteArray == null) continue;
                 Set<Vote> votes = new LinkedHashSet<>(voteArray.length());
                 for (int i = 0; i < voteArray.length(); i++) {
                     votes.add(new Vote(voteArray.getJSONObject(i)));
                 }
-                voteCache.put(server, votes);
+                voteCache.put(((String) server), votes);
             }
         } else {
             cacheFile.createNewFile();
