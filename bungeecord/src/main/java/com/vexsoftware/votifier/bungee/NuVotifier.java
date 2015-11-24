@@ -37,6 +37,8 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -213,7 +215,11 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                                     serverChannel = future.channel();
                                     getLogger().info("Votifier enabled.");
                                 } else {
-                                    getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + future.channel().localAddress(), future.cause());
+                                    SocketAddress socketAddress = future.channel().localAddress();
+                                    if(socketAddress == null){
+                                        socketAddress = new InetSocketAddress(host,port);
+                                    }
+                                    getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + socketAddress, future.cause());
                                 }
                             }
                         });

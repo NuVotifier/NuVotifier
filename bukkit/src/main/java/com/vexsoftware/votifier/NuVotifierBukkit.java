@@ -20,6 +20,14 @@ package com.vexsoftware.votifier;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.security.Key;
+import java.security.KeyPair;
+import java.util.*;
+import java.util.logging.*;
+
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.forwarding.ForwardingVoteSink;
@@ -222,8 +230,8 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             }
 
             // Initialize the receiver.
-            String host = cfg.getString("host", hostAddr);
-            int port = cfg.getInt("port", 8192);
+            final String host = cfg.getString("host", hostAddr);
+            final int port = cfg.getInt("port", 8192);
             if (debug)
                 getLogger().info("DEBUG mode enabled!");
 
@@ -250,7 +258,11 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                                 serverChannel = future.channel();
                                 getLogger().info("Votifier enabled.");
                             } else {
-                                getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + future.channel().localAddress(), future.cause());
+                                SocketAddress socketAddress = future.channel().localAddress();
+                                if(socketAddress == null){
+                                    socketAddress = new InetSocketAddress(host,port);
+                                }
+                                getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + socketAddress, future.cause());
                             }
                         }
                     });
