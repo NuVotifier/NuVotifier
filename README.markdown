@@ -27,6 +27,8 @@ NuVotifier configures itself the first time it is run. If you have an existing V
 
 If you want to customize NuVotifier, simply the edit `./plugins/(Nu)Votifier/config.yml` file.
 
+An in-depth configuration guide is located in `usage.md` of this repository.
+
 ### Tokens
 
 In `config.yml`, you will notice a `tokens` section. NuVotifier has a new protocol version that requires tokens. The `tokens` section can be used to easily grant or revoke access to a server list based on the keys it uses.

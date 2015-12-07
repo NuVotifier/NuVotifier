@@ -39,3 +39,7 @@ forwarding:
       address: 127.0.0.1
       port: 8193
       key: MyKeyHere
+    Hub2:
+      address: 127.0.0.1
+      port: 8194
+      key: AnotherKeyHere
