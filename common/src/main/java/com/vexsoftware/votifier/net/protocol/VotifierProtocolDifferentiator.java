@@ -25,13 +25,18 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
 
     public VotifierProtocolDifferentiator(boolean testMode) {
         this.testMode = testMode;
-        setSingleDecode(true);
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         // Determine the number of bytes that are available.
         int readable = buf.readableBytes();
+
+        if (readable == 0) {
+            // Some retarded voting sites (PMC?) seem to send empty buffers for no good reason.
+            return;
+        }
+
         buf.retain();
         buf.readerIndex(0);
         short readMagic = buf.readShort();

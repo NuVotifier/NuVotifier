@@ -34,7 +34,8 @@ public class VotifierProtocol1DecoderTest {
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
         assertTrue(channel.writeInbound(encryptedByteBuf));
-        assertEquals(votePojo, channel.readInbound());
+        Object presumedVote = channel.readInbound();
+        assertEquals(votePojo, presumedVote);
         assertFalse(channel.finish());
     }
 }

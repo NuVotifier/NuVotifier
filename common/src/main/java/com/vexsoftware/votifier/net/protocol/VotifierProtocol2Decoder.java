@@ -4,6 +4,7 @@ import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import org.json.JSONObject;
 
@@ -32,7 +33,7 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
 
         // Verify challenge.
         if (!votePayload.getString("challenge").equals(session.getChallenge())) {
-            throw new RuntimeException("Challenge is not valid");
+            throw new CorruptedFrameException("Challenge is not valid");
         }
 
         // Verify that we have keys available.
@@ -51,7 +52,7 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
         byte[] sigBytes = DatatypeConverter.parseBase64Binary(sigHash);
 
         if (!hmacEqual(sigBytes, voteMessage.getString("payload").getBytes(StandardCharsets.UTF_8), key)) {
-            throw new RuntimeException("Signature is not valid (invalid token?)");
+            throw new CorruptedFrameException("Signature is not valid (invalid token?)");
         }
 
         // Stopgap: verify the "uuid" field is valid, if provided.

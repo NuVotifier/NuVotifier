@@ -18,12 +18,14 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         int readable = buf.readableBytes();
 
-        if (readable < 256) {
-            return;
+        if (readable != 256) {
+            throw new CorruptedFrameException("Not a full 256-byte v1 block");
         }
 
         byte[] block = new byte[256];
         buf.getBytes(0, block);
+        // "Drain" the whole buffer
+        buf.readerIndex(buf.capacity());
 
         VotifierPlugin plugin = ctx.channel().attr(VotifierPlugin.KEY).get();
 
