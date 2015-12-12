@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class VerifiedProtocolDifferentiatorTest {
+public class VotifierProtocolDifferentiatorTest {
     @Test
     public void v1Test() {
         EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true));
