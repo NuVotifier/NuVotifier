@@ -9,12 +9,10 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import org.json.JSONObject;
 
 import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
+import java.security.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +21,8 @@ import java.util.UUID;
  * Decodes protocol 2 JSON votes.
  */
 public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     @Override
     protected void decode(ChannelHandlerContext ctx, String s, List<Object> list) throws Exception {
         JSONObject voteMessage = new JSONObject(s);
@@ -73,10 +73,14 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
         byte[] messageCalc = mac.doFinal(message);
-        mac.reset();
-        byte[] clientSig = mac.doFinal(sig);
-        mac.reset();
-        byte[] realSig = mac.doFinal(messageCalc);
+
+        Mac mac2 = Mac.getInstance("HmacSHA256");
+        byte[] randomKey = new byte[32];
+        RANDOM.nextBytes(randomKey);
+        mac2.init(new SecretKeySpec(randomKey, "HmacSHA256"));
+        byte[] clientSig = mac2.doFinal(sig);
+        mac2.reset();
+        byte[] realSig = mac2.doFinal(messageCalc);
 
         return Arrays.equals(clientSig, realSig);
     }
