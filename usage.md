@@ -11,7 +11,7 @@ The Universal Jar can be downloaded off our [SpigotMC resource page](https://www
 # Votifier v1 vs NuVotifier v2 Protocols
 
 NuVotifier introduces a more secure and failure tolerant protocol for sending votes. In this document, this new protocol
-will be refereed as v2. NuVotifier also supports legacy Votifier protocol (using public key encryption). In this document, 
+will be refered as v2. NuVotifier also supports legacy Votifier protocol (using public key encryption). In this document,
 the legacy protocol will be reffered to v1. As of writing, most if not all vote websites still use v1.
 
 # Configuration
@@ -21,7 +21,7 @@ the legacy protocol will be reffered to v1. As of writing, most if not all vote 
 NuVotifier allows for the server port to be turned off when NuVotifier is only being used to forward votes. This is only
 an option on Bukkit based servers, since it would not make logical sense for the port to be turned off on Bungee servers.
 
-If you are receiving votes from a server list directly on the server in question (votes are not being forwared through plugin
+If you are receiving votes from a server list directly on the server in question (votes are not being forwarded through plugin
 messaging), or if votes are being forwarded through the `proxy` method, then `enableExternal` should be set to true. Only
 if you are recieving forwarded votes from your bungee through the `pluginMessaging` forwarding method should `enableExternal`
 be set to false.
@@ -46,7 +46,7 @@ to true.
 
 As explained earlier, NuVotifier supports 2 different protocols for receiving votes, v1 and v2. v1 uses the private and public
 key pair located in `rsa/` in NuVotifier's plugin folder. When setting up voting websites, the public key, `rsa/public.key`
-should be used. When setting up the `proxy` forwaridng method, tokens should be used.
+should be used. When setting up the `proxy` forwarding method, tokens should be used.
 
 Making a new token is as easy as adding another entry into `tokens` with the serviceName as the key and whatever string you want
 as the value. You can usually find the serviceName of a vote provider on their setup page if they use v2.
@@ -126,6 +126,15 @@ network or server and want a server to get test votes on, you are more than welc
 A single server setup should have `enableExternal` set to `true`, and `forwarding.method` set to `none`. The IP and port
 should also be set to appropriate values. For server lists, you should use the public key found in `rsa/public.key`.
 
+## Advanced Setups
+
+### Multi BungeeCord Setups
+
+Using NuVotifier with multiple BungeeCords is a more tricky setup. You can use one of your player-facing proxies for the
+NuVotifier server, or use a separate one. You are not guaranteed to have players on all of your servers to allow votes to
+be dispatched, so proxy forwarding (requiring `enableExternal` set to `true` on your Bukkit servers) is highly recommended.
+
+A multi-
 
 ## Contributing
 
