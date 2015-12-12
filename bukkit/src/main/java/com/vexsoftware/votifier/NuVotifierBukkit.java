@@ -20,13 +20,11 @@ package com.vexsoftware.votifier;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import java.io.*;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.Key;
 import java.security.KeyPair;
-import java.util.*;
-import java.util.logging.*;
 
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.forwarding.ForwardedVoteListener;
@@ -57,8 +55,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;

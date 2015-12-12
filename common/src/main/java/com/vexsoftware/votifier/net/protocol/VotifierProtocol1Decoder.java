@@ -14,8 +14,6 @@ import java.util.List;
  * Decodes original protocol votes.
  */
 public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
-    private static final boolean WARNING = false;
-
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         int readable = buf.readableBytes();
@@ -69,6 +67,10 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
      * @return The string
      */
     private static String readString(byte[] data, int offset) {
+        if (offset >= data.length) {
+            throw new CorruptedFrameException("Tried to read more data than expected.");
+        }
+
         StringBuilder builder = new StringBuilder();
         for (int i = offset; i < data.length; i++) {
             if (data[i] == '\n')

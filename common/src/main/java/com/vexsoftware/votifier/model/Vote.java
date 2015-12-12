@@ -152,7 +152,6 @@ public class Vote {
         return timeStamp;
     }
 
-
     public JSONObject serialize() {
         JSONObject ret = new JSONObject();
         ret.put("serviceName", serviceName);
@@ -160,5 +159,28 @@ public class Vote {
         ret.put("address", address);
         ret.put("timestamp", timeStamp);
         return ret;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Vote vote = (Vote) o;
+
+        if (!serviceName.equals(vote.serviceName)) return false;
+        if (!username.equals(vote.username)) return false;
+        if (!address.equals(vote.address)) return false;
+        return timeStamp.equals(vote.timeStamp);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = serviceName.hashCode();
+        result = 31 * result + username.hashCode();
+        result = 31 * result + address.hashCode();
+        result = 31 * result + timeStamp.hashCode();
+        return result;
     }
 }

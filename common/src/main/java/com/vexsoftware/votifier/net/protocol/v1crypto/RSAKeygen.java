@@ -29,12 +29,6 @@ import java.util.logging.Logger;
  * @author Blake Beaupain
  */
 public class RSAKeygen {
-
-    /**
-     * The logger instance.
-     */
-    private static final Logger LOG = Logger.getLogger("Votifier");
-
     /**
      * Generates an RSA key pair.
      *
@@ -42,7 +36,6 @@ public class RSAKeygen {
      * @return The key pair
      */
     public static KeyPair generate(int bits) throws Exception {
-        LOG.info("Votifier is generating an RSA key pair...");
         KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
         RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(bits,
                 RSAKeyGenParameterSpec.F4);

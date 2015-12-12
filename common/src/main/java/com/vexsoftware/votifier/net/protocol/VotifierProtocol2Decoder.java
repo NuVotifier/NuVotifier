@@ -10,7 +10,11 @@ import org.json.JSONObject;
 import javax.crypto.Mac;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,12 +48,9 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
 
         // Verify signature.
         String sigHash = voteMessage.getString("signature");
-        Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(key);
-        mac.update(voteMessage.getString("payload").getBytes(StandardCharsets.UTF_8));
-        String computed = DatatypeConverter.printBase64Binary(mac.doFinal());
+        byte[] sigBytes = DatatypeConverter.parseBase64Binary(sigHash);
 
-        if (!sigHash.equals(computed)) {
+        if (!hmacEqual(sigBytes, voteMessage.getString("payload").getBytes(StandardCharsets.UTF_8), key)) {
             throw new RuntimeException("Signature is not valid (invalid token?)");
         }
 
@@ -63,5 +64,19 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
         list.add(vote);
 
         ctx.pipeline().remove(this);
+    }
+
+    private boolean hmacEqual(byte[] sig, byte[] message, Key key) throws NoSuchAlgorithmException, InvalidKeyException {
+        // See https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
+        // This randomizes the byte order to make timing attacks more difficult.
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(key);
+        byte[] messageCalc = mac.doFinal(message);
+        mac.reset();
+        byte[] clientSig = mac.doFinal(sig);
+        mac.reset();
+        byte[] realSig = mac.doFinal(messageCalc);
+
+        return Arrays.equals(clientSig, realSig);
     }
 }
