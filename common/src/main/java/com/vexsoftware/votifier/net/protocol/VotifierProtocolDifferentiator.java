@@ -31,14 +31,14 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         // Determine the number of bytes that are available.
         int readable = buf.readableBytes();
+        buf.retain(); // TODO: Is this needed?
 
-        if (readable == 0) {
+        if (readable < 2) {
             // Some retarded voting sites (PMC?) seem to send empty buffers for no good reason.
-            return;
+            // TODO: How can we handle this?
+            throw new CorruptedFrameException("Frame is too short");
         }
 
-        buf.retain();
-        buf.readerIndex(0);
         short readMagic = buf.readShort();
 
         // Reset reader index again

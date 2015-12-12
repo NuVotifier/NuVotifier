@@ -4,6 +4,8 @@ import com.vexsoftware.votifier.net.VotifierSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.handler.codec.DecoderException;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -41,5 +43,37 @@ public class VerifiedProtocolDifferentiatorTest {
         assertEquals(VotifierSession.ProtocolVersion.TWO, session.getVersion());
         test.release();
         channel.close();
+    }
+
+    @Test(expected = DecoderException.class)
+    public void failOnSmallBufferTest() {
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true));
+
+        ByteBuf buf = Unpooled.buffer(1);
+        buf.writeByte(0);
+
+        try {
+            channel.writeInbound(buf);
+        } finally {
+            buf.release();
+            channel.close();
+        }
+    }
+
+    @Test(expected = DecoderException.class)
+    public void failOnBadPacketTest() {
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true));
+
+        ByteBuf buf = Unpooled.buffer();
+        for (int i = 0; i < 3; i++) {
+            buf.writeByte(0);
+        }
+
+        try {
+            channel.writeInbound(buf);
+        } finally {
+            buf.release();
+            channel.close();
+        }
     }
 }

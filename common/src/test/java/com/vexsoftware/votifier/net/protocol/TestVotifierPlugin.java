@@ -19,7 +19,7 @@ public class TestVotifierPlugin implements VotifierPlugin {
     private static final byte[] PUBLIC_KEY;
     private static final byte[] PRIVATE_KEY;
 
-    private static byte[] r(String u) throws Exception {
+    static byte[] r(String u) throws Exception {
         URL resourceUrl = TestVotifierPlugin.class.getResource(u);
         Path resourcePath = Paths.get(resourceUrl.toURI());
 
@@ -73,5 +73,15 @@ public class TestVotifierPlugin implements VotifierPlugin {
     @Override
     public String getVersion() {
         return "2.3";
+    }
+
+    public void specificKeysOnly() {
+        keyMap.clear();
+        keyMap.put("Test", KeyCreator.createKeyFrom("test"));
+    }
+
+    public void restoreDefault() {
+        keyMap.clear();
+        keyMap.put("default", KeyCreator.createKeyFrom("test"));
     }
 }
