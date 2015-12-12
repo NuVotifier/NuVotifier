@@ -134,8 +134,6 @@ Using NuVotifier with multiple BungeeCords is a more tricky setup. You can use o
 NuVotifier server, or use a separate one. You are not guaranteed to have players on all of your servers to allow votes to
 be dispatched, so proxy forwarding (requiring `enableExternal` set to `true` on your Bukkit servers) is highly recommended.
 
-A multi-
-
 ## Contributing
 
 If you wish to contribute code wise, feel free to submit a pull request!
