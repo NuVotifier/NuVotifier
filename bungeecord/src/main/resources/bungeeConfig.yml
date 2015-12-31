@@ -30,6 +30,12 @@ forwarding:
     # - file - Votes will be saved to a local file every 3 minutes and on shutdown and reloaded when Bungee is restarted. This is suitable for
     #   most set ups.
     cache: file
+    # Only sends the vote to the server in which the player is currently joined.
+    onlySendToJoinedServer: false
+    #Sets which server to send the vote in the event the player is not online when the vote is cast
+    #If you do not want the vote forwarded to a fallback, set this value to empty ('')
+    #ONLY USED IF onlySendToJoinedServer is true!!
+    joinedServerFallback: 'Hub'
     # Options for file caching.
     file:
       name: cached-votes.json

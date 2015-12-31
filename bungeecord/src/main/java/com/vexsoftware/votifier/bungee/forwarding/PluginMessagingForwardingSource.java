@@ -12,7 +12,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -21,9 +20,9 @@ import java.util.logging.Level;
 /**
  * Created by Joe Hirschfeld on 10/20/2015.
  */
-public class BungeePluginMessagingForwardingSource implements ForwardingVoteSource, Listener {
+public class PluginMessagingForwardingSource implements ForwardingVoteSource, Listener {
 
-    public BungeePluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache) {
+    public PluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache) {
         ProxyServer.getInstance().registerChannel(channel);
         ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
         this.channel = channel;
@@ -31,21 +30,16 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
         this.cache = cache;
     }
 
-    private final NuVotifier nuVotifier;
+    protected final NuVotifier nuVotifier;
     private final String channel;
-    private final VoteCache cache;
+    protected final VoteCache cache;
 
     @Override
     public void forward(Vote v) {
         byte[] rawData = v.serialize().toString().getBytes(StandardCharsets.UTF_8);
         for (ServerInfo s : ProxyServer.getInstance().getServers().values()) {
             if (!forwardSpecific(s, rawData)) {
-                if (cache != null) {
-                    cache.addToCache(v, s.getName());
-                    if (nuVotifier.isDebug())
-                        nuVotifier.getLogger().info("Added to forwarding cache: " + v.toString() + " -> " + s.getName());
-                } else if (nuVotifier.isDebug())
-                    nuVotifier.getLogger().severe("Could not immediately send vote to backend, vote lost! " + v.toString() + " -> " + s.getName());
+                attemptToAddToCache(v, s.getName());
             }
         }
     }
@@ -106,5 +100,14 @@ public class BungeePluginMessagingForwardingSource implements ForwardingVoteSour
                 }
             }, 1, TimeUnit.SECONDS);
         }
+    }
+
+    protected void attemptToAddToCache(Vote v, String server) {
+        if (cache != null) {
+            cache.addToCache(v, server);
+            if (nuVotifier.isDebug())
+                nuVotifier.getLogger().info("Added to forwarding cache: " + v + " -> " + server);
+        } else if (nuVotifier.isDebug())
+            nuVotifier.getLogger().severe("Could not immediately send vote to backend, vote lost! " + v + " -> " + server);
     }
 }

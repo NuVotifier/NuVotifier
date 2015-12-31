@@ -6,7 +6,8 @@ import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
-import com.vexsoftware.votifier.bungee.forwarding.BungeePluginMessagingForwardingSource;
+import com.vexsoftware.votifier.bungee.forwarding.OnlineForwardPluginMessagingForwardingSoruce;
+import com.vexsoftware.votifier.bungee.forwarding.PluginMessagingForwardingSource;
 import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
 import com.vexsoftware.votifier.bungee.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.MemoryVoteCache;
@@ -252,11 +253,21 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                     getLogger().log(Level.SEVERE, "Unload to load file cache. Votes will be lost!", e);
                 }
             }
-            try {
-                forwardingMethod = new BungeePluginMessagingForwardingSource(channel, this, voteCache);
-                getLogger().info("Forwarding votes over PluginMessaging channel '" + channel + "' for vote forwarding!");
-            } catch (RuntimeException e) {
-                getLogger().log(Level.SEVERE, "NuVotifier could no set up PluginMessaging for vote forwarding!", e);
+            if(!fwdCfg.getBoolean("pluginMessaging.onlySendToJoinedServer")) {
+                try {
+                    forwardingMethod = new PluginMessagingForwardingSource(channel, this, voteCache);
+                    getLogger().info("Forwarding votes over PluginMessaging channel '" + channel + "' for vote forwarding!");
+                } catch (RuntimeException e) {
+                    getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
+                }
+            } else {
+                try {
+                    String fallbackServer = fwdCfg.getString("joinedServerFallback", null);
+                    if(fallbackServer.isEmpty()) fallbackServer = null;
+                    forwardingMethod = new OnlineForwardPluginMessagingForwardingSoruce(channel, this, voteCache, fallbackServer);
+                } catch (RuntimeException e){
+                    getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
+                }
             }
         } else if ("proxy".equals(fwdMethod)) {
             Configuration serverSection = fwdCfg.getSection("proxy");
