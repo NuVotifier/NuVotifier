@@ -56,15 +56,13 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
                 ctx.pipeline().remove(this);
             }
             session.setVersion(VotifierSession.ProtocolVersion.TWO);
-        } else if (readable == 256) {
-            // 256 bytes = Protocol v1 Vote Message
+        } else {
+            // Probably Protocol v1 Vote Message
             if (!testMode) {
                 ctx.pipeline().addAfter("protocolDifferentiator", "protocol1Handler", new VotifierProtocol1Decoder());
                 ctx.pipeline().remove(this);
             }
             session.setVersion(VotifierSession.ProtocolVersion.ONE);
-        } else {
-            throw new CorruptedFrameException("Unrecognized protocol (missing 0x733A header or 256-byte v1 block)");
         }
     }
 }
