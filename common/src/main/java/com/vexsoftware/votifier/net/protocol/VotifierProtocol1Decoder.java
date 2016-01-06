@@ -33,7 +33,7 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
         // Parse the string we received.
         String all = new String(block, StandardCharsets.US_ASCII);
         String[] split = all.split("\n");
-        if (split.length != 5) {
+        if (split.length < 5) {
             throw new CorruptedFrameException("Not enough fields specified in vote.");
         }
 
