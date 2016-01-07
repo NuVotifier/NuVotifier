@@ -14,6 +14,10 @@ tokens:
   # Default token for all server lists, if another isn't supplied.
   default: %default_token%
 
+# Setting this option to true will disable handling of Protocol v1 packets. While the old protocol is not secure, this
+# option is currently not recommended as most voting sites only support the old protocol at present.
+disable-v1-protocol: false
+
 # Configuration section for all vote forwarding to NuVotifier
 forwarding:
   # Sets whether to set up a remote method for fowarding. Supported methods:

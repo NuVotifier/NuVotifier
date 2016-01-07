@@ -18,13 +18,11 @@ import java.util.List;
 public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
     private static final short PROTOCOL_2_MAGIC = 0x733A;
     private final boolean testMode;
+    private final boolean allowv1;
 
-    public VotifierProtocolDifferentiator() {
-        this(false);
-    }
-
-    public VotifierProtocolDifferentiator(boolean testMode) {
+    public VotifierProtocolDifferentiator(boolean testMode, boolean allowv1) {
         this.testMode = testMode;
+        this.allowv1 = allowv1;
     }
 
     @Override
@@ -57,6 +55,9 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
             }
             session.setVersion(VotifierSession.ProtocolVersion.TWO);
         } else {
+            if (!allowv1) {
+                throw new CorruptedFrameException("This server only accepts well-formed Votifier v2 packets.");
+            }
             // Probably Protocol v1 Vote Message
             if (!testMode) {
                 ctx.pipeline().addAfter("protocolDifferentiator", "protocol1Handler", new VotifierProtocol1Decoder());

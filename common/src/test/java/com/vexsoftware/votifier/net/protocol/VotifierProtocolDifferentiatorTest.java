@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class VotifierProtocolDifferentiatorTest {
     @Test
     public void v1Test() {
-        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true));
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, true));
 
         VotifierSession session = new VotifierSession();
         channel.attr(VotifierSession.KEY).set(session);
@@ -31,7 +31,7 @@ public class VotifierProtocolDifferentiatorTest {
 
     @Test
     public void v2Test() {
-        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true));
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
 
         VotifierSession session = new VotifierSession();
         channel.attr(VotifierSession.KEY).set(session);
@@ -46,8 +46,26 @@ public class VotifierProtocolDifferentiatorTest {
     }
 
     @Test(expected = DecoderException.class)
+    public void failIfv1NotSupported() {
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
+
+        VotifierSession session = new VotifierSession();
+        channel.attr(VotifierSession.KEY).set(session);
+
+        ByteBuf test = Unpooled.buffer(256);
+        for (int i = 0; i < 256; i++) {
+            test.writeByte(0);
+        }
+        channel.writeInbound(test);
+
+        assertEquals(VotifierSession.ProtocolVersion.ONE, session.getVersion());
+        test.release();
+        channel.close();
+    }
+
+    @Test(expected = DecoderException.class)
     public void failOnSmallBufferTest() {
-        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true));
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
 
         ByteBuf buf = Unpooled.buffer(1);
         buf.writeByte(0);
@@ -62,7 +80,7 @@ public class VotifierProtocolDifferentiatorTest {
 
     @Test(expected = DecoderException.class)
     public void failOnBadPacketTest() {
-        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true));
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
 
         ByteBuf buf = Unpooled.buffer();
         for (int i = 0; i < 3; i++) {

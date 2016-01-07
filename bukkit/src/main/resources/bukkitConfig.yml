@@ -13,6 +13,11 @@ debug: false
 # is only listening for votes coming from NuVotifier running on your BungeeCord.
 enableExternal: true
 
+# Setting this option to true will disable handling of Protocol v1 packets. While the old protocol is not secure, this
+# option is currently not recommended as most voting sites only support the old protocol at present. However, if you are
+# using NuVotifier's proxy forwarding mechanism, enabling this option will increase your server's security.
+disable-v1-protocol: false
+
 # All tokens, labeled by the serviceName of each server list.
 tokens:
   # Default token for all server lists, if another isn't supplied.

@@ -231,6 +231,14 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             if (debug)
                 getLogger().info("DEBUG mode enabled!");
 
+            final boolean disablev1 = cfg.getBoolean("disable-v1-protocol");
+            if (disablev1) {
+                getLogger().info("------------------------------------------------------------------------------");
+                getLogger().info("Votifier protocol v1 parsing has been disabled. Most voting websites do not");
+                getLogger().info("currently support the modern Votifier protocol in NuVotifier.");
+                getLogger().info("------------------------------------------------------------------------------");
+            }
+
             serverGroup = new NioEventLoopGroup(1);
 
             new ServerBootstrap()
@@ -242,7 +250,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                             channel.attr(VotifierSession.KEY).set(new VotifierSession());
                             channel.attr(VotifierPlugin.KEY).set(NuVotifierBukkit.this);
                             channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator());
+                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
                             channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifierBukkit.this));
                         }
                     })

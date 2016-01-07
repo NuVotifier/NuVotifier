@@ -188,6 +188,14 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
         if (debug)
             getLogger().info("DEBUG mode enabled!");
 
+        final boolean disablev1 = configuration.getBoolean("disable-v1-protocol");
+        if (disablev1) {
+            getLogger().info("------------------------------------------------------------------------------");
+            getLogger().info("Votifier protocol v1 parsing has been disabled. Most voting websites do not");
+            getLogger().info("currently support the modern Votifier protocol in NuVotifier.");
+            getLogger().info("------------------------------------------------------------------------------");
+        }
+
         // Must set up server asynchronously due to BungeeCord goofiness.
         FutureTask<?> initTask = new FutureTask<>(Executors.callable(new Runnable() {
             @Override
@@ -203,7 +211,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                                 channel.attr(VotifierSession.KEY).set(new VotifierSession());
                                 channel.attr(VotifierPlugin.KEY).set(NuVotifier.this);
                                 channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                                channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator());
+                                channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
                                 channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifier.this));
                             }
                         })
