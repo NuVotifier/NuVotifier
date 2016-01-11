@@ -27,6 +27,16 @@ forwarding:
   method: none
   pluginMessaging:
     channel: NuVotifier
+
+    #Only send votes to certain servers. If a server is present on excludedServers, then votes will NOT be forwarded
+    #to them. If excludedServers is not present, votes will be sent to all servers.
+    #If onlySendToJoinedServer is true, this option is ignored.
+
+    #excludedServers:
+    #- server1
+    #- server2
+
+
     # Sets which cache to use if there are no players on the server that the vote is being sent to. Supported caches:
     # - none - Votes will simply be lost when no players are present on the server.
     # - memory - Votes will be cached in memory when no players are present. When Bungee is restarted, the votes will be lost.

@@ -14,6 +14,8 @@ import net.md_5.bungee.event.EventHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -22,25 +24,30 @@ import java.util.logging.Level;
  */
 public class PluginMessagingForwardingSource implements ForwardingVoteSource, Listener {
 
-    public PluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache) {
+    public PluginMessagingForwardingSource(String channel, List<String> ignoredServers, NuVotifier nuVotifier, VoteCache cache) {
         ProxyServer.getInstance().registerChannel(channel);
         ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
         this.channel = channel;
         this.nuVotifier = nuVotifier;
         this.cache = cache;
+        this.ignoredServers = ignoredServers;
+    }
+
+    protected PluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache voteCache){
+        this(channel, null, nuVotifier, voteCache);
     }
 
     protected final NuVotifier nuVotifier;
     private final String channel;
     protected final VoteCache cache;
+    protected final List<String> ignoredServers;
 
     @Override
     public void forward(Vote v) {
         byte[] rawData = v.serialize().toString().getBytes(StandardCharsets.UTF_8);
         for (ServerInfo s : ProxyServer.getInstance().getServers().values()) {
-            if (!forwardSpecific(s, rawData)) {
-                attemptToAddToCache(v, s.getName());
-            }
+            if(ignoredServers != null && ignoredServers.contains(s.getName())) continue;
+            if (!forwardSpecific(s, rawData)) attemptToAddToCache(v, s.getName());
         }
     }
 

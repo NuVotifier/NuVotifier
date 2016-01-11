@@ -262,8 +262,11 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 }
             }
             if(!fwdCfg.getBoolean("pluginMessaging.onlySendToJoinedServer")) {
+
+                List<String> ignoredServers = fwdCfg.getStringList("pluginMessaging.excludedServers");
+
                 try {
-                    forwardingMethod = new PluginMessagingForwardingSource(channel, this, voteCache);
+                    forwardingMethod = new PluginMessagingForwardingSource(channel, ignoredServers, this, voteCache);
                     getLogger().info("Forwarding votes over PluginMessaging channel '" + channel + "' for vote forwarding!");
                 } catch (RuntimeException e) {
                     getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);

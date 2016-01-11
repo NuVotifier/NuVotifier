@@ -68,6 +68,12 @@ channel NuVotifier is to use by setting `channel` in the `pluginMessaging` secti
 must be the same on your BungeeCord as well as your backend Bukkit servers. If they are not the same, the backend will not
 be able to receive the vote.
 
+#### Filtering servers
+
+If you only wish to send votes to some servers, but not all, there is a section within `pluginMessaging` called `excludedServers`.
+By default, this section is commented out, and will never filter out any servers. If you wish to filter out servers, uncomment
+this list and fill it with the names of servers you do not want to send votes to.
+
 #### Plugin Messaging Vote Caching
 
 In the event that the backend server does not have anyone on it from the BungeeCord instance, the vote will need to be cached
