@@ -27,6 +27,17 @@
         </repository>
     </repositories>
 
+    <distributionManagement>
+        <repository>
+            <id>minimumio-repo</id>
+            <url>http://repo.minimum.io/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>minimumio-repo-snapshots</id>
+            <url>http://repo.minimum.io/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <defaultGoal>clean package</defaultGoal>
         <plugins>

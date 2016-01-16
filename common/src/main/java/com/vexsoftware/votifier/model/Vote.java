@@ -52,6 +52,9 @@ public class Vote {
     }
 
     public Vote(String serviceName, String username, String address, String timeStamp) {
+        if (username.length() > 16) {
+            throw new IllegalArgumentException("Username is too long.");
+        }
         this.serviceName = serviceName;
         this.username = username;
         this.address = address;
@@ -102,7 +105,10 @@ public class Vote {
      */
     @Deprecated
     public void setUsername(String username) {
-        this.username = username.length() <= 16 ? username : username.substring(0, 16);
+        if (username.length() > 16) {
+            throw new IllegalArgumentException("Username is too long.");
+        }
+        this.username = username;
     }
 
     /**
