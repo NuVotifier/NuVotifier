@@ -13,6 +13,9 @@ import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
+import com.vexsoftware.votifier.sponge.forwarding.ForwardedVoteListener;
+import com.vexsoftware.votifier.sponge.forwarding.ForwardingVoteSink;
+import com.vexsoftware.votifier.sponge.forwarding.SpongePluginMessagingForwardingSink;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -51,7 +54,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.1")
-public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin {
+public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin, ForwardedVoteListener {
     private Logger logger;
     @Inject
     @ConfigDir(sharedRoot = false)
@@ -66,7 +69,6 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
-        instance = this;
         executorService = Sponge.getScheduler().createAsyncExecutor(this);
 
         // Set the plugin version.
@@ -245,6 +247,24 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         } else {
             logger.info("You have enableExternal set to false in your config.yml. NuVotifier will NOT listen to votes coming in from an external voting list.");
         }
+
+        ConfigurationNode forwardingConfig = node.getNode("forwarding");
+        if (forwardingConfig != null) {
+            String method = forwardingConfig.getNode("method").getString("none").toLowerCase(); //Default to lower case for case-insensitive searches
+            if ("none".equals(method)) {
+                getLogger().info("Method none selected for vote forwarding: Votes will not be received from a forwarder.");
+            } else if ("pluginmessaging".equals(method)) {
+                String channel = forwardingConfig.getNode("pluginMessaging").getNode("channel").getString("NuVotifier");
+                try {
+                    forwardingMethod = new SpongePluginMessagingForwardingSink(this, channel, this);
+                    getLogger().info("Receiving votes over PluginMessaging channel '" + channel + "'.");
+                } catch (RuntimeException e) {
+                    logger.error("NuVotifier could not set up PluginMessaging for vote forwarding!", e);
+                }
+            } else {
+                logger.error("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
+            }
+        }
     }
 
     @Listener
@@ -254,12 +274,14 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 serverChannel.close();
             serverGroup.shutdownGracefully();
         }
+        if (forwardingMethod != null)
+            forwardingMethod.halt();
+        logger.info("Votifier disabled.");
     }
 
-    /**
-     * The Votifier instance.
-     */
-    private static VotifierPlugin instance;
+    public Logger getLogger() {
+        return logger;
+    }
 
     /**
      * The current Votifier version.
@@ -290,6 +312,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
      * Keys used for websites.
      */
     private Map<String, Key> tokens = new HashMap<>();
+
+    private ForwardingVoteSink forwardingMethod;
 
     private void gracefulExit() {
         logger.error("Votifier did not initialize properly!");
@@ -343,5 +367,19 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         } else {
             logger.error("Unable to process vote from " + channel.remoteAddress());
         }
+    }
+
+    @Override
+    public void onForward(final Vote v) {
+        if (debug) {
+            logger.info("Got a forwarded vote -> " + v);
+        }
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                VotifierEvent event = new VotifierEvent(v, Cause.of(VotifierPlugin.this));
+                Sponge.getEventManager().post(event);
+            }
+        });
     }
 }

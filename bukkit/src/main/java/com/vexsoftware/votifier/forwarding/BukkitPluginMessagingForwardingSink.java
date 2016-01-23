@@ -41,7 +41,7 @@ public class BukkitPluginMessagingForwardingSink implements ForwardingVoteSink, 
             JSONObject jsonObject = new JSONObject(message);
             Vote v = new Vote(jsonObject);
             listener.onForward(v);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             NuVotifierBukkit.getInstance().getLogger().log(Level.SEVERE, "There was an unknown error when processing a forwarded vote.", e);
         }
     }
