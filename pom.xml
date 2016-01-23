@@ -10,6 +10,7 @@
         <module>bukkit</module>
         <module>bungeecord</module>
         <module>universal</module>
+        <module>sponge</module>
     </modules>
     <name>NuVotifier</name>
     <properties>
