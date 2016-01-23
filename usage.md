@@ -3,16 +3,16 @@ networks.
 
 # Installation
 
-The NuVotifier Universal jar (the default jar that is distributed on spigotmc.org) can be installed on both Bukkit and
-BungeeCord servers as is without modification. Both will run correctly.
+The NuVotifier Universal jar (the default jar that is distributed on spigotmc.org) can be installed on Bukkit, BungeeCord,
+and Sponge servers as-is without modification.
 
-The Universal Jar can be downloaded off our [SpigotMC resource page](https://www.spigotmc.org/resources/nuvotifier.13449/).
+The Universal JAR can be downloaded off our [SpigotMC resource page](https://www.spigotmc.org/resources/nuvotifier.13449/).
 
 # Votifier v1 vs NuVotifier v2 Protocols
 
 NuVotifier introduces a more secure and failure tolerant protocol for sending votes. In this document, this new protocol
-will be refered as v2. NuVotifier also supports legacy Votifier protocol (using public key encryption). In this document,
-the legacy protocol will be reffered to v1. As of writing, most if not all vote websites still use v1.
+will be referred to as v2. NuVotifier also supports the legacy Votifier protocol (using public key encryption). In this document,
+the legacy protocol will be referred to v1. As of writing, most if not all vote websites still use v1.
 
 # Configuration
 
@@ -23,7 +23,7 @@ an option on Bukkit based servers, since it would not make logical sense for the
 
 If you are receiving votes from a server list directly on the server in question (votes are not being forwarded through plugin
 messaging), or if votes are being forwarded through the `proxy` method, then `enableExternal` should be set to true. Only
-if you are recieving forwarded votes from your bungee through the `pluginMessaging` forwarding method should `enableExternal`
+if you are receiving forwarded votes from your bungee through the `pluginMessaging` forwarding method should `enableExternal`
 be set to false.
 
 ## Port Configuration
@@ -57,7 +57,7 @@ Unless a website specifies it, you should assume that the website is using v1, a
 
 NuVotifier allows for various methods for forwarding the vote from an upstream Bungeecord instance. Currently, 2 methods
 are supported: `proxy` and `pluginMessaging`. These are configured through the `forwarding` configuration section in your
-config.yml's.
+config.yml files.
 
 ### Plugin Messaging Based Forwarding
 
@@ -100,23 +100,24 @@ recommended, and is only suitable for a certain number of setups.
 ### Proxy Based Forwarding
 
 You can also forward votes using the proxy method. This will cause the BungeeCord to act as a voting websites, sending votes
-to each Bukkit NuVotifier's port. To enable this method, you must set the `method` under `forwarding` to `proxy` in your
-BungeeCord config.yml. Within the Bukkit config.yml, `forwarding` should be set to `none`.
+to each server's NuVotifier port. To enable this method, you must set the `method` under `forwarding` to `proxy` in your
+BungeeCord config.yml. Within the server's config.yml, `forwarding` should be set to `none`.
 
 For each server you wish to forward to, you must add each to your BungeeCord config.yml under the `proxy` section of `forwarding`.
 For each, you must specify the ip address (`address`), port (`port`) and token (`key`). Each backend Bukkit server should have
 1 default token under the `tokens` section. This is the token that should be used as the token for the `key` in that server's
-section within the `proxy` section. If the Bukkit server is on the same server (same ip) as the BungeeCord server, you may
+section within the `proxy` section. If the server is on the same server (same ip) as the BungeeCord server, you may
 use the `127.0.0.1` or `localhost` address, setting both the `proxy` forwarding address and Bukkit config.yml address to it.
 
-In order for vote proxying to work, the backend Bukkit server __must__ have `enableExternal` set to true. If it is set to 
+In order for vote proxying to work, the backend server __must__ have `enableExternal` set to true. If it is set to
 false, the Bungee server will not be able to forward the vote. 
 
 
 ## Default Configurations
 
 The default configuration for Bukkit can be found [here](https://github.com/NuVotifier/NuVotifier/blob/master/bukkit/src/main/resources/bukkitConfig.yml),
-and for BungeeCord [here](https://github.com/NuVotifier/NuVotifier/blob/master/bungeecord/src/main/resources/bungeeConfig.yml).
+for BungeeCord [here](https://github.com/NuVotifier/NuVotifier/blob/master/bungeecord/src/main/resources/bungeeConfig.yml),
+and for Sponge [here](https://github.com/NuVotifier/NuVotifier/blob/master/sponge/src/main/resources/com/vexsoftware/votifier/sponge/spongeConfig.yml).
 
 
 ## Testing
