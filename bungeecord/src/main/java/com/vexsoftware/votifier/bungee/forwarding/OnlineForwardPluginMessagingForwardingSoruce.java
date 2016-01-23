@@ -7,8 +7,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.util.HashSet;
-
 /**
  * @author Joseph Hirschfeld
  * @date 12/31/2015

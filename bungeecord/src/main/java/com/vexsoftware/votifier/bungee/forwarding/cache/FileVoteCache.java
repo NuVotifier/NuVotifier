@@ -1,7 +1,6 @@
 package com.vexsoftware.votifier.bungee.forwarding.cache;
 
 import com.google.common.io.Files;
-import com.vexsoftware.votifier.bungee.NuVotifier;
 import com.vexsoftware.votifier.model.Vote;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;

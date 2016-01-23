@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -33,7 +32,7 @@ public class PluginMessagingForwardingSource implements ForwardingVoteSource, Li
         this.ignoredServers = ignoredServers;
     }
 
-    protected PluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache voteCache){
+    protected PluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache voteCache) {
         this(channel, null, nuVotifier, voteCache);
     }
 
@@ -46,7 +45,7 @@ public class PluginMessagingForwardingSource implements ForwardingVoteSource, Li
     public void forward(Vote v) {
         byte[] rawData = v.serialize().toString().getBytes(StandardCharsets.UTF_8);
         for (ServerInfo s : ProxyServer.getInstance().getServers().values()) {
-            if(ignoredServers != null && ignoredServers.contains(s.getName())) continue;
+            if (ignoredServers != null && ignoredServers.contains(s.getName())) continue;
             if (!forwardSpecific(s, rawData)) attemptToAddToCache(v, s.getName());
         }
     }

@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import javax.crypto.Mac;
 import javax.xml.bind.DatatypeConverter;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 

@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2012 Vex Software LLC
  * This file is part of Votifier.
- * 
+ *
  * Votifier is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Votifier is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with Votifier.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,12 +20,6 @@ package com.vexsoftware.votifier;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.security.Key;
-import java.security.KeyPair;
-
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.forwarding.ForwardingVoteSink;
@@ -54,7 +48,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -120,19 +118,19 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         YamlConfiguration cfg;
         File rsaDirectory = new File(getDataFolder() + "/rsa");
 
-		/*
+        /*
          * Use IP address from server.properties as a default for
-		 * configurations. Do not use InetAddress.getLocalHost() as it most
-		 * likely will return the main server address instead of the address
-		 * assigned to the server.
-		 */
+         * configurations. Do not use InetAddress.getLocalHost() as it most
+         * likely will return the main server address instead of the address
+         * assigned to the server.
+         */
         String hostAddr = Bukkit.getServer().getIp();
         if (hostAddr == null || hostAddr.length() == 0)
             hostAddr = "0.0.0.0";
 
-		/*
-		 * Create configuration file if it does not exists; otherwise, load it
-		 */
+        /*
+         * Create configuration file if it does not exists; otherwise, load it
+         */
         if (!config.exists()) {
             try {
                 // First time run - do some initialization.
@@ -147,10 +145,10 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 cfgStr = cfgStr.replace("%default_token%", token).replace("%ip%", hostAddr);
                 Files.write(cfgStr, config, StandardCharsets.UTF_8);
 
-				/*
-				 * Remind hosted server admins to be sure they have the right
-				 * port number.
-				 */
+                /*
+                 * Remind hosted server admins to be sure they have the right
+                 * port number.
+                 */
                 getLogger().info("------------------------------------------------------------------------------");
                 getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting Craftbukkit on a");
                 getLogger().info("shared server please check with your hosting provider to verify that this port");
@@ -171,10 +169,10 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         // Load configuration.
         cfg = YamlConfiguration.loadConfiguration(config);
 
-		/*
-		 * Create RSA directory and keys if it does not exist; otherwise, read
-		 * keys.
-		 */
+        /*
+         * Create RSA directory and keys if it does not exist; otherwise, read
+         * keys.
+         */
         try {
             if (!rsaDirectory.exists()) {
                 rsaDirectory.mkdir();
@@ -263,8 +261,8 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                                 getLogger().info("Votifier enabled.");
                             } else {
                                 SocketAddress socketAddress = future.channel().localAddress();
-                                if(socketAddress == null){
-                                    socketAddress = new InetSocketAddress(host,port);
+                                if (socketAddress == null) {
+                                    socketAddress = new InetSocketAddress(host, port);
                                 }
                                 getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + socketAddress, future.cause());
                             }

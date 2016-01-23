@@ -76,12 +76,12 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         Path config = baseDirectory.resolve("config.yml");
         File rsaDirectory = baseDirectory.resolve("rsa").toFile();
 
-		/*
+        /*
          * Use IP address from server.properties as a default for
-		 * configurations. Do not use InetAddress.getLocalHost() as it most
-		 * likely will return the main server address instead of the address
-		 * assigned to the server.
-		 */
+         * configurations. Do not use InetAddress.getLocalHost() as it most
+         * likely will return the main server address instead of the address
+         * assigned to the server.
+         */
         String hostAddr;
         Optional<InetSocketAddress> address = Sponge.getServer().getBoundAddress();
         if (address.isPresent())
@@ -89,9 +89,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         else
             hostAddr = "0.0.0.0";
 
-		/*
-		 * Create configuration file if it does not exists; otherwise, load it
-		 */
+        /*
+         * Create configuration file if it does not exists; otherwise, load it
+         */
         try {
             Files.createDirectories(baseDirectory);
         } catch (FileAlreadyExistsException ignored) {
@@ -111,10 +111,10 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 cfgStr = cfgStr.replace("%default_token%", token).replace("%ip%", hostAddr);
                 Files.write(config, ImmutableList.<CharSequence>of(cfgStr), StandardCharsets.UTF_8);
 
-				/*
-				 * Remind hosted server admins to be sure they have the right
-				 * port number.
-				 */
+                /*
+                 * Remind hosted server admins to be sure they have the right
+                 * port number.
+                 */
                 logger.info("------------------------------------------------------------------------------");
                 logger.info("Assigning NuVotifier to listen on port 8192. If you are hosting Craftbukkit on a");
                 logger.info("shared server please check with your hosting provider to verify that this port");
@@ -145,10 +145,10 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
             return;
         }
 
-		/*
-		 * Create RSA directory and keys if it does not exist; otherwise, read
-		 * keys.
-		 */
+        /*
+         * Create RSA directory and keys if it does not exist; otherwise, read
+         * keys.
+         */
         try {
             if (!rsaDirectory.exists()) {
                 rsaDirectory.mkdir();

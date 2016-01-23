@@ -6,9 +6,9 @@ import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
+import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
 import com.vexsoftware.votifier.bungee.forwarding.OnlineForwardPluginMessagingForwardingSoruce;
 import com.vexsoftware.votifier.bungee.forwarding.PluginMessagingForwardingSource;
-import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
 import com.vexsoftware.votifier.bungee.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.MemoryVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
@@ -38,9 +38,9 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -110,10 +110,10 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 cfgStr = cfgStr.replace("%default_token%", token);
                 Files.write(cfgStr, config, StandardCharsets.UTF_8);
 
-				/*
+                /*
                  * Remind hosted server admins to be sure they have the right
-				 * port number.
-				 */
+                 * port number.
+                 */
                 getLogger().info("------------------------------------------------------------------------------");
                 getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting BungeeCord on a");
                 getLogger().info("shared server please check with your hosting provider to verify that this port");
@@ -142,8 +142,8 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
 
         /*
          * Create RSA directory and keys if it does not exist; otherwise, read
-		 * keys.
-		 */
+         * keys.
+         */
         try {
             if (!rsaDirectory.exists()) {
                 rsaDirectory.mkdir();
@@ -224,8 +224,8 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                                     getLogger().info("Votifier enabled.");
                                 } else {
                                     SocketAddress socketAddress = future.channel().localAddress();
-                                    if(socketAddress == null){
-                                        socketAddress = new InetSocketAddress(host,port);
+                                    if (socketAddress == null) {
+                                        socketAddress = new InetSocketAddress(host, port);
                                     }
                                     getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + socketAddress, future.cause());
                                 }
@@ -261,7 +261,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                     getLogger().log(Level.SEVERE, "Unload to load file cache. Votes will be lost!", e);
                 }
             }
-            if(!fwdCfg.getBoolean("pluginMessaging.onlySendToJoinedServer")) {
+            if (!fwdCfg.getBoolean("pluginMessaging.onlySendToJoinedServer")) {
 
                 List<String> ignoredServers = fwdCfg.getStringList("pluginMessaging.excludedServers");
 
@@ -274,9 +274,9 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
             } else {
                 try {
                     String fallbackServer = fwdCfg.getString("joinedServerFallback", null);
-                    if(fallbackServer.isEmpty()) fallbackServer = null;
+                    if (fallbackServer.isEmpty()) fallbackServer = null;
                     forwardingMethod = new OnlineForwardPluginMessagingForwardingSoruce(channel, this, voteCache, fallbackServer);
-                } catch (RuntimeException e){
+                } catch (RuntimeException e) {
                     getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }
             }
