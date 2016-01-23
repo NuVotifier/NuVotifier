@@ -37,7 +37,6 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,8 +59,6 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     @ConfigDir(sharedRoot = false)
     private Path baseDirectory;
 
-    private SpongeExecutorService executorService;
-
     @Inject
     public VotifierPlugin(Logger logger) {
         this.logger = logger;
@@ -69,8 +66,6 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
-        executorService = Sponge.getScheduler().createAsyncExecutor(this);
-
         // Set the plugin version.
         version = this.getClass().getAnnotation(Plugin.class).version();
 
@@ -276,6 +271,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         }
         if (forwardingMethod != null)
             forwardingMethod.halt();
+
         logger.info("Votifier disabled.");
     }
 
@@ -351,13 +347,16 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 logger.info("Got a protocol v2 vote record -> " + vote);
             }
         }
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                VotifierEvent event = new VotifierEvent(vote, Cause.of(VotifierPlugin.this));
-                Sponge.getEventManager().post(event);
-            }
-        });
+        Sponge.getScheduler().createTaskBuilder()
+                .execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        VotifierEvent event = new VotifierEvent(vote, Cause.of(VotifierPlugin.this));
+                        Sponge.getEventManager().post(event);
+                    }
+                })
+                .async()
+                .submit(this);
     }
 
     @Override
@@ -374,12 +373,15 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         if (debug) {
             logger.info("Got a forwarded vote -> " + v);
         }
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                VotifierEvent event = new VotifierEvent(v, Cause.of(VotifierPlugin.this));
-                Sponge.getEventManager().post(event);
-            }
-        });
+        Sponge.getScheduler().createTaskBuilder()
+                .execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        VotifierEvent event = new VotifierEvent(v, Cause.of(VotifierPlugin.this));
+                        Sponge.getEventManager().post(event);
+                    }
+                })
+                .async()
+                .submit(this);
     }
 }
