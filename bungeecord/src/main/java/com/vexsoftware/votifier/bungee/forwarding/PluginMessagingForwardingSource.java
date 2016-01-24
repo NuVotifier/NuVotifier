@@ -37,7 +37,7 @@ public class PluginMessagingForwardingSource implements ForwardingVoteSource, Li
     }
 
     protected final NuVotifier nuVotifier;
-    private final String channel;
+    protected final String channel;
     protected final VoteCache cache;
     protected final List<String> ignoredServers;
 
@@ -79,6 +79,10 @@ public class PluginMessagingForwardingSource implements ForwardingVoteSource, Li
 
     @EventHandler
     public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
+        handleServerConnected(e);
+    }
+
+    protected void handleServerConnected(final ServerConnectedEvent e) {
         if (cache == null) return;
         final String serverName = e.getServer().getInfo().getName();
         final Collection<Vote> cachedVotes = cache.evict(serverName);

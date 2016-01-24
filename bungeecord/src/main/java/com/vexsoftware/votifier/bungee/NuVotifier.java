@@ -7,7 +7,7 @@ import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
 import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
-import com.vexsoftware.votifier.bungee.forwarding.OnlineForwardPluginMessagingForwardingSoruce;
+import com.vexsoftware.votifier.bungee.forwarding.OnlineForwardPluginMessagingForwardingSource;
 import com.vexsoftware.votifier.bungee.forwarding.PluginMessagingForwardingSource;
 import com.vexsoftware.votifier.bungee.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.bungee.forwarding.cache.MemoryVoteCache;
@@ -275,7 +275,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 try {
                     String fallbackServer = fwdCfg.getString("pluginMessaging.joinedServerFallback", null);
                     if (fallbackServer != null && fallbackServer.isEmpty()) fallbackServer = null;
-                    forwardingMethod = new OnlineForwardPluginMessagingForwardingSoruce(channel, this, voteCache, fallbackServer);
+                    forwardingMethod = new OnlineForwardPluginMessagingForwardingSource(channel, this, voteCache, fallbackServer);
                 } catch (RuntimeException e) {
                     getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }

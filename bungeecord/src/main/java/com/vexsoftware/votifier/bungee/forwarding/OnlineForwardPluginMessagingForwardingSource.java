@@ -6,13 +6,16 @@ import com.vexsoftware.votifier.model.Vote;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.event.EventHandler;
 
 /**
  * @author Joseph Hirschfeld
  * @date 12/31/2015
  */
-public final class OnlineForwardPluginMessagingForwardingSoruce extends PluginMessagingForwardingSource {
-    public OnlineForwardPluginMessagingForwardingSoruce(String channel, NuVotifier nuVotifier, VoteCache cache, String fallbackServer) {
+public final class OnlineForwardPluginMessagingForwardingSource extends PluginMessagingForwardingSource {
+    public OnlineForwardPluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache, String fallbackServer) {
         super(channel, nuVotifier, cache);
         this.fallbackServer = fallbackServer;
     }
@@ -28,5 +31,17 @@ public final class OnlineForwardPluginMessagingForwardingSoruce extends PluginMe
                 attemptToAddToCache(v, fallbackServer);
             }
         }
+    }
+
+    // The below is to allow us to share code since the event handlers from the parent class don't get
+    // picked up.
+    @EventHandler
+    public void onPluginMessage(PluginMessageEvent e) {
+        if (e.getTag().equals(channel)) e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
+        handleServerConnected(e);
     }
 }
