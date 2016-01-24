@@ -273,7 +273,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 }
             } else {
                 try {
-                    String fallbackServer = fwdCfg.getString("joinedServerFallback", null);
+                    String fallbackServer = fwdCfg.getString("pluginMessaging.joinedServerFallback", null);
                     if (fallbackServer != null && fallbackServer.isEmpty()) fallbackServer = null;
                     forwardingMethod = new OnlineForwardPluginMessagingForwardingSoruce(channel, this, voteCache, fallbackServer);
                 } catch (RuntimeException e) {
