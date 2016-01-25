@@ -21,4 +21,8 @@ public class VotifierEvent extends AbstractEvent {
     public Cause getCause() {
         return cause;
     }
+
+    public Vote getVote() {
+        return vote;
+    }
 }
