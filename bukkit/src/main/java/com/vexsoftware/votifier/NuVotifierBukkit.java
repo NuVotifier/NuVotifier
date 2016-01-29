@@ -258,7 +258,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                         public void operationComplete(ChannelFuture future) throws Exception {
                             if (future.isSuccess()) {
                                 serverChannel = future.channel();
-                                getLogger().info("Votifier enabled.");
+                                getLogger().info("Votifier enabled on socket "+serverChannel.localAddress()+".");
                             } else {
                                 SocketAddress socketAddress = future.channel().localAddress();
                                 if (socketAddress == null) {

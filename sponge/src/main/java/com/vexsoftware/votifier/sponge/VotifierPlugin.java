@@ -229,7 +229,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                         public void operationComplete(ChannelFuture future) throws Exception {
                             if (future.isSuccess()) {
                                 serverChannel = future.channel();
-                                logger.info("Votifier enabled.");
+                                logger.info("Votifier enabled on socket "+serverChannel.localAddress()+".");
                             } else {
                                 SocketAddress socketAddress = future.channel().localAddress();
                                 if (socketAddress == null) {
