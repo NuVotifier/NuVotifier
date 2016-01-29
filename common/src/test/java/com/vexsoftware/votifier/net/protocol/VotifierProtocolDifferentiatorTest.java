@@ -63,21 +63,6 @@ public class VotifierProtocolDifferentiatorTest {
     }
 
     @Test(expected = DecoderException.class)
-    public void failOnSmallBufferTest() {
-        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
-
-        ByteBuf buf = Unpooled.buffer(1);
-        buf.writeByte(0);
-
-        try {
-            channel.writeInbound(buf);
-        } finally {
-            buf.release();
-            channel.close();
-        }
-    }
-
-    @Test(expected = DecoderException.class)
     public void failOnBadPacketTest() {
         EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
 

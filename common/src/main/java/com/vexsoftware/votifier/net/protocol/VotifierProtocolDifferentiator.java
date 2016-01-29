@@ -33,8 +33,7 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
 
         if (readable < 2) {
             // Some retarded voting sites (PMC?) seem to send empty buffers for no good reason.
-            // TODO: How can we handle this?
-            throw new CorruptedFrameException("Frame is too short");
+            return;
         }
 
         short readMagic = buf.readShort();
