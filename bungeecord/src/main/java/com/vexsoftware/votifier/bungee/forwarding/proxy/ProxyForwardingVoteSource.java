@@ -76,7 +76,7 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
                             public void onFailure(Throwable error) {
                                 handleFailure(server, v, error, tries);
                             }
-                        }));
+                        }, plugin));
                     }
                 })
                 .connect(server.address)
