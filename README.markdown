@@ -29,7 +29,7 @@ NuVotifier configures itself the first time it is run. If you have an existing V
 
 If you want to customize NuVotifier, simply the edit `./plugins/(Nu)Votifier/config.yml` file.
 
-An in-depth configuration guide is located in `usage.md` of this repository.
+An in-depth configuration guide is located in the [usage](https://github.com/NuVotifier/NuVotifier/blob/master/usage.md) document.
 
 ### Tokens
 
