@@ -293,7 +293,8 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                     continue;
                 }
                 ProxyForwardingVoteSource.BackendServer server = new ProxyForwardingVoteSource.BackendServer(s,
-                        new InetSocketAddress(address, section.getShort("port")), KeyCreator.createKeyFrom(section.getString("key")));
+                        new InetSocketAddress(address, section.getShort("port")),
+                        KeyCreator.createKeyFrom(section.getString("token",section.getString("key"))));
                 serverList.add(server);
             }
 
