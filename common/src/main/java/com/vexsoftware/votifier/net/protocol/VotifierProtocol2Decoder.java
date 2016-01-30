@@ -75,15 +75,18 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
         // This randomizes the byte order to make timing attacks more difficult.
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
-        byte[] messageCalc = mac.doFinal(message);
+        byte[] calculatedSig = mac.doFinal(message);
 
-        Mac mac2 = Mac.getInstance("HmacSHA256");
+        // Generate a random key for use in comparison
         byte[] randomKey = new byte[32];
         RANDOM.nextBytes(randomKey);
+
+        // Then generate two HMACs for the different signatures found
+        Mac mac2 = Mac.getInstance("HmacSHA256");
         mac2.init(new SecretKeySpec(randomKey, "HmacSHA256"));
         byte[] clientSig = mac2.doFinal(sig);
         mac2.reset();
-        byte[] realSig = mac2.doFinal(messageCalc);
+        byte[] realSig = mac2.doFinal(calculatedSig);
 
         return Arrays.equals(clientSig, realSig);
     }
