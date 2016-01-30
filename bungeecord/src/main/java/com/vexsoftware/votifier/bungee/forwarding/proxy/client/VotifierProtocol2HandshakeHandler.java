@@ -25,7 +25,9 @@ public class VotifierProtocol2HandshakeHandler extends SimpleChannelInboundHandl
         }
 
         VoteRequest request = new VoteRequest(handshakeContents[2], toSend);
-        if(nuVotifier.isDebug()) nuVotifier.getLogger().info(request.toString());
+        if (nuVotifier.isDebug()) {
+            nuVotifier.getLogger().info("Sent request: " + request.toString());
+        }
         ctx.writeAndFlush(request);
         ctx.pipeline().addLast(new VotifierProtocol2ResponseHandler(responseHandler));
         ctx.pipeline().remove(this);
