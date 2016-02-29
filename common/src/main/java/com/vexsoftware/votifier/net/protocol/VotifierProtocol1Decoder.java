@@ -21,10 +21,10 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
             return;
         }
 
-        byte[] block = new byte[256];
+        byte[] block = new byte[buf.readableBytes()];
         buf.getBytes(0, block);
         // "Drain" the whole buffer
-        buf.readerIndex(buf.capacity());
+        buf.readerIndex(buf.readableBytes());
 
         VotifierPlugin plugin = ctx.channel().attr(VotifierPlugin.KEY).get();
 
