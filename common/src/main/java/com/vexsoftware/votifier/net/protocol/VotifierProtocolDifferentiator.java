@@ -45,6 +45,8 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
 
         if (readMagic == PROTOCOL_2_MAGIC) {
             // Short 0x733A + Message = Protocol v2 Vote
+            session.setVersion(VotifierSession.ProtocolVersion.TWO);
+
             if (!testMode) {
                 ctx.pipeline().addAfter("protocolDifferentiator", "protocol2LengthDecoder", new LengthFieldBasedFrameDecoder(1024, 2, 2, 0, 4));
                 ctx.pipeline().addAfter("protocol2LengthDecoder", "protocol2StringDecoder", new StringDecoder(StandardCharsets.UTF_8));
@@ -52,17 +54,16 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
                 ctx.pipeline().addAfter("protocol2VoteDecoder", "protocol2StringEncoder", new StringEncoder(StandardCharsets.UTF_8));
                 ctx.pipeline().remove(this);
             }
-            session.setVersion(VotifierSession.ProtocolVersion.TWO);
         } else {
             if (!allowv1) {
                 throw new CorruptedFrameException("This server only accepts well-formed Votifier v2 packets.");
             }
             // Probably Protocol v1 Vote Message
+            session.setVersion(VotifierSession.ProtocolVersion.ONE);
             if (!testMode) {
                 ctx.pipeline().addAfter("protocolDifferentiator", "protocol1Handler", new VotifierProtocol1Decoder());
                 ctx.pipeline().remove(this);
             }
-            session.setVersion(VotifierSession.ProtocolVersion.ONE);
         }
     }
 }

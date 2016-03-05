@@ -29,16 +29,12 @@ public class VotifierProtocol1DecoderTest {
 
     @Test
     public void testSuccessfulDecode() throws Exception {
-        // Encode a test vote.
-        String voteString = "VOTE\nTest\ntest\ntest\ntest\n";
-
-        // For reference, this is the same vote as a POJO:
         Vote votePojo = new Vote("Test", "test", "test", "test");
 
         // Send the vote
         EmbeddedChannel channel = createChannel();
 
-        byte[] encrypted = RSA.encrypt(voteString.getBytes(StandardCharsets.UTF_8), TestVotifierPlugin.getI().getProtocolV1Key().getPublic());
+        byte[] encrypted = VoteUtil.encodePOJOv1(votePojo);
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
         assertTrue(channel.writeInbound(encryptedByteBuf));
@@ -81,8 +77,7 @@ public class VotifierProtocol1DecoderTest {
         // Send the bad vote
         EmbeddedChannel channel = createChannel();
 
-        String voteString = "VOTE\nTest\ntest\ntest\ntest\n";
-        byte[] encrypted = RSA.encrypt(voteString.getBytes(StandardCharsets.UTF_8), badPublicKey);
+        byte[] encrypted = VoteUtil.encodePOJOv1(new Vote("Test", "test", "test", "test"), badPublicKey);
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
         try {

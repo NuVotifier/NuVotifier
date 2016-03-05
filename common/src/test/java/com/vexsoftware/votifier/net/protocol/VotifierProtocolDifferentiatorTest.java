@@ -1,5 +1,6 @@
 package com.vexsoftware.votifier.net.protocol;
 
+import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -77,5 +78,23 @@ public class VotifierProtocolDifferentiatorTest {
             buf.release();
             channel.close();
         }
+    }
+
+    @Test
+    public void tryIdentifyRealVotev1() throws Exception {
+        EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, true));
+
+        VotifierSession session = new VotifierSession();
+        channel.attr(VotifierSession.KEY).set(session);
+
+        Vote votePojo = new Vote("Test", "test", "test", "test");
+        byte[] encrypted = VoteUtil.encodePOJOv1(votePojo);
+        ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
+
+        channel.writeInbound(encryptedByteBuf);
+
+        assertEquals(VotifierSession.ProtocolVersion.ONE, session.getVersion());
+        encryptedByteBuf.release();
+        channel.close();
     }
 }
