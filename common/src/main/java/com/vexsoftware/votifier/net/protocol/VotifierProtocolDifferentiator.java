@@ -29,7 +29,6 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         // Determine the number of bytes that are available.
         int readable = buf.readableBytes();
-        buf.retain(); // TODO: Is this needed?
 
         if (readable < 2) {
             // Some retarded voting sites (PMC?) seem to send empty buffers for no good reason.
