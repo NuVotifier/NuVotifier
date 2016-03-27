@@ -22,28 +22,36 @@ public class MemoryVoteCache implements VoteCache {
     @Override
     public Collection<String> getCachedServers() {
         cacheLock.lock();
-        Set<String> servers = ImmutableSet.copyOf(voteCache.keySet());
-        cacheLock.unlock();
-        return servers;
+        try {
+            return ImmutableSet.copyOf(voteCache.keySet());
+        } finally {
+            cacheLock.unlock();
+        }
     }
 
     @Override
     public void addToCache(Vote v, String server) {
         cacheLock.lock();
-        Collection<Vote> voteCollection = voteCache.get(server);
-        if (voteCollection == null) {
-            voteCollection = new LinkedHashSet<>();
-            voteCache.put(server, voteCollection);
+        try {
+            Collection<Vote> voteCollection = voteCache.get(server);
+            if (voteCollection == null) {
+                voteCollection = new LinkedHashSet<>();
+                voteCache.put(server, voteCollection);
+            }
+            voteCollection.add(v);
+        } finally {
+            cacheLock.unlock();
         }
-        voteCollection.add(v);
-        cacheLock.unlock();
     }
 
     @Override
     public Collection<Vote> evict(String server) {
         cacheLock.lock();
-        Collection<Vote> fromCollection = voteCache.remove(server);
-        cacheLock.unlock();
-        return fromCollection != null ? ImmutableSet.copyOf(fromCollection) : ImmutableSet.<Vote>of();
+        try {
+            Collection<Vote> fromCollection = voteCache.remove(server);
+            return fromCollection != null ? ImmutableSet.copyOf(fromCollection) : ImmutableSet.<Vote>of();
+        } finally {
+            cacheLock.unlock();
+        }
     }
 }

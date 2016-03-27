@@ -63,16 +63,19 @@ public class FileVoteCache extends MemoryVoteCache {
 
     public void save() throws IOException {
         cacheLock.lock();
-        // Create a copy of the votes.
         JSONObject votesObject = new JSONObject();
-        for (Map.Entry<String, Collection<Vote>> entry : voteCache.entrySet()) {
-            JSONArray array = new JSONArray();
-            for (Vote vote : entry.getValue()) {
-                array.put(vote.serialize());
+        try {
+            // Create a copy of the votes.
+            for (Map.Entry<String, Collection<Vote>> entry : voteCache.entrySet()) {
+                JSONArray array = new JSONArray();
+                for (Vote vote : entry.getValue()) {
+                    array.put(vote.serialize());
+                }
+                votesObject.put(entry.getKey(), array);
             }
-            votesObject.put(entry.getKey(), array);
+        } finally {
+            cacheLock.unlock();
         }
-        cacheLock.unlock();
 
         try (BufferedWriter writer = Files.newWriter(cacheFile, StandardCharsets.UTF_8)) {
             votesObject.write(writer);
