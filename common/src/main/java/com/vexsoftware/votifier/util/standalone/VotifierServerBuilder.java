@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.security.Key;
 import java.security.KeyPair;
+import java.security.interfaces.RSAKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +28,9 @@ public class VotifierServerBuilder {
 
     public VotifierServerBuilder v1Key(KeyPair v1Key) {
         this.v1Key = Objects.requireNonNull(v1Key, "v1Key");
+        if (!(v1Key.getPrivate() instanceof RSAKey)) {
+            throw new IllegalArgumentException("Provided key is not an RSA key.");
+        }
         return this;
     }
 
