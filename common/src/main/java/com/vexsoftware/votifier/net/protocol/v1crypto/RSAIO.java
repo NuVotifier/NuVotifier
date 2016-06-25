@@ -21,6 +21,7 @@ package com.vexsoftware.votifier.net.protocol.v1crypto;
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -45,21 +46,18 @@ public class RSAIO {
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
 
-        // Store the public key.
+        // Store the public and private keys.
         X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(
                 publicKey.getEncoded());
-        FileOutputStream out = new FileOutputStream(directory + "/public.key");
-        out.write(DatatypeConverter.printBase64Binary(publicSpec.getEncoded())
-                .getBytes());
-        out.close();
-
-        // Store the private key.
         PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(
                 privateKey.getEncoded());
-        out = new FileOutputStream(directory + "/private.key");
-        out.write(DatatypeConverter.printBase64Binary(privateSpec.getEncoded())
-                .getBytes());
-        out.close();
+        try (FileOutputStream publicOut = new FileOutputStream(directory + "/public.key");
+             FileOutputStream privateOut = new FileOutputStream(directory + "/private.key")) {
+            publicOut.write(DatatypeConverter.printBase64Binary(publicSpec.getEncoded())
+                    .getBytes(StandardCharsets.UTF_8));
+            privateOut.write(DatatypeConverter.printBase64Binary(privateSpec.getEncoded())
+                    .getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     /**
@@ -75,13 +73,13 @@ public class RSAIO {
         File publicKeyFile = new File(directory + "/public.key");
         byte[] encodedPublicKey = Files.readAllBytes(publicKeyFile.toPath());
         encodedPublicKey = DatatypeConverter.parseBase64Binary(new String(
-                encodedPublicKey));
+                encodedPublicKey, StandardCharsets.UTF_8));
 
         // Read the private key file.
         File privateKeyFile = new File(directory + "/private.key");
         byte[] encodedPrivateKey = Files.readAllBytes(privateKeyFile.toPath());
         encodedPrivateKey = DatatypeConverter.parseBase64Binary(new String(
-                encodedPrivateKey));
+                encodedPrivateKey, StandardCharsets.UTF_8));
 
         // Instantiate and return the key pair.
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
