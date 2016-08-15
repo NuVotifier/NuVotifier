@@ -29,7 +29,7 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
         ProxiedPlayer p = ProxyServer.getInstance().getPlayer(v.getUsername());
         if (p == null || !forwardSpecific(p.getServer().getInfo(), v)) {
             ServerInfo serverInfo = ProxyServer.getInstance().getServers().get(fallbackServer);
-            if (serverInfo == null || !forwardSpecific(serverInfo, v)) {
+            if (serverInfo != null && !forwardSpecific(serverInfo, v)) {
                 attemptToAddToCache(v, fallbackServer);
             }
         }

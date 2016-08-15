@@ -31,6 +31,7 @@ public class MemoryVoteCache implements VoteCache {
 
     @Override
     public void addToCache(Vote v, String server) {
+        if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
             Collection<Vote> voteCollection = voteCache.get(server);
@@ -46,6 +47,7 @@ public class MemoryVoteCache implements VoteCache {
 
     @Override
     public Collection<Vote> evict(String server) {
+        if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
             Collection<Vote> fromCollection = voteCache.remove(server);
