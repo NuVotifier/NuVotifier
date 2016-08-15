@@ -11,6 +11,11 @@
 
     <artifactId>nuvotifier-sponge</artifactId>
 
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
     <repositories>
         <repository>
             <id>sponge-maven-repo</id>
@@ -50,7 +55,7 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>4.0.1</version>
+            <version>4.1.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
