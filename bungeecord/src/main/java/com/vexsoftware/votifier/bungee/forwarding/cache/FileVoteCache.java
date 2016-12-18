@@ -7,7 +7,9 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +46,10 @@ public class FileVoteCache extends MemoryVoteCache {
     private void load() throws IOException {
         if (cacheFile.exists()) {
             // Load the cache from disk
-            JSONObject object = new JSONObject(Files.toString(cacheFile, StandardCharsets.UTF_8));
+            JSONObject object;
+            try (BufferedReader reader = Files.newReader(cacheFile, StandardCharsets.UTF_8)) {
+                object = new JSONObject(new JSONTokener(reader));
+            }
 
             // Deserialize all votes contained
             for (Object server : object.keySet()) {
