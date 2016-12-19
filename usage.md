@@ -4,7 +4,7 @@ networks.
 # Installation
 
 The NuVotifier Universal jar (the default jar that is distributed on spigotmc.org) can be installed on Bukkit, BungeeCord,
-and Sponge servers as-is without modification.
+and Sponge servers as-is.
 
 The Universal JAR can be downloaded off our [SpigotMC resource page](https://www.spigotmc.org/resources/nuvotifier.13449/).
 
@@ -18,7 +18,7 @@ the legacy protocol will be referred to v1. As of writing, most if not all vote 
 
 ## Enabling the NuVotifier Server port
 
-NuVotifier allows for the server port to be turned off when NuVotifier is only being used to forward votes. This is only
+NuVotifier allows for the server port to be turned off when NuVotifier is only receiving forwarded votes. This is only
 an option on Bukkit based servers, since it would not make logical sense for the port to be turned off on Bungee servers.
 
 If you are receiving votes from a server list directly on the server in question (votes are not being forwarded through plugin
@@ -28,10 +28,10 @@ be set to false.
 
 ## Port Configuration
 
-One of NuVotifier's functions is acting as a vote server (receiver). The IP for NuVotifier to bind to is configured
+NuVotifier's main function is acting as a vote server (receiver). The IP for NuVotifier to bind to is configured
 by the `host` and `ip` configuration values within the config.yml files within the NuVotifier plugin folder.
 Most times, you will want this `host` value to be set to `0.0.0.0` or your server's ip. `0.0.0.0` will bind to all
-ip ports on your machine, while specifying a certain IP will only bind to that ip. If you don't know what to set this
+network addresses on your machine, while specifying a certain IP will only bind to that ip. If you don't know what to set this
 to, `0.0.0.0` is a safe bet. By default, NuVotifier listens on port 8192. This is the same as the default Votifier port.
 If you change this, you will have to remember this when setting up forwarding or server lists.
 
@@ -39,7 +39,7 @@ If you change this, you will have to remember this when setting up forwarding or
 
 When first setting up NuVotifier, you will probably want debug mode to be enabled. This prints extra information to the
 console, ensuring that votes are being processed as they should. If you are experiencing an error, or having issues with
-votes being processed, you should first look to enable this. Debug mode can be turned on by setting `debug` in the config.yml
+votes being processed, you should first enable this. Debug mode can be turned on by setting `debug` in the config.yml
 to true.
 
 ## Tokens vs Public Key
@@ -51,7 +51,7 @@ should be used. When setting up the `proxy` forwarding method, tokens should be 
 Making a new token is as easy as adding another entry into `tokens` with the serviceName as the key and whatever string you want
 as the value. You can usually find the serviceName of a vote provider on their setup page if they use v2.
 
-Unless a website specifies it, you should assume that the website is using v1, and you should enter your `rsa/public.key`.
+Unless a website specifies it, you should assume that the website is using v1, and you should use `rsa/public.key`.
 
 ## Forwarding
 
@@ -90,22 +90,22 @@ This is suitable for testing, but not for production system.
 
 Votes can also be cached in a file located in the NuVotifier plugin folder. To enable this, you can set `cache` to file.
 If you want to change the file location from the default, you can set this under the `name` config under the `file` section.
-This caching method is suitable for most people.
+This caching method is suitable for most people. This is the default option.
 
 ##### No Caching
 
-Caching can also be turned off. This is the default option. You can do this by setting `cache` to `none`. This is also not
-recommended, and is only suitable for a certain number of setups.
+Caching can also be turned off. You can do this by setting `cache` to `none`. This is also not recommended, and is only
+suitable for a certain number of setups.
 
 ### Proxy Based Forwarding
 
-You can also forward votes using the proxy method. This will cause the BungeeCord to act as a voting websites, sending votes
+You can also forward votes using the proxy method. This will cause the BungeeCord to act like a voting website, sending votes
 to each server's NuVotifier port. To enable this method, you must set the `method` under `forwarding` to `proxy` in your
 BungeeCord config.yml. Within the server's config.yml, `forwarding` should be set to `none`.
 
 For each server you wish to forward to, you must add each to your BungeeCord config.yml under the `proxy` section of `forwarding`.
-For each, you must specify the ip address (`address`), port (`port`) and token (`key`). Each backend Bukkit server should have
-1 default token under the `tokens` section. This is the token that should be used as the token for the `key` in that server's
+For each, you must specify the ip address (`address`), port (`port`) and token (`token`). Each backend Bukkit server should have
+1 default token under the `tokens` section. This is the token that should be used as the token for the `token` in that server's
 section within the `proxy` section. If the server is on the same server (same ip) as the BungeeCord server, you may
 use the `127.0.0.1` or `localhost` address, setting both the `proxy` forwarding address and Bukkit config.yml address to it.
 
