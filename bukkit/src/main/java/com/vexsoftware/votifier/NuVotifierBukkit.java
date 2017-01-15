@@ -342,12 +342,12 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     }
 
     @Override
-    public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
         if (debug) {
             if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
-                getLogger().info("Got a protocol v1 vote record -> " + vote);
+                getLogger().info("Got a protocol v1 vote record from " + channel.remoteAddress() + " -> " + vote);
             } else {
-                getLogger().info("Got a protocol v2 vote record -> " + vote);
+                getLogger().info("Got a protocol v2 vote record from " + channel.remoteAddress() + " -> " + vote);
             }
         }
         Bukkit.getScheduler().runTask(this, new Runnable() {

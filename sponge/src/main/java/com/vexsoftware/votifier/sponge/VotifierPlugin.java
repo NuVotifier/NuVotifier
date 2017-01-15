@@ -340,12 +340,12 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     }
 
     @Override
-    public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
         if (debug) {
             if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
-                logger.info("Got a protocol v1 vote record -> " + vote);
+                logger.info("Got a protocol v1 vote record from " + channel.remoteAddress() + " -> " + vote);
             } else {
-                logger.info("Got a protocol v2 vote record -> " + vote);
+                logger.info("Got a protocol v2 vote record from " + channel.remoteAddress() + " -> " + vote);
             }
         }
         Sponge.getScheduler().createTaskBuilder()

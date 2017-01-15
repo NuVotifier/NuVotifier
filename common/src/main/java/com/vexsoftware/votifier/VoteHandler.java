@@ -5,7 +5,7 @@ import com.vexsoftware.votifier.net.VotifierSession;
 import io.netty.channel.Channel;
 
 public interface VoteHandler {
-    void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception;
+    void onVoteReceived(Channel channel, Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception;
 
     void onError(Channel channel, Throwable throwable);
 }

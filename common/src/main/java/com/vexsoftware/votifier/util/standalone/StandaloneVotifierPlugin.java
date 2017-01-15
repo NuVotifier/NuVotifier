@@ -78,7 +78,7 @@ public class StandaloneVotifierPlugin implements VotifierPlugin, VoteHandler {
     }
 
     @Override
-    public void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+    public void onVoteReceived(Channel channel, Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
         receiver.onVote(vote);
     }
 

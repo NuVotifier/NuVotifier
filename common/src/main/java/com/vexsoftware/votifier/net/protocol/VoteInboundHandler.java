@@ -19,7 +19,7 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
     protected void channelRead0(ChannelHandlerContext ctx, final Vote vote) throws Exception {
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
-        handler.onVoteReceived(vote, session.getVersion());
+        handler.onVoteReceived(ctx.channel(), vote, session.getVersion());
 
         if (session.getVersion() == VotifierSession.ProtocolVersion.ONE) {
             ctx.close();
