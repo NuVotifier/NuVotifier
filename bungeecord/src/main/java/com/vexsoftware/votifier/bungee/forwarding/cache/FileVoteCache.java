@@ -14,10 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -55,7 +52,7 @@ public class FileVoteCache extends MemoryVoteCache {
             for (Object server : object.keySet()) {
                 JSONArray voteArray = object.optJSONArray(((String) server));
                 if (voteArray == null) continue;
-                Set<Vote> votes = new LinkedHashSet<>(voteArray.length());
+                List<Vote> votes = new ArrayList<>(voteArray.length());
                 for (int i = 0; i < voteArray.length(); i++) {
                     votes.add(new Vote(voteArray.getJSONObject(i)));
                 }

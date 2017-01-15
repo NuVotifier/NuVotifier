@@ -1,5 +1,6 @@
 package com.vexsoftware.votifier.bungee.forwarding.cache;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.vexsoftware.votifier.model.Vote;
 
@@ -23,7 +24,7 @@ public class MemoryVoteCache implements VoteCache {
     public Collection<String> getCachedServers() {
         cacheLock.lock();
         try {
-            return ImmutableSet.copyOf(voteCache.keySet());
+            return ImmutableList.copyOf(voteCache.keySet());
         } finally {
             cacheLock.unlock();
         }
@@ -36,7 +37,7 @@ public class MemoryVoteCache implements VoteCache {
         try {
             Collection<Vote> voteCollection = voteCache.get(server);
             if (voteCollection == null) {
-                voteCollection = new LinkedHashSet<>();
+                voteCollection = new ArrayList<>();
                 voteCache.put(server, voteCollection);
             }
             voteCollection.add(v);
@@ -51,7 +52,7 @@ public class MemoryVoteCache implements VoteCache {
         cacheLock.lock();
         try {
             Collection<Vote> fromCollection = voteCache.remove(server);
-            return fromCollection != null ? ImmutableSet.copyOf(fromCollection) : ImmutableSet.<Vote>of();
+            return fromCollection != null ? fromCollection : ImmutableList.<Vote>of();
         } finally {
             cacheLock.unlock();
         }
