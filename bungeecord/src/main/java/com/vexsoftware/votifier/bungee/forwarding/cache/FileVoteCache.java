@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.NoSuchFileException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -41,25 +42,23 @@ public class FileVoteCache extends MemoryVoteCache {
     }
 
     private void load() throws IOException {
-        if (cacheFile.exists()) {
-            // Load the cache from disk
-            JSONObject object;
-            try (BufferedReader reader = Files.newReader(cacheFile, StandardCharsets.UTF_8)) {
-                object = new JSONObject(new JSONTokener(reader));
-            }
+        // Load the cache from disk
+        JSONObject object;
+        try (BufferedReader reader = Files.newReader(cacheFile, StandardCharsets.UTF_8)) {
+            object = new JSONObject(new JSONTokener(reader));
+        } catch (NoSuchFileException e) {
+            object = new JSONObject();
+        }
 
-            // Deserialize all votes contained
-            for (Object server : object.keySet()) {
-                JSONArray voteArray = object.optJSONArray(((String) server));
-                if (voteArray == null) continue;
-                List<Vote> votes = new ArrayList<>(voteArray.length());
-                for (int i = 0; i < voteArray.length(); i++) {
-                    votes.add(new Vote(voteArray.getJSONObject(i)));
-                }
-                voteCache.put(((String) server), votes);
+        // Deserialize all votes contained
+        for (Object server : object.keySet()) {
+            JSONArray voteArray = object.getJSONArray(((String) server));
+            List<Vote> votes = new ArrayList<>(voteArray.length());
+            for (int i = 0; i < voteArray.length(); i++) {
+                JSONObject voteObject = voteArray.getJSONObject(i);
+                votes.add(new Vote(voteObject));
             }
-        } else {
-            cacheFile.createNewFile();
+            voteCache.put(((String) server), votes);
         }
     }
 
