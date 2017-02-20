@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.3")
+@Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.4")
 public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin, ForwardedVoteListener {
     private Logger logger;
     @Inject
