@@ -9,12 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.NoSuchFileException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -46,7 +42,7 @@ public class FileVoteCache extends MemoryVoteCache {
         JSONObject object;
         try (BufferedReader reader = Files.newReader(cacheFile, StandardCharsets.UTF_8)) {
             object = new JSONObject(new JSONTokener(reader));
-        } catch (NoSuchFileException e) {
+        } catch (FileNotFoundException e) {
             object = new JSONObject();
         }
 
