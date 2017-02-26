@@ -30,13 +30,10 @@
 
     <distributionManagement>
         <repository>
-            <id>minimumio-repo</id>
-            <url>http://repo.minimum.io/content/repositories/releases/</url>
+            <id>bintray-nuvotifier-maven</id>
+            <name>nuvotifier-maven</name>
+            <url>https://api.bintray.com/maven/nuvotifier/maven/NuVotifier/;publish=1</url>
         </repository>
-        <snapshotRepository>
-            <id>minimumio-repo-snapshots</id>
-            <url>http://repo.minimum.io/content/repositories/snapshots/</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <build>
