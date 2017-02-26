@@ -74,7 +74,7 @@ The message is JSON-encoded containing the following data:
 
 A response is given after the vote has been received and parsed, but not yet processed.
 
-For your convenience, the NuVotifier team has provided client libraries in [JavaScript](https://github.com/NuVotifier/votifier2-js) and [PHP](https://github.com/NuVotifier/votifier2-php). If you are stuck, these libraries may help you.
+For your convenience, the NuVotifier team has provided client libraries in [JavaScript](https://github.com/NuVotifier/votifier2-js), [PHP](https://github.com/NuVotifier/votifier2-php) and [Go](https://github.com/minecrafter/go-votifier). If you are stuck, these libraries may help you.
 
 ### Protocol v1 (deprecated)
 
