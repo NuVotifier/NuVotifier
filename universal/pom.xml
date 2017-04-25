@@ -27,6 +27,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                <dependencyReducedPomLocation>
+                    ${basedir}/target/dependency-reduced-pom.xml
+                </dependencyReducedPomLocation>
                     <relocations>
                         <relocation>
                             <pattern>io.netty</pattern>
