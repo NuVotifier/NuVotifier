@@ -74,7 +74,7 @@ public class StandaloneVotifierPlugin implements VotifierPlugin, VoteHandler {
 
     @Override
     public String getVersion() {
-        return "2.3.4";
+        return "2.3.5";
     }
 
     @Override
