@@ -9,10 +9,6 @@ port: 8192
 # This is useful when initially setting up NuVotifier to ensure votes are being delivered.
 debug: false
 
-# Setting this value to false will turn off the votifier port listening for external votes. This is beneficial if the server
-# is only listening for votes coming from NuVotifier running on your BungeeCord.
-enableExternal: true
-
 # Setting this option to true will disable handling of Protocol v1 packets. While the old protocol is not secure, this
 # option is currently not recommended as most voting sites only support the old protocol at present. However, if you are
 # using NuVotifier's proxy forwarding mechanism, enabling this option will increase your server's security.
