@@ -77,7 +77,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     public void onServerStart(GameStartedServerEvent event) {
         // Set the plugin version.
         version = this.getClass().getAnnotation(Plugin.class).version();
+        registerCommands();
         reloadConfig();
+
 
     }
 
