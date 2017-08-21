@@ -20,11 +20,12 @@ public class ReloadCommand extends Command{
 
     @Override
     public void execute(CommandSender commandSender, String[] strings) {
-
-        if((plugin.reloadConfigs())){
-            commandSender.sendMessage(new ComponentBuilder("nuvotifier has been reloaded").color(ChatColor.GREEN).create());
-        } else {
-            commandSender.sendMessage(new ComponentBuilder("nuvotifier has failed while reloading. Check your config.").color(ChatColor.RED).create());
+        if(commandSender.hasPermission("nuvotifier.reload")){
+            if ((plugin.reloadConfigs())) {
+                commandSender.sendMessage(new ComponentBuilder("nuvotifier has been reloaded").color(ChatColor.GREEN).create());
+            } else {
+                commandSender.sendMessage(new ComponentBuilder("nuvotifier has failed while reloading. Check your config.").color(ChatColor.RED).create());
+            }
         }
     }
 
