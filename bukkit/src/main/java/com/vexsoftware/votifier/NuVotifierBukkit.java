@@ -111,9 +111,6 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         // Set the plugin version.
         version = getDescription().getVersion();
         reloadConfigs();
-
-
-
     }
 
     @Override
@@ -325,7 +322,11 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
         if(cmd.getName().equalsIgnoreCase("nvreload")){
-            reloadConfigs();
+            if(reloadConfigs()){
+                sender.sendMessage("NuVotifier Has reloaded Successfully");
+            } else {
+                sender.sendMessage("NuVotifier couldn't load properly. Check your config for Errors");
+            }
             return true;
         }
         return false;
