@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.VotifierPlugin;
+import com.vexsoftware.votifier.bungee.commands.ReloadCommand;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
 import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
 import com.vexsoftware.votifier.bungee.forwarding.OnlineForwardPluginMessagingForwardingSource;
@@ -30,7 +31,10 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -88,6 +92,26 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
 
     @Override
     public void onEnable() {
+        reloadConfigs();
+        getProxy().getPluginManager().registerCommand(this, new ReloadCommand(this));
+
+    }
+
+    public boolean reloadConfigs(){
+        if (serverGroup != null) {
+            if (serverChannel != null) {
+                serverChannel.close();
+                serverChannel = null;
+            }
+            serverGroup.shutdownGracefully();
+            serverGroup = null;
+        }
+
+        if (forwardingMethod != null) {
+            forwardingMethod.halt();
+            forwardingMethod = null;
+        }
+
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -303,7 +327,10 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
         } else {
             getLogger().severe("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");
         }
+
+        return true;
     }
+
 
 
     @Override
@@ -319,6 +346,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
 
         getLogger().info("Votifier disabled.");
     }
+
 
     @Override
     public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
