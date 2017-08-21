@@ -78,7 +78,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         // Set the plugin version.
         version = this.getClass().getAnnotation(Plugin.class).version();
         registerCommands();
-        reloadConfig();
+        reloadConfigs();
 
 
     }
@@ -100,7 +100,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     /**
      * Reload the Votifier server on demand. Allows managing ports without requiring a server restart.
      */
-    public boolean reloadConfig(){
+    public boolean reloadConfigs(){
         //Attempt to close previously existing channels
         if (serverGroup != null) {
             if (serverChannel != null) {
@@ -252,7 +252,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
 
         serverGroup = new NioEventLoopGroup(1);
 
-        new ServerBootstrap().channel(NioServerSocketChannel.class)
+        new ServerBootstrap()
+                .channel(NioServerSocketChannel.class)
                 .group(serverGroup)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
@@ -415,7 +416,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     private void registerCommands() {
         CommandSpec reload = CommandSpec.builder()
                 .description(Text.of("Reload Your NuVotifier Config"))
-                .permission("seriousvote.commands.admin.reload")
+                .permission("nuvotifier.reload")
                 .executor(new NVReload())
                 .build();
         Sponge.getCommandManager().register(this, reload, "nvreload");
@@ -425,7 +426,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     public class NVReload implements CommandExecutor {
         public CommandResult execute(CommandSource src, CommandContext args) throws
                 CommandException {
-            if (reloadConfig()) {
+            if (reloadConfigs()) {
                 src.sendMessage(Text.of("NuVotifier Reloaded successfully!"));
             } else {
                 src.sendMessage(Text.of("Could not reload properly :( did you break your config?").toBuilder().color(TextColors.RED).build());
