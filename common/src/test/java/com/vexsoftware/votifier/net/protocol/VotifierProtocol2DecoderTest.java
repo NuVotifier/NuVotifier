@@ -11,9 +11,9 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import javax.crypto.Mac;
-import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Base64;
 
 import static org.junit.Assert.*;
 
@@ -38,7 +38,7 @@ public class VotifierProtocol2DecoderTest {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
         object.put("signature",
-                DatatypeConverter.printBase64Binary(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encode(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
 
         if (expectSuccess) {
             assertTrue(channel.writeInbound(object.toString()));
@@ -90,7 +90,7 @@ public class VotifierProtocol2DecoderTest {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(TestVotifierPlugin.getI().getTokens().get("default"));
         object.put("signature",
-                DatatypeConverter.printBase64Binary(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encode(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
 
         try {
             channel.writeInbound(object.toString());
@@ -113,7 +113,7 @@ public class VotifierProtocol2DecoderTest {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(TestVotifierPlugin.getI().getTokens().get("default"));
         object.put("signature",
-                DatatypeConverter.printBase64Binary(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encode(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
 
         try {
             channel.writeInbound(object.toString());
