@@ -38,7 +38,7 @@ public class VotifierProtocol2DecoderTest {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
         object.put("signature",
-                Base64.getEncoder().encode(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encodeToString(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
 
         if (expectSuccess) {
             assertTrue(channel.writeInbound(object.toString()));
@@ -90,7 +90,7 @@ public class VotifierProtocol2DecoderTest {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(TestVotifierPlugin.getI().getTokens().get("default"));
         object.put("signature",
-                Base64.getEncoder().encode(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encodeToString(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
 
         try {
             channel.writeInbound(object.toString());
