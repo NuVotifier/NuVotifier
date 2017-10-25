@@ -340,16 +340,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 logger.info("Got a protocol v2 vote record from " + channel.remoteAddress() + " -> " + vote);
             }
         }
-        Sponge.getScheduler().createTaskBuilder()
-                .execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        VotifierEvent event = new VotifierEvent(vote, Sponge.getCauseStackManager().getCurrentCause());
-                        Sponge.getEventManager().post(event);
-                    }
-                })
-                .async()
-                .submit(this);
+        VotifierEvent event = new VotifierEvent(vote, Sponge.getCauseStackManager().getCurrentCause());
+        Sponge.getEventManager().post(event);
+
     }
 
     @Override
@@ -366,15 +359,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         if (debug) {
             logger.info("Got a forwarded vote -> " + v);
         }
-        Sponge.getScheduler().createTaskBuilder()
-                .execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        VotifierEvent event = new VotifierEvent(v, Sponge.getCauseStackManager().getCurrentCause());
-                        Sponge.getEventManager().post(event);
-                    }
-                })
-                .async()
-                .submit(this);
+
+        VotifierEvent event = new VotifierEvent(v, Sponge.getCauseStackManager().getCurrentCause());
+        Sponge.getEventManager().post(event);
+
     }
 }
