@@ -262,6 +262,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
             initTask.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Unable to start server", e);
+
         }
 
         Configuration fwdCfg = configuration.getSection("forwarding");

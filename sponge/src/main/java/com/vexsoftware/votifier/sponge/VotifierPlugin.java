@@ -40,7 +40,7 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -379,7 +379,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 .execute(new Runnable() {
                     @Override
                     public void run() {
-                        VotifierEvent event = new VotifierEvent(vote, Cause.of(NamedCause.of("Vote", vote)));
+                        VotifierEvent event = new VotifierEvent(vote,Cause.builder().append("Vote").build(EventContext.empty()));
+
                         Sponge.getEventManager().post(event);
                     }
                 })
@@ -405,7 +406,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 .execute(new Runnable() {
                     @Override
                     public void run() {
-                        VotifierEvent event = new VotifierEvent(v, Cause.of(NamedCause.of("ForwardedVote", v)));
+                        VotifierEvent event = new VotifierEvent(v,Cause.builder().append("ForwardedVote").build(EventContext.empty()));
                         Sponge.getEventManager().post(event);
                     }
                 })
