@@ -10,10 +10,10 @@ import org.json.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +49,7 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
 
         // Verify signature.
         String sigHash = voteMessage.getString("signature");
-        byte[] sigBytes = DatatypeConverter.parseBase64Binary(sigHash);
+        byte[] sigBytes = Base64.getDecoder().decode(sigHash);
 
         if (!hmacEqual(sigBytes, voteMessage.getString("payload").getBytes(StandardCharsets.UTF_8), key)) {
             throw new CorruptedFrameException("Signature is not valid (invalid token?)");

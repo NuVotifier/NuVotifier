@@ -7,9 +7,9 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.json.JSONObject;
 
 import javax.crypto.Mac;
-import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Base64;
 
 public class VotifierProtocol2Encoder extends MessageToByteEncoder<VoteRequest> {
     private static final short MAGIC = 0x733A;
@@ -32,7 +32,7 @@ public class VotifierProtocol2Encoder extends MessageToByteEncoder<VoteRequest> 
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
         mac.update(payload.getBytes(StandardCharsets.UTF_8));
-        String computed = DatatypeConverter.printBase64Binary(mac.doFinal());
+        String computed = Base64.getEncoder().encodeToString(mac.doFinal());
         object.put("signature", computed);
 
         // JSON message is ready for encoding.

@@ -18,7 +18,7 @@
 
 package com.vexsoftware.votifier.net.protocol.v1crypto;
 
-import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -53,10 +53,9 @@ public class RSAIO {
                 privateKey.getEncoded());
         try (FileOutputStream publicOut = new FileOutputStream(directory + "/public.key");
              FileOutputStream privateOut = new FileOutputStream(directory + "/private.key")) {
-            publicOut.write(DatatypeConverter.printBase64Binary(publicSpec.getEncoded())
-                    .getBytes(StandardCharsets.UTF_8));
-            privateOut.write(DatatypeConverter.printBase64Binary(privateSpec.getEncoded())
-                    .getBytes(StandardCharsets.UTF_8));
+
+            publicOut.write(Base64.getEncoder().encode(publicSpec.getEncoded()));
+            privateOut.write(Base64.getEncoder().encode(privateSpec.getEncoded()));
         }
     }
 
@@ -72,14 +71,12 @@ public class RSAIO {
         // Read the public key file.
         File publicKeyFile = new File(directory + "/public.key");
         byte[] encodedPublicKey = Files.readAllBytes(publicKeyFile.toPath());
-        encodedPublicKey = DatatypeConverter.parseBase64Binary(new String(
-                encodedPublicKey, StandardCharsets.UTF_8));
+        encodedPublicKey = Base64.getDecoder().decode(new String(encodedPublicKey, StandardCharsets.UTF_8));
 
         // Read the private key file.
         File privateKeyFile = new File(directory + "/private.key");
         byte[] encodedPrivateKey = Files.readAllBytes(privateKeyFile.toPath());
-        encodedPrivateKey = DatatypeConverter.parseBase64Binary(new String(
-                encodedPrivateKey, StandardCharsets.UTF_8));
+        encodedPrivateKey = Base64.getDecoder().decode(new String(encodedPrivateKey, StandardCharsets.UTF_8));
 
         // Instantiate and return the key pair.
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");

@@ -3,7 +3,6 @@ package com.vexsoftware.votifier.net.protocol;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.util.KeyCreator;
 
-import javax.xml.bind.DatatypeConverter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,6 +11,7 @@ import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class TestVotifierPlugin implements VotifierPlugin {
         URL resourceUrl = TestVotifierPlugin.class.getResource(u);
         Path resourcePath = Paths.get(resourceUrl.toURI());
 
-        return DatatypeConverter.parseBase64Binary(new String(Files.readAllBytes(resourcePath), StandardCharsets.UTF_8));
+        return Base64.getDecoder().decode(new String(Files.readAllBytes(resourcePath), StandardCharsets.UTF_8));
     }
 
     static {
