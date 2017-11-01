@@ -47,15 +47,26 @@ public class Vote {
      */
     private String timeStamp;
 
+    /**
+     * Timestamp (unix-millis) normalized and taken from a known source
+     */
+    private final long localTimestamp;
+
     @Deprecated
     public Vote() {
+        localTimestamp = System.currentTimeMillis();
     }
 
     public Vote(String serviceName, String username, String address, String timeStamp) {
+        this(serviceName, username, address, timeStamp, System.currentTimeMillis());
+    }
+
+    public Vote(String serviceName, String username, String address, String timeStamp, long localTimestamp) {
         this.serviceName = serviceName;
         this.username = username;
         this.address = address;
         this.timeStamp = timeStamp;
+        this.localTimestamp = localTimestamp;
     }
 
     private static String getTimestamp(JSONObject object) {
@@ -67,13 +78,19 @@ public class Vote {
     }
 
     public Vote(JSONObject jsonObject) {
-        this(jsonObject.getString("serviceName"), jsonObject.getString("username"), jsonObject.getString("address"), getTimestamp(jsonObject));
+        this(jsonObject.getString("serviceName"),
+                jsonObject.getString("username"),
+                jsonObject.getString("address"),
+                getTimestamp(jsonObject),
+                // maintained for backwards compatibility with <2.3.6 peers
+                (jsonObject.has("localTimestamp") ? jsonObject.getLong("localTimestamp") : System.currentTimeMillis()));
     }
 
     @Override
     public String toString() {
         return "Vote (from:" + serviceName + " username:" + username
-                + " address:" + address + " timeStamp:" + timeStamp + ")";
+                + " address:" + address + " timeStamp:" + timeStamp
+                + " localTimestamp:" + localTimestamp + ")";
     }
 
     /**
@@ -152,12 +169,22 @@ public class Vote {
         return timeStamp;
     }
 
+    /**
+     * Gets the local timestamp, in unix-millis. Calculated locally by a NuVotifier instance
+     *
+     * @return The local timestamp
+     */
+    public long getLocalTimestamp() {
+        return localTimestamp;
+    }
+
     public JSONObject serialize() {
         JSONObject ret = new JSONObject();
         ret.put("serviceName", serviceName);
         ret.put("username", username);
         ret.put("address", address);
         ret.put("timestamp", timeStamp);
+        ret.put("localTimestamp", localTimestamp);
         return ret;
     }
 
@@ -172,7 +199,6 @@ public class Vote {
         if (!username.equals(vote.username)) return false;
         if (!address.equals(vote.address)) return false;
         return timeStamp.equals(vote.timeStamp);
-
     }
 
     @Override

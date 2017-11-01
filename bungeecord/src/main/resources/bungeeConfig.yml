@@ -53,6 +53,8 @@ forwarding:
     # Options for file caching.
     file:
       name: cached-votes.json
+      # days before a vote is considered 'dead' - removed from cache with a console warning
+      voteTTL: 10
   # Specify servers to proxy votes for.
   proxy:
     Hub:

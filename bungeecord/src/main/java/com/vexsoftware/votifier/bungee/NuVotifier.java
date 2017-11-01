@@ -221,7 +221,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                             public void operationComplete(ChannelFuture future) throws Exception {
                                 if (future.isSuccess()) {
                                     serverChannel = future.channel();
-                                    getLogger().info("Votifier enabled on socket "+serverChannel.localAddress()+".");
+                                    getLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
                                 } else {
                                     SocketAddress socketAddress = future.channel().localAddress();
                                     if (socketAddress == null) {
@@ -255,8 +255,10 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 getLogger().info("Using in-memory cache for votes that are not able to be delivered.");
             } else if ("file".equals(cacheMethod)) {
                 try {
-                    voteCache = new FileVoteCache(ProxyServer.getInstance().getServers().size(), this, new File(getDataFolder(),
-                            fwdCfg.getString("pluginMessaging.file.name")));
+                    voteCache = new FileVoteCache(
+                            ProxyServer.getInstance().getServers().size(), this,
+                            new File(getDataFolder(), fwdCfg.getString("pluginMessaging.file.name")),
+                            fwdCfg.getInt("pluginMessaging.file.cacheTime", -1));
                 } catch (IOException e) {
                     getLogger().log(Level.SEVERE, "Unload to load file cache. Votes will be lost!", e);
                 }
@@ -294,7 +296,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 }
                 ProxyForwardingVoteSource.BackendServer server = new ProxyForwardingVoteSource.BackendServer(s,
                         new InetSocketAddress(address, section.getShort("port")),
-                        KeyCreator.createKeyFrom(section.getString("token",section.getString("key"))));
+                        KeyCreator.createKeyFrom(section.getString("token", section.getString("key"))));
                 serverList.add(server);
             }
 
