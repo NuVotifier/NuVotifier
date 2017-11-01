@@ -294,10 +294,22 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                     getLogger().info("Address " + section.getString("address") + " couldn't be looked up. Ignoring!");
                     continue;
                 }
-                ProxyForwardingVoteSource.BackendServer server = new ProxyForwardingVoteSource.BackendServer(s,
-                        new InetSocketAddress(address, section.getShort("port")),
-                        KeyCreator.createKeyFrom(section.getString("token", section.getString("key"))));
-                serverList.add(server);
+
+                Key token = null;
+                try {
+                    token = KeyCreator.createKeyFrom(section.getString("token", section.getString("key")));
+                } catch (IllegalArgumentException e) {
+                    getLogger().log(Level.SEVERE,
+                            "An exception occurred while attempting to add proxy target '" + s + "' - maybe your token is wrong? " +
+                                    "Votes will not be forwarded to this server!", e);
+                }
+
+                if (token != null) {
+                    ProxyForwardingVoteSource.BackendServer server = new ProxyForwardingVoteSource.BackendServer(s,
+                            new InetSocketAddress(address, section.getShort("port")),
+                            token);
+                    serverList.add(server);
+                }
             }
 
             forwardingMethod = new ProxyForwardingVoteSource(this, serverGroup, serverList, null);
