@@ -16,7 +16,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.0.31.Final</version>
+            <version>4.1.16.Final</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>

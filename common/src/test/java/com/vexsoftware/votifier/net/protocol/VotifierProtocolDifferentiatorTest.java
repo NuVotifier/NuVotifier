@@ -25,7 +25,6 @@ public class VotifierProtocolDifferentiatorTest {
         channel.writeInbound(test);
 
         assertEquals(VotifierSession.ProtocolVersion.ONE, session.getVersion());
-        test.release();
         channel.close();
     }
 
@@ -41,7 +40,6 @@ public class VotifierProtocolDifferentiatorTest {
         channel.writeInbound(test);
 
         assertEquals(VotifierSession.ProtocolVersion.TWO, session.getVersion());
-        test.release();
         channel.close();
     }
 
@@ -59,7 +57,6 @@ public class VotifierProtocolDifferentiatorTest {
         channel.writeInbound(test);
 
         assertEquals(VotifierSession.ProtocolVersion.ONE, session.getVersion());
-        test.release();
         channel.close();
     }
 
@@ -75,7 +72,6 @@ public class VotifierProtocolDifferentiatorTest {
         try {
             channel.writeInbound(buf);
         } finally {
-            buf.release();
             channel.close();
         }
     }
@@ -94,7 +90,6 @@ public class VotifierProtocolDifferentiatorTest {
         channel.writeInbound(encryptedByteBuf);
 
         assertEquals(VotifierSession.ProtocolVersion.ONE, session.getVersion());
-        encryptedByteBuf.release();
         channel.close();
     }
 }
