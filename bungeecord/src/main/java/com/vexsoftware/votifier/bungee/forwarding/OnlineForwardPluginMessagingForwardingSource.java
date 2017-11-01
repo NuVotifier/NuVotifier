@@ -29,9 +29,13 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
         ProxiedPlayer p = ProxyServer.getInstance().getPlayer(v.getUsername());
         if (p == null || !forwardSpecific(p.getServer().getInfo(), v)) {
             ServerInfo serverInfo = ProxyServer.getInstance().getServers().get(fallbackServer);
-            if (serverInfo != null && !forwardSpecific(serverInfo, v)) {
+
+            // nowhere to fall back to, yet still not online. lets save this vote yet!
+            if (serverInfo == null)
+                attempToAddToPlayerCache(v, v.getUsername());
+
+            else if (!forwardSpecific(serverInfo, v))
                 attemptToAddToCache(v, fallbackServer);
-            }
         }
     }
 
@@ -45,5 +49,10 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
     @EventHandler
     public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
         handleServerConnected(e);
+    }
+
+    @EventHandler
+    public void onPlayerSwitch(ServerConnectedEvent e) {
+        handlePlayerSwitch(e);
     }
 }

@@ -1,7 +1,6 @@
 package com.vexsoftware.votifier.bungee.forwarding.cache;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.vexsoftware.votifier.model.Vote;
 
 import java.util.*;
@@ -14,9 +13,12 @@ public class MemoryVoteCache implements VoteCache {
 
     public MemoryVoteCache(int initialSize) {
         voteCache = new HashMap<>(initialSize);
+        this.playerVoteCache = new HashMap<>();
     }
 
     protected final Map<String, Collection<Vote>> voteCache;
+
+    protected final Map<String, Collection<Vote>> playerVoteCache;
 
     protected final ReentrantLock cacheLock = new ReentrantLock();
 
@@ -47,12 +49,40 @@ public class MemoryVoteCache implements VoteCache {
     }
 
     @Override
+    public void addToCachePlayer(Vote v, String player) {
+        if (player == null) throw new NullPointerException();
+        cacheLock.lock();
+        try {
+            Collection<Vote> voteCollection = playerVoteCache.get(player);
+            if (voteCollection == null) {
+                voteCollection = new ArrayList<>();
+                playerVoteCache.put(player, voteCollection);
+            }
+            voteCollection.add(v);
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    @Override
+    public Collection<Vote> evictPlayer(String player) {
+        if (player == null) throw new NullPointerException();
+        cacheLock.lock();
+        try {
+            Collection<Vote> fromCollection = playerVoteCache.remove(player);
+            return fromCollection != null ? fromCollection : ImmutableList.of();
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    @Override
     public Collection<Vote> evict(String server) {
         if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
             Collection<Vote> fromCollection = voteCache.remove(server);
-            return fromCollection != null ? fromCollection : ImmutableList.<Vote>of();
+            return fromCollection != null ? fromCollection : ImmutableList.of();
         } finally {
             cacheLock.unlock();
         }

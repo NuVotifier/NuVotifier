@@ -12,6 +12,7 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -71,30 +72,9 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         if (cache == null) return;
         final String serverName = e.getServer().getInfo().getName();
         final Collection<Vote> cachedVotes = cache.evict(serverName);
-        if (!cachedVotes.isEmpty()) {
-            nuVotifier.getProxy().getScheduler().schedule(nuVotifier, new Runnable() {
-                @Override
-                public void run() {
-                    int evicted = 0;
-                    int unsuccessfulEvictions = 0;
-                    for (Vote v : cachedVotes) {
-                        if (forwardSpecific(e.getServer().getInfo(), v)) {
-                            evicted++;
-                        } else {
-                            // Re-add to cache to send later.
-                            cache.addToCache(v, serverName);
-                            unsuccessfulEvictions++;
-                        }
-                    }
-                    if (nuVotifier.isDebug()) {
-                        nuVotifier.getLogger().info("Successfully evicted " + evicted + " votes to server '" + serverName + "'.");
-                        if (unsuccessfulEvictions > 0) {
-                            nuVotifier.getLogger().info("Held " + unsuccessfulEvictions + " votes for server '" + serverName + "'.");
-                        }
-                    }
-                }
-            }, 1, TimeUnit.SECONDS);
-        }
+        final Collection<Vote> failedVotes = dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "server '" + serverName + "'");
+        for (Vote v : failedVotes)
+            cache.addToCache(v, serverName);
     }
 
     protected void attemptToAddToCache(Vote v, String server) {
@@ -104,5 +84,58 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
                 nuVotifier.getLogger().info("Added to forwarding cache: " + v + " -> " + server);
         } else if (nuVotifier.isDebug())
             nuVotifier.getLogger().severe("Could not immediately send vote to backend, vote lost! " + v + " -> " + server);
+    }
+
+    protected void attempToAddToPlayerCache(Vote v, String player) {
+        if (cache != null) {
+            cache.addToCachePlayer(v, player);
+            if (nuVotifier.isDebug())
+                nuVotifier.getLogger().info("Added to forwarding cache: " + v + " -> (player) " + player);
+        } else if (nuVotifier.isDebug())
+            nuVotifier.getLogger().severe("Could not immediately send vote to backend, vote lost! " + v + " -> (player) " + player);
+
+    }
+
+    // returns a collection of failed votes
+    private Collection<Vote> dumpVotesToServer(Collection<Vote> cachedVotes, ServerInfo target, String identifier) {
+        List<Vote> failures = new ArrayList<>();
+
+        if (!cachedVotes.isEmpty()) {
+            nuVotifier.getProxy().getScheduler().schedule(nuVotifier, new Runnable() {
+                @Override
+                public void run() {
+                    int evicted = 0;
+                    int unsuccessfulEvictions = 0;
+                    for (Vote v : cachedVotes) {
+                        if (forwardSpecific(target, v)) {
+                            evicted++;
+                        } else {
+                            // Re-add to cache to send later.
+                            failures.add(v);
+                            unsuccessfulEvictions++;
+                        }
+                    }
+                    if (nuVotifier.isDebug()) {
+                        nuVotifier.getLogger().info("Successfully evicted " + evicted + " votes to " + identifier + ".");
+                        if (unsuccessfulEvictions > 0) {
+                            nuVotifier.getLogger().info("Held " + unsuccessfulEvictions + " votes for " + identifier + ".");
+                        }
+                    }
+                }
+            }, 1, TimeUnit.SECONDS);
+        }
+        return failures;
+    }
+
+    protected void handlePlayerSwitch(ServerConnectedEvent e) {
+        if (cache == null) return;
+        if (ignoredServers != null && ignoredServers.contains(e.getServer().getInfo().getName())) return;
+
+        String playerName = e.getPlayer().getName();
+
+        final Collection<Vote> cachedVotes = cache.evictPlayer(playerName);
+        final Collection<Vote> failedVotes = dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "player '" + playerName);
+        for (Vote v : failedVotes)
+            cache.addToCachePlayer(v, playerName);
     }
 }

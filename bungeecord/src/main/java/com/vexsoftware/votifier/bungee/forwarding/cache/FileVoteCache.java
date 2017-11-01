@@ -52,51 +52,70 @@ public class FileVoteCache extends MemoryVoteCache {
             object = new JSONObject();
         }
 
-        // Deserialize all votes contained
-        for (Object server : object.keySet()) {
-            JSONArray voteArray = object.getJSONArray(((String) server));
-            List<Vote> votes = new ArrayList<>(voteArray.length());
-            for (int i = 0; i < voteArray.length(); i++) {
-                JSONObject voteObject = voteArray.getJSONObject(i);
-                Vote v = new Vote(voteObject);
-                if (hasTimedOut(v))
-                    l.log(Level.WARNING, "Purging out of date vote.", v);
-                else
-                    votes.add(v);
-            }
-            voteCache.put(((String) server), votes);
+        boolean resave = false;
+
+        // First, lets figure out if we are converting from a pre2.3.6 cache
+        if (!object.has("players") || !object.has("servers") || !object.has("version") || object.length() != 3) {
+            JSONObject oldObject = object;
+            object = new JSONObject();
+            object.put("servers", oldObject);
+            object.put("players", new JSONObject());
+            object.put("version", 2);
+            resave = true;
         }
 
+        if (object.getInt("version") != 2)
+            throw new IllegalStateException("Could not read cache file! Unknown version '" + object.getInt("version") + "' read.");
+
+        JSONObject players = object.getJSONObject("players");
+        JSONObject servers = object.getJSONObject("servers");
+
+        for (Object player : players.keySet()) {
+            playerVoteCache.put(((String) player), readVotes(players.getJSONArray((String) player)));
+        }
+
+        for (Object server : servers.keySet()) {
+            voteCache.put(((String) server), readVotes(players.getJSONArray((String) server)));
+        }
+
+        if (resave) {
+            File replacementFile;
+            for (int i = 0; ; i++) {
+                replacementFile = new File(cacheFile.getParentFile(), cacheFile.getName() + ".bak." + i);
+                if (!replacementFile.exists())
+                    break;
+            }
+
+            if (!cacheFile.renameTo(replacementFile)) {
+                l.log(Level.SEVERE, "Backup movement failed! Will not save.");
+                return;
+            }
+
+            l.log(Level.WARNING, "Saving new vote cache format to file - backup moved to " + replacementFile.getAbsolutePath());
+            save();
+        }
+    }
+
+    private Collection<Vote> readVotes(JSONArray voteArray) {
+        List<Vote> votes = new ArrayList<>(voteArray.length());
+        for (int i = 0; i < voteArray.length(); i++) {
+            JSONObject voteObject = voteArray.getJSONObject(i);
+            Vote v = new Vote(voteObject);
+            if (hasTimedOut(v))
+                l.log(Level.WARNING, "Purging out of date vote.", v);
+            else
+                votes.add(v);
+        }
+        return votes;
     }
 
     public void save() throws IOException {
         cacheLock.lock();
         JSONObject votesObject = new JSONObject();
+        votesObject.put("version", 2);
         try {
-            Iterator<Map.Entry<String, Collection<Vote>>> entryItr = voteCache.entrySet().iterator();
-            while (entryItr.hasNext()) {
-                Map.Entry<String, Collection<Vote>> entry = entryItr.next();
-                JSONArray array = new JSONArray();
-                Iterator<Vote> voteItr = entry.getValue().iterator();
-                while (voteItr.hasNext()) {
-                    Vote vote = voteItr.next();
-
-                    // if the vote is no longer valid, notify and remove
-                    if (hasTimedOut(vote)) {
-                        l.log(Level.WARNING, "Purging out of date vote.", vote);
-                        voteItr.remove();
-                    } else {
-                        array.put(vote.serialize());
-                    }
-
-                }
-
-                // if, during our iteration, we TTL invalidated all of the votes
-                if (entry.getValue().isEmpty())
-                    entryItr.remove();
-
-                votesObject.put(entry.getKey(), array);
-            }
+            votesObject.put("players", serializeMap(playerVoteCache));
+            votesObject.put("servers", serializeMap(voteCache));
         } finally {
             cacheLock.unlock();
         }
@@ -104,6 +123,35 @@ public class FileVoteCache extends MemoryVoteCache {
         try (BufferedWriter writer = Files.newWriter(cacheFile, StandardCharsets.UTF_8)) {
             votesObject.write(writer);
         }
+    }
+
+    public JSONObject serializeMap(Map<String, Collection<Vote>> map) {
+        JSONObject o = new JSONObject();
+
+        Iterator<Map.Entry<String, Collection<Vote>>> entryItr = map.entrySet().iterator();
+        while (entryItr.hasNext()) {
+            Map.Entry<String, Collection<Vote>> entry = entryItr.next();
+            JSONArray array = new JSONArray();
+            Iterator<Vote> voteItr = entry.getValue().iterator();
+            while (voteItr.hasNext()) {
+                Vote vote = voteItr.next();
+
+                // if the vote is no longer valid, notify and remove
+                if (hasTimedOut(vote)) {
+                    l.log(Level.WARNING, "Purging out of date vote.", vote);
+                    voteItr.remove();
+                } else {
+                    array.put(vote.serialize());
+                }
+
+            }
+
+            // if, during our iteration, we TTL invalidated all of the votes
+            if (entry.getValue().isEmpty())
+                entryItr.remove();
+            o.put(entry.getKey(), o);
+        }
+        return o;
     }
 
     private boolean hasTimedOut(Vote v) {
@@ -116,5 +164,4 @@ public class FileVoteCache extends MemoryVoteCache {
         saveTask.cancel();
         save();
     }
-
 }
