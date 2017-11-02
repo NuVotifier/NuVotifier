@@ -3,3 +3,9 @@ main: com.vexsoftware.votifier.NuVotifierBukkit
 version: maven-version-number
 description: A plugin that gets notified when votes are made for the server on toplists.
 authors: [blakeman8192, Kramer, tuxed]
+commands:
+   reload:
+      description: This command reloads the NuVotifier Config
+      usage: /nvreload
+      permission: nuvotifier.reload
+      permission-message: You don't have permission to run this command.

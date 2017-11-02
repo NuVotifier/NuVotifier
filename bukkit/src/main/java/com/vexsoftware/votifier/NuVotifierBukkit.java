@@ -42,6 +42,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -108,7 +110,37 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
         // Set the plugin version.
         version = getDescription().getVersion();
+        reloadConfigs();
+    }
 
+    @Override
+    public void onDisable() {
+        // Shut down the network handlers.
+        if (serverGroup != null) {
+            if (serverChannel != null)
+                serverChannel.close();
+            serverGroup.shutdownGracefully();
+        }
+        if (forwardingMethod != null) {
+            forwardingMethod.halt();
+        }
+        getLogger().info("Votifier disabled.");
+    }
+
+
+    public boolean reloadConfigs(){
+        if (serverGroup != null) {
+            if (serverChannel != null) {
+                serverChannel.close();
+                serverChannel = null;
+            }
+            serverGroup.shutdownGracefully();
+            serverGroup = null;
+        }
+        if (forwardingMethod != null) {
+            forwardingMethod.halt();
+            forwardingMethod = null;
+        }
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -162,7 +194,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             } catch (Exception ex) {
                 getLogger().log(Level.SEVERE, "Error creating configuration file", ex);
                 gracefulExit();
-                return;
+                return false;
             }
         }
 
@@ -185,7 +217,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             getLogger().log(Level.SEVERE,
                     "Error reading configuration file or RSA tokens", ex);
             gracefulExit();
-            return;
+            return false;
         }
 
         debug = cfg.getBoolean("debug", false);
@@ -210,7 +242,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 getLogger().log(Level.SEVERE,
                         "Error generating Votifier token", e);
                 gracefulExit();
-                return;
+                return false;
             }
             getLogger().info("------------------------------------------------------------------------------");
             getLogger().info("No tokens were found in your configuration, so we've generated one for you.");
@@ -283,20 +315,21 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 getLogger().severe("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
             }
         }
+
+        return true;
     }
 
     @Override
-    public void onDisable() {
-        // Shut down the network handlers.
-        if (serverGroup != null) {
-            if (serverChannel != null)
-                serverChannel.close();
-            serverGroup.shutdownGracefully();
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+        if(cmd.getName().equalsIgnoreCase("nvreload")){
+            if(reloadConfigs()){
+                sender.sendMessage("NuVotifier Has reloaded Successfully");
+            } else {
+                sender.sendMessage("NuVotifier couldn't load properly. Check your config for Errors");
+            }
+            return true;
         }
-        if (forwardingMethod != null) {
-            forwardingMethod.halt();
-        }
-        getLogger().info("Votifier disabled.");
+        return false;
     }
 
     private void gracefulExit() {

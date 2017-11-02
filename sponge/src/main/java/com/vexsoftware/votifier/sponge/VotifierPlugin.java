@@ -31,13 +31,21 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +77,43 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     public void onServerStart(GameStartedServerEvent event) {
         // Set the plugin version.
         version = this.getClass().getAnnotation(Plugin.class).version();
+        registerCommands();
+        reloadConfigs();
 
+
+    }
+
+
+    @Listener
+    public void onServerStop(GameStoppingServerEvent event) {
+        if (serverGroup != null) {
+            if (serverChannel != null) serverChannel.close();
+            serverGroup.shutdownGracefully();
+        }
+        if (forwardingMethod != null)
+            forwardingMethod.halt();
+
+        logger.info("Votifier disabled.");
+    }
+
+
+    /**
+     * Reload the Votifier server on demand. Allows managing ports without requiring a server restart.
+     */
+    public boolean reloadConfigs(){
+        //Attempt to close previously existing channels
+        if (serverGroup != null) {
+            if (serverChannel != null) {
+                serverChannel.close();
+                serverChannel = null;
+            }
+            serverGroup.shutdownGracefully();
+            serverGroup = null;
+        }
+        if (forwardingMethod != null) {
+            forwardingMethod.halt();
+            forwardingMethod = null;
+        }
         // Handle configuration.
         Path config = baseDirectory.resolve("config.yml");
         File rsaDirectory = baseDirectory.resolve("rsa").toFile();
@@ -126,7 +170,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
             } catch (Exception ex) {
                 logger.error("Error creating configuration file", ex);
                 gracefulExit();
-                return;
+                return false;
             }
         }
 
@@ -140,7 +184,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         } catch (IOException e) {
             logger.error("Error loading configuration file", e);
             gracefulExit();
-            return;
+            return false;
         }
 
         /*
@@ -158,7 +202,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         } catch (Exception ex) {
             logger.error("Error creating or reading RSA tokens", ex);
             gracefulExit();
-            return;
+            return false;
         }
 
         debug = node.getNode("debug").getBoolean(false);
@@ -182,7 +226,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
             } catch (IOException e) {
                 logger.error("Error generating Votifier token", e);
                 gracefulExit();
-                return;
+                return false;
             }
             logger.info("------------------------------------------------------------------------------");
             logger.info("No tokens were found in your configuration, so we've generated one for you.");
@@ -234,6 +278,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                                 socketAddress = new InetSocketAddress(host, port);
                             }
                             logger.error("Votifier was not able to bind to " + socketAddress, future.cause());
+
                         }
                     }
                 });
@@ -255,19 +300,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 logger.error("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
             }
         }
-    }
-
-    @Listener
-    public void onServerStop(GameStoppingServerEvent event) {
-        if (serverGroup != null) {
-            if (serverChannel != null)
-                serverChannel.close();
-            serverGroup.shutdownGracefully();
-        }
-        if (forwardingMethod != null)
-            forwardingMethod.halt();
-
-        logger.info("Votifier disabled.");
+        return true;
     }
 
     public Logger getLogger() {
@@ -346,7 +379,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 .execute(new Runnable() {
                     @Override
                     public void run() {
-                        VotifierEvent event = new VotifierEvent(vote, Cause.of(NamedCause.of("Vote", vote)));
+                        VotifierEvent event = new VotifierEvent(vote,Cause.builder().append("Vote").build(EventContext.empty()));
+
                         Sponge.getEventManager().post(event);
                     }
                 })
@@ -372,11 +406,35 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 .execute(new Runnable() {
                     @Override
                     public void run() {
-                        VotifierEvent event = new VotifierEvent(v, Cause.of(NamedCause.of("ForwardedVote", v)));
+                        VotifierEvent event = new VotifierEvent(v,Cause.builder().append("ForwardedVote").build(EventContext.empty()));
                         Sponge.getEventManager().post(event);
                     }
                 })
                 .async()
                 .submit(this);
+    }
+
+    private void registerCommands() {
+        CommandSpec reload = CommandSpec.builder()
+                .description(Text.of("Reload Your NuVotifier Config"))
+                .permission("nuvotifier.reload")
+                .executor(new NVReload())
+                .build();
+        Sponge.getCommandManager().register(this, reload, "nvreload");
+
+    }
+
+    public class NVReload implements CommandExecutor {
+        public CommandResult execute(CommandSource src, CommandContext args) throws
+                CommandException {
+            if (reloadConfigs()) {
+                src.sendMessage(Text.of("NuVotifier Reloaded successfully!"));
+            } else {
+                src.sendMessage(Text.of("Could not reload properly :( did you break your config?").toBuilder().color(TextColors.RED).build());
+            }
+
+
+            return CommandResult.success();
+        }
     }
 }

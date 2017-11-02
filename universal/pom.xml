@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>nuvotifier-universal</artifactId>
+    <artifactId>serious-nuvotifier-universal</artifactId>
     <name>nuvotifier</name>
 
     <build>
