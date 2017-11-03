@@ -122,7 +122,7 @@ and for Sponge [here](https://github.com/NuVotifier/NuVotifier/blob/master/spong
 
 ## Testing
 
-There is a free resource for testing your NuVotifier setups at [votifier.inaptbox.com](https://votifier.inaptbox.com). If you are setting up your
+There is a free resource for testing your NuVotifier setups at [CraftServers](https://www.craftservers.net/tools/votifier-tester/). If you are setting up your
 network or server and want a server to get test votes on, you are more than welcome to use it.
 
 
