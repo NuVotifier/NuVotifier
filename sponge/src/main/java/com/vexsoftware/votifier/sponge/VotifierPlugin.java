@@ -33,8 +33,6 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -342,16 +340,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 logger.info("Got a protocol v2 vote record from " + channel.remoteAddress() + " -> " + vote);
             }
         }
-        Sponge.getScheduler().createTaskBuilder()
-                .execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        VotifierEvent event = new VotifierEvent(vote, Cause.of(NamedCause.of("Vote", vote)));
-                        Sponge.getEventManager().post(event);
-                    }
-                })
-                .async()
-                .submit(this);
+        VotifierEvent event = new VotifierEvent(vote, Sponge.getCauseStackManager().getCurrentCause());
+        Sponge.getEventManager().post(event);
+
     }
 
     @Override
@@ -368,15 +359,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         if (debug) {
             logger.info("Got a forwarded vote -> " + v);
         }
-        Sponge.getScheduler().createTaskBuilder()
-                .execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        VotifierEvent event = new VotifierEvent(v, Cause.of(NamedCause.of("ForwardedVote", v)));
-                        Sponge.getEventManager().post(event);
-                    }
-                })
-                .async()
-                .submit(this);
+
+        VotifierEvent event = new VotifierEvent(v, Sponge.getCauseStackManager().getCurrentCause());
+        Sponge.getEventManager().post(event);
+
     }
 }
