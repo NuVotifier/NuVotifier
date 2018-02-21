@@ -22,9 +22,10 @@ NuVotifier allows for the server port to be turned off when NuVotifier is only r
 an option on Bukkit based servers, since it would not make logical sense for the port to be turned off on Bungee servers.
 
 If you are receiving votes from a server list directly on the server in question (votes are not being forwarded through plugin
-messaging), or if votes are being forwarded through the `proxy` method, then `enableExternal` should be set to true. Only
-if you are receiving forwarded votes from your bungee through the `pluginMessaging` forwarding method should `enableExternal`
-be set to false.
+messaging), or if votes are being forwarded through the `proxy` method, `port` should be set to some valid port above 0
+and below 65535. Only if you are receiving votes through `pluginMessaging` does a negative `port` make sense, as a
+negative `port` turns off the votifier port capabilities of Sponge and Bukkit servers. A negative `port` for Bungeecord
+is an invalid configuration, and will error out.
 
 ## Port Configuration
 
@@ -109,9 +110,6 @@ For each, you must specify the ip address (`address`), port (`port`) and token (
 section within the `proxy` section. If the server is on the same server (same ip) as the BungeeCord server, you may
 use the `127.0.0.1` or `localhost` address, setting both the `proxy` forwarding address and Bukkit config.yml address to it.
 
-In order for vote proxying to work, the backend server __must__ have `enableExternal` set to true. If it is set to
-false, the Bungee server will not be able to forward the vote. 
-
 
 ## Default Configurations
 
@@ -119,19 +117,12 @@ The default configuration for Bukkit can be found [here](https://github.com/NuVo
 for BungeeCord [here](https://github.com/NuVotifier/NuVotifier/blob/master/bungeecord/src/main/resources/bungeeConfig.yml),
 and for Sponge [here](https://github.com/NuVotifier/NuVotifier/blob/master/sponge/src/main/resources/com/vexsoftware/votifier/sponge/spongeConfig.yml).
 
-
-## Testing
-
-There is a free resource for testing your NuVotifier setups at [CraftServers](https://www.craftservers.net/tools/votifier-tester/). If you are setting up your
-network or server and want a server to get test votes on, you are more than welcome to use it.
-
-
 ## Basic Setups
 
 ### Single Server Quickstart
 
-A single server setup should have `enableExternal` set to `true`, and `forwarding.method` set to `none`. The IP and port
-should also be set to appropriate values. For server lists, you should use the public key found in `rsa/public.key`.
+A single server setup should  `forwarding.method` set to `none`. The IP and port should also be set to appropriate 
+values. For server lists, you should use the public key found in `rsa/public.key`.
 
 ## Advanced Setups
 
@@ -139,7 +130,7 @@ should also be set to appropriate values. For server lists, you should use the p
 
 Using NuVotifier with multiple BungeeCords is a more tricky setup. You can use one of your player-facing proxies for the
 NuVotifier server, or use a separate one. You are not guaranteed to have players on all of your servers to allow votes to
-be dispatched, so proxy forwarding (requiring `enableExternal` set to `true` on your Bukkit servers) is highly recommended.
+be dispatched, so proxy forwarding is highly recommended.
 
 ## Contributing
 

@@ -196,45 +196,53 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         if (debug)
             logger.info("DEBUG mode enabled!");
 
-        final boolean disablev1 = node.getNode("disable-v1-protocol").getBoolean(false);
-        if (disablev1) {
-            logger.info("------------------------------------------------------------------------------");
-            logger.info("Votifier protocol v1 parsing has been disabled. Most voting websites do not");
-            logger.info("currently support the modern Votifier protocol in NuVotifier.");
-            logger.info("------------------------------------------------------------------------------");
-        }
+        if (port >= 0) {
+            final boolean disablev1 = node.getNode("disable-v1-protocol").getBoolean(false);
+            if (disablev1) {
+                logger.info("------------------------------------------------------------------------------");
+                logger.info("Votifier protocol v1 parsing has been disabled. Most voting websites do not");
+                logger.info("currently support the modern Votifier protocol in NuVotifier.");
+                logger.info("------------------------------------------------------------------------------");
+            }
 
-        serverGroup = new NioEventLoopGroup(1);
+            serverGroup = new NioEventLoopGroup(1);
 
-        new ServerBootstrap()
-                .channel(NioServerSocketChannel.class)
-                .group(serverGroup)
-                .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                    @Override
-                    protected void initChannel(NioSocketChannel channel) throws Exception {
-                        channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                        channel.attr(com.vexsoftware.votifier.VotifierPlugin.KEY).set(VotifierPlugin.this);
-                        channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                        channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
-                        channel.pipeline().addLast("voteHandler", new VoteInboundHandler(VotifierPlugin.this));
-                    }
-                })
-                .bind(host, port)
-                .addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture future) throws Exception {
-                        if (future.isSuccess()) {
-                            serverChannel = future.channel();
-                            logger.info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
-                        } else {
-                            SocketAddress socketAddress = future.channel().localAddress();
-                            if (socketAddress == null) {
-                                socketAddress = new InetSocketAddress(host, port);
-                            }
-                            logger.error("Votifier was not able to bind to " + socketAddress, future.cause());
+            new ServerBootstrap()
+                    .channel(NioServerSocketChannel.class)
+                    .group(serverGroup)
+                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                        @Override
+                        protected void initChannel(NioSocketChannel channel) throws Exception {
+                            channel.attr(VotifierSession.KEY).set(new VotifierSession());
+                            channel.attr(com.vexsoftware.votifier.VotifierPlugin.KEY).set(VotifierPlugin.this);
+                            channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
+                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
+                            channel.pipeline().addLast("voteHandler", new VoteInboundHandler(VotifierPlugin.this));
                         }
-                    }
-                });
+                    })
+                    .bind(host, port)
+                    .addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (future.isSuccess()) {
+                                serverChannel = future.channel();
+                                logger.info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
+                            } else {
+                                SocketAddress socketAddress = future.channel().localAddress();
+                                if (socketAddress == null) {
+                                    socketAddress = new InetSocketAddress(host, port);
+                                }
+                                logger.error("Votifier was not able to bind to " + socketAddress, future.cause());
+                            }
+                        }
+                    });
+        } else {
+            getLogger().info("------------------------------------------------------------------------------");
+            getLogger().info("Your Votifier port is less than 0, so we assume you do NOT want to start the");
+            getLogger().info("votifier port server! Votifier will not listen for votes over any port, and");
+            getLogger().info("will only listen for pluginMessaging forwarded votes!");
+            getLogger().info("------------------------------------------------------------------------------");
+        }
 
         ConfigurationNode forwardingConfig = node.getNode("forwarding");
         if (forwardingConfig != null) {
