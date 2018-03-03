@@ -1,0 +1,16 @@
+pipeline:
+  build:
+    image: cogniteev/oracle-java
+    commands: ./gradlew build --no-daemon
+  publish:
+    image: cogniteev/oracle-java
+    commands: 
+    - ./gradlew publishversionedPublicationToParallelBlockRepository
+    - ./gradlew publishlatestPublicationToParallelBlockRepository
+    environment:
+      - PUBLISH=yes
+      - LATEST_BUILD=yes
+    secrets: [SNAPSHOT_REPO, RELEASE_REPO, REPO_USERNAME, REPO_PASSWORD]
+    when:
+      branch: master
+      event: push
