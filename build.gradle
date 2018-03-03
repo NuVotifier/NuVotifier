@@ -1,0 +1,28 @@
+
+allprojects {
+    group 'com.vexsoftware'
+    version '2.3.7-SNAPSHOT'
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://hub.spigotmc.org/nexus/content/groups/public/'
+        }
+        maven {
+            url "https://oss.sonatype.org/content/groups/public/"
+        }
+        maven {
+            url "http://repo.spongepowered.org/maven"
+        }
+    }
+}
+
+if (System.env.PUBLISH) {
+    apply from: 'publish.gradle'
+}

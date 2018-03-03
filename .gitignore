@@ -18,7 +18,7 @@ dependency-reduced-pom.xml
 .*.sw[a-p]
 
 # various other potential build files
-/build
+build/
 /bin
 /dist
 /manifest.mf
@@ -43,3 +43,6 @@ debug.log
 # Doxygen
 /docs/html
 debug.txt
+
+# gradle stuff
+.gradle/

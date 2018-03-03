@@ -1,0 +1,27 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+    }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile project(":nuvotifier-bukkit")
+    compile project(":nuvotifier-bungeecord")
+    compile project(":nuvotifier-sponge")
+}
+
+shadowJar {
+    baseName = 'nuvotifier'
+    classifier = null
+    relocate "io.netty", "com.vexsoftware.votifier.netty"
+    relocate "org.json", "com.vexsoftware.votifier.json"
+    relocate "org.apache.commons.io", "com.vexsoftware.votifier.commons.io"
+}
+
+build.dependsOn shadowJar
+

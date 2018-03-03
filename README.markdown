@@ -47,7 +47,7 @@ You must enable the feature on both your Bukkit and BungeeCord servers. This fea
 
 ## Building NuVotifier
 
-NuVotifier can be built by running `mvn clean package` from within the root directory of NuVotifier. A universal Bukkit/Spigot & BungeeCord plugin will be built to `universal/target/nuvotifier-universal-{version}.jar`
+NuVotifier can be built by running `gradle build` from within the root directory of NuVotifier. A universal Bukkit/Spigot & BungeeCord plugin will be built to `universal/build/libs/nuvotifier-{version}.jar`
 
 ## Protocol Documentation
 

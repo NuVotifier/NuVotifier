@@ -1,0 +1,6 @@
+dependencies {
+    compileOnly group: "net.md-5", name: "bungeecord-api", version: "1.8-SNAPSHOT"
+    compile project(":nuvotifier-common")
+}
+
+// todo token

@@ -1,0 +1,32 @@
+// This file contains special build instructions specifically for the ParallelBlock CI in order to instruct it how to
+// build the project. Usually, this shouldn't be interacted with by a human.
+
+subprojects {
+    apply plugin: "maven-publish"
+    publishing {
+        repositories {
+            maven {
+                name 'parallelBlock'
+                if (project.version.endsWith("-SNAPSHOT"))
+                    url "$System.env.SNAPSHOT_REPO"
+                else
+                    url "$System.env.RELEASE_REPO"
+                credentials {
+                    username "$System.env.REPO_USERNAME"
+                    password "$System.env.REPO_PASSWORD"
+                }
+            }
+        }
+        publications {
+            versioned(MavenPublication) {
+                from components.java
+            }
+            if (System.env.LATEST_BUILD
+                    && project.version.endsWith("-SNAPSHOT")) {
+                latest(MavenPublication) {
+                    from components.java
+                }
+            }
+        }
+    }
+}
