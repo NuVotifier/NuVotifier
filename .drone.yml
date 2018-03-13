@@ -6,7 +6,6 @@ pipeline:
     image: cogniteev/oracle-java
     commands: 
     - ./gradlew publishversionedPublicationToParallelBlockRepository
-    - ./gradlew publishlatestPublicationToParallelBlockRepository
     - ./gradlew publishLatestToParallelBlockRaw
     environment:
       - PUBLISH=yes
