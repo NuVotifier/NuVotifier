@@ -40,8 +40,7 @@ locations:
   release location
 + [SpigotMC](https://www.spigotmc.org/resources/nuvotifier.13449/) - SpigotMC
   release mirror
-+ [repo.parallelblock.com](https://repo.parallelblock.com/repository/public-raw/nuvotifier/nuvotifier.jar)
-  - ParallelBlock CI 'hot off the presses' releases
++ [repo.parallelblock.com](https://repo.parallelblock.com/repository/public-raw/nuvotifier/nuvotifier.jar) - ParallelBlock CI 'hot off the presses' releases
 
 The NuVotifier jar should then be placed within the `plugins/` folder of your
 Minecraft server. When you then start your server, NuVotifier will generate
@@ -86,8 +85,7 @@ the following locations:
   release location
 + [SpigotMC](https://www.spigotmc.org/resources/nuvotifier.13449/) - SpigotMC
   release mirror
-+ [repo.parallelblock.com](https://repo.parallelblock.com/repository/public-raw/nuvotifier/nuvotifier.jar)
-  - ParallelBlock CI 'hot off the presses' releases
++ [repo.parallelblock.com](https://repo.parallelblock.com/repository/public-raw/nuvotifier/nuvotifier.jar) - ParallelBlock CI 'hot off the presses' releases
 
 The plugin should then be placed in the `plugins/` directory of the Bungeecord
 server as well as each of the Minecraft servers.
@@ -225,7 +223,7 @@ If you find you have messed up NuVotifier beyond repair, you can grab a default
 configuration from the following locations (depending on the server it is
 installed on):
 
-+ [Bukkit] (https://github.com/parallelblock/NuVotifier/blob/master/bukkit/src/main/resources/bukkitConfig.yml)
++ [Bukkit](https://github.com/parallelblock/NuVotifier/blob/master/bukkit/src/main/resources/bukkitConfig.yml)
 + [Sponge](https://github.com/parallelblock/NuVotifier/blob/master/sponge/src/main/resources/com/vexsoftware/votifier/sponge/spongeConfig.yml)
 + [Bungeecord](https://github.com/parallelblock/NuVotifier/blob/master/bungeecord/src/main/resources/bungeeConfig.yml)
 

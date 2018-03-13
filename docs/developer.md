@@ -6,6 +6,15 @@ NuVotifier is an open source GNU GPLv3 licensed project. We accept contributions
 through pull requests, and will make sure to credit you for your gracious
 contribution.
 
+# Building NuVotifier
+
+NuVotifier can be built by running the following: `./gradlew build` or
+`./gradlew.bat build` on Windows. The resultant universal jar is built and
+written to `universal/build/libs/nuvotifier-{version}.jar`.
+
+The build directories can be cleaned instead using the `./gradlew clean` (and
+`./gradlew.bat build`) command.
+
 # NuVotifier as a plugin dependency
 
 ParallelBlock now maintains an independent Maven repository for free use by the
