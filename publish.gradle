@@ -2,6 +2,7 @@
 // build the project. Usually, this shouldn't be interacted with by a human.
 
 import com.mashape.unirest.http.*
+import sun.corba.OutputStreamFactory
 
 buildscript {
     repositories {
@@ -36,12 +37,16 @@ subprojects {
     }
 
     if (System.env.LATEST_BUILD) {
-        task publishLatestToParallelBlockRaw() {
-            configurations.archives.artifacts.each {
-                def resp = Unirest.put("$System.env.RAW_UPLOAD_PATH/${it.name}.${it.extension}")
-                    .basicAuth("$System.env.REPO_USERNAME", "$System.env.REPO_PASSWORD")
-                    .body(it.file.bytes).asString()
-                assert resp.status >= 200 && resp.status <= 299
+        task publishLatestToParallelBlockRaw {
+            inputs.files(configurations.archives.artifacts.files)
+            outputs.upToDateWhen {false}
+            doLast {
+                configurations.archives.artifacts.each {
+                    def resp = Unirest.put("$System.env.RAW_UPLOAD_PATH/${it.name}.${it.extension}")
+                            .basicAuth("$System.env.REPO_USERNAME", "$System.env.REPO_PASSWORD")
+                            .body(it.file.bytes).asString()
+                    assert resp.status >= 200 && resp.status <= 299
+                }
             }
         }
     }
