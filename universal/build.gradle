@@ -23,5 +23,12 @@ shadowJar {
     relocate "org.apache.commons.io", "com.vexsoftware.votifier.commons.io"
 }
 
-build.dependsOn shadowJar
+artifacts {
+    tasks.shadowJar.outputs.files.each {
+        archives(it) {
+            builtBy shadowJar
+        }
+    }
+}
 
+build.dependsOn shadowJar
