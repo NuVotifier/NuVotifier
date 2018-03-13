@@ -7,10 +7,11 @@ pipeline:
     commands: 
     - ./gradlew publishversionedPublicationToParallelBlockRepository
     - ./gradlew publishlatestPublicationToParallelBlockRepository
+    - ./gradlew publishLatestToParallelBlockRaw
     environment:
       - PUBLISH=yes
       - LATEST_BUILD=yes
-    secrets: [SNAPSHOT_REPO, RELEASE_REPO, REPO_USERNAME, REPO_PASSWORD]
+    secrets: [SNAPSHOT_REPO, RELEASE_REPO, REPO_USERNAME, REPO_PASSWORD, RAW_UPLOAD_PATH]
     when:
       branch: master
       event: push
