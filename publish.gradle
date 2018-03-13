@@ -32,18 +32,11 @@ subprojects {
             versioned(MavenPublication) {
                 from components.java
             }
-            if (System.env.LATEST_BUILD
-                    && project.version.endsWith("-SNAPSHOT")) {
-                latest(MavenPublication) {
-                    version 'latest'
-                    from components.java
-                }
-            }
         }
     }
 
     if (System.env.LATEST_BUILD) {
-        task publishLatestToParallelBlockRaw() << {
+        task publishLatestToParallelBlockRaw() {
             configurations.archives.artifacts.each {
                 def resp = Unirest.put("$System.env.RAW_UPLOAD_PATH/${it.name}.${it.extension}")
                     .basicAuth("$System.env.REPO_USERNAME", "$System.env.REPO_PASSWORD")
