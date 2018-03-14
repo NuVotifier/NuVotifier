@@ -1,4 +1,6 @@
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
 allprojects {
     group 'com.vexsoftware'
     version '2.3.7-SNAPSHOT'
@@ -20,6 +22,10 @@ subprojects {
         maven {
             url "http://repo.spongepowered.org/maven"
         }
+    }
+
+    processResources {
+        filter(ReplaceTokens, tokens: ["app.version": this.project.version])
     }
 }
 

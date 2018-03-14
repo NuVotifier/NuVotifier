@@ -1,4 +1,4 @@
 name: NuVotifier
 main: com.vexsoftware.votifier.bungee.NuVotifier
-version: maven-version-number
-author: blakeman8192, Kramer, tuxed
+version: @app.version@
+author: ParallelBlock, blakeman8192, Kramer, tuxed

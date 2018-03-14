@@ -3,4 +3,3 @@ dependencies {
     compile project(":nuvotifier-common")
 }
 
-// todo replace tokens
