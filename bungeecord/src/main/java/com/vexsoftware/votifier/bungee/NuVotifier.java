@@ -362,10 +362,15 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
     }
 
     @Override
-    public void onError(Channel channel, Throwable throwable) {
+    public void onError(Channel channel, boolean alreadyHandledVote, Throwable throwable) {
         if (debug) {
-            getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress(), throwable);
-        } else {
+            if (alreadyHandledVote) {
+                getLogger().log(Level.SEVERE, "Vote processed, however an exception " +
+                        "occurred with a vote from " + channel.remoteAddress(), throwable);
+            } else {
+                getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress(), throwable);
+            }
+        } else if (!alreadyHandledVote) {
             getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress());
         }
     }

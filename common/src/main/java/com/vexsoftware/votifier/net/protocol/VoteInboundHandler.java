@@ -20,6 +20,7 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
         handler.onVoteReceived(ctx.channel(), vote, session.getVersion());
+        session.completeVote();
 
         if (session.getVersion() == VotifierSession.ProtocolVersion.ONE) {
             ctx.close();
@@ -34,7 +35,7 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
-        handler.onError(ctx.channel(), cause);
+        handler.onError(ctx.channel(), session.hasCompletedVote(), cause);
 
         if (session.getVersion() == VotifierSession.ProtocolVersion.TWO) {
             JSONObject object = new JSONObject();

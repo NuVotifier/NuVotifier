@@ -7,6 +7,7 @@ public class VotifierSession {
     public static final AttributeKey<VotifierSession> KEY = AttributeKey.valueOf("votifier_session");
     private ProtocolVersion version = ProtocolVersion.UNKNOWN;
     private final String challenge;
+    private boolean hasCompletedVote = false;
 
     public VotifierSession() {
         challenge = TokenUtil.newToken();
@@ -25,6 +26,17 @@ public class VotifierSession {
 
     public String getChallenge() {
         return challenge;
+    }
+
+    public void completeVote() {
+        if (hasCompletedVote)
+            throw new IllegalStateException("Protocol completed vote twice!");
+
+        hasCompletedVote = true;
+    }
+
+    public boolean hasCompletedVote() {
+        return hasCompletedVote;
     }
 
     public enum ProtocolVersion {

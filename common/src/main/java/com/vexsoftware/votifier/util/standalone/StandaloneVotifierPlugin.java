@@ -83,7 +83,7 @@ public class StandaloneVotifierPlugin implements VotifierPlugin, VoteHandler {
     }
 
     @Override
-    public void onError(Channel channel, Throwable throwable) {
+    public void onError(Channel channel, boolean alreadyHandledVote, Throwable throwable) {
         receiver.onException(throwable);
     }
 }
