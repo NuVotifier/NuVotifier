@@ -23,6 +23,12 @@ the old Votifier with many more features.
 All documentation is located under the [docs](docs/) directory. A server admin
 configuration guide is available [here](docs/usage.md).
 
+# Support
+
+Feel free to join the ParallelBlock Discord server using the below link:
+
+[![Discord](https://i.imgur.com/HLPoNnY.png)](https://discord.gg/JJdCWgm)
+
 # License
 
 NuVotifier is GNU GPLv3 licensed. This project's license can be viewed
