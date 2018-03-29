@@ -1,7 +1,7 @@
 pipeline:
   build:
     image: cogniteev/oracle-java
-    commands: ./gradlew build --no-daemon
+    commands: ./gradlew build test --no-daemon
   publish:
     image: cogniteev/oracle-java
     commands: 
