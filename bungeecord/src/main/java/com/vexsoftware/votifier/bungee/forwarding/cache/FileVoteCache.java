@@ -1,13 +1,13 @@
 package com.vexsoftware.votifier.bungee.forwarding.cache;
 
 import com.google.common.io.Files;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.util.GsonInst;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -45,37 +45,37 @@ public class FileVoteCache extends MemoryVoteCache {
 
     private void load() throws IOException {
         // Load the cache from disk
-        JSONObject object;
+        JsonObject object;
         try (BufferedReader reader = Files.newReader(cacheFile, StandardCharsets.UTF_8)) {
-            object = new JSONObject(new JSONTokener(reader));
+            object = GsonInst.gson.fromJson(reader, JsonObject.class);
         } catch (FileNotFoundException e) {
-            object = new JSONObject();
+            object = new JsonObject();
         }
 
         boolean resave = false;
 
         // First, lets figure out if we are converting from a pre2.3.6 cache
-        if (!object.has("players") || !object.has("servers") || !object.has("version") || object.length() != 3) {
-            JSONObject oldObject = object;
-            object = new JSONObject();
-            object.put("servers", oldObject);
-            object.put("players", new JSONObject());
-            object.put("version", 2);
+        if (!object.has("players") || !object.has("servers") || !object.has("version") || object.size() != 3) {
+            JsonObject oldObject = object;
+            object = new JsonObject();
+            object.add("servers", oldObject);
+            object.add("players", new JsonObject());
+            object.addProperty("version", 2);
             resave = true;
         }
 
-        if (object.getInt("version") != 2)
-            throw new IllegalStateException("Could not read cache file! Unknown version '" + object.getInt("version") + "' read.");
+        if (object.get("version").getAsInt() != 2)
+            throw new IllegalStateException("Could not read cache file! Unknown version '" + object.get("version").getAsInt() + "' read.");
 
-        JSONObject players = object.getJSONObject("players");
-        JSONObject servers = object.getJSONObject("servers");
+        JsonObject players = object.getAsJsonObject("players");
+        JsonObject servers = object.getAsJsonObject("servers");
 
-        for (Object player : players.keySet()) {
-            playerVoteCache.put(((String) player), readVotes(players.getJSONArray((String) player)));
+        for (String player : players.keySet()) {
+            playerVoteCache.put(player, readVotes(players.getAsJsonArray(player)));
         }
 
-        for (Object server : servers.keySet()) {
-            voteCache.put(((String) server), readVotes(players.getJSONArray((String) server)));
+        for (String server : servers.keySet()) {
+            voteCache.put(server, readVotes(players.getAsJsonArray(server)));
         }
 
         if (resave) {
@@ -96,10 +96,10 @@ public class FileVoteCache extends MemoryVoteCache {
         }
     }
 
-    private Collection<Vote> readVotes(JSONArray voteArray) {
-        List<Vote> votes = new ArrayList<>(voteArray.length());
-        for (int i = 0; i < voteArray.length(); i++) {
-            JSONObject voteObject = voteArray.getJSONObject(i);
+    private Collection<Vote> readVotes(JsonArray voteArray) {
+        List<Vote> votes = new ArrayList<>(voteArray.size());
+        for (int i = 0; i < voteArray.size(); i++) {
+            JsonObject voteObject = voteArray.get(i).getAsJsonObject();
             Vote v = new Vote(voteObject);
             if (hasTimedOut(v))
                 l.log(Level.WARNING, "Purging out of date vote.", v);
@@ -111,27 +111,27 @@ public class FileVoteCache extends MemoryVoteCache {
 
     public void save() throws IOException {
         cacheLock.lock();
-        JSONObject votesObject = new JSONObject();
-        votesObject.put("version", 2);
+        JsonObject votesObject = new JsonObject();
+        votesObject.addProperty("version", 2);
         try {
-            votesObject.put("players", serializeMap(playerVoteCache));
-            votesObject.put("servers", serializeMap(voteCache));
+            votesObject.add("players", serializeMap(playerVoteCache));
+            votesObject.add("servers", serializeMap(voteCache));
         } finally {
             cacheLock.unlock();
         }
 
         try (BufferedWriter writer = Files.newWriter(cacheFile, StandardCharsets.UTF_8)) {
-            votesObject.write(writer);
+            GsonInst.gson.toJson(votesObject, writer);
         }
     }
 
-    public JSONObject serializeMap(Map<String, Collection<Vote>> map) {
-        JSONObject o = new JSONObject();
+    public JsonObject serializeMap(Map<String, Collection<Vote>> map) {
+        JsonObject o = new JsonObject();
 
         Iterator<Map.Entry<String, Collection<Vote>>> entryItr = map.entrySet().iterator();
         while (entryItr.hasNext()) {
             Map.Entry<String, Collection<Vote>> entry = entryItr.next();
-            JSONArray array = new JSONArray();
+            JsonArray array = new JsonArray();
             Iterator<Vote> voteItr = entry.getValue().iterator();
             while (voteItr.hasNext()) {
                 Vote vote = voteItr.next();
@@ -141,7 +141,7 @@ public class FileVoteCache extends MemoryVoteCache {
                     l.log(Level.WARNING, "Purging out of date vote.", vote);
                     voteItr.remove();
                 } else {
-                    array.put(vote.serialize());
+                    array.add(vote.serialize());
                 }
 
             }
@@ -149,7 +149,7 @@ public class FileVoteCache extends MemoryVoteCache {
             // if, during our iteration, we TTL invalidated all of the votes
             if (entry.getValue().isEmpty())
                 entryItr.remove();
-            o.put(entry.getKey(), o);
+            o.add(entry.getKey(), o);
         }
         return o;
     }

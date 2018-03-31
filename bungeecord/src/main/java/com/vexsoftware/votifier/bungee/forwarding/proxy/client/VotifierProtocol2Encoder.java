@@ -1,10 +1,10 @@
 package com.vexsoftware.votifier.bungee.forwarding.proxy.client;
 
+import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.json.JSONObject;
 
 import javax.crypto.Mac;
 import java.nio.charset.StandardCharsets;
@@ -22,18 +22,18 @@ public class VotifierProtocol2Encoder extends MessageToByteEncoder<VoteRequest> 
 
     @Override
     protected void encode(ChannelHandlerContext ctx, VoteRequest req, ByteBuf buf) throws Exception {
-        JSONObject object = new JSONObject();
-        JSONObject payloadObject = req.getVote().serialize();
-        payloadObject.put("challenge", req.getChallenge());
+        JsonObject object = new JsonObject();
+        JsonObject payloadObject = req.getVote().serialize();
+        payloadObject.addProperty("challenge", req.getChallenge());
         String payload = payloadObject.toString();
-        object.put("payload", payload);
+        object.addProperty("payload", payload);
 
         // Generate the MAC
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
         mac.update(payload.getBytes(StandardCharsets.UTF_8));
         String computed = Base64.getEncoder().encodeToString(mac.doFinal());
-        object.put("signature", computed);
+        object.addProperty("signature", computed);
 
         // JSON message is ready for encoding.
         String finalMessage = object.toString();

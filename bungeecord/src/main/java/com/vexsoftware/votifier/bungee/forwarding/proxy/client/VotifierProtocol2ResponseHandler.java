@@ -1,8 +1,9 @@
 package com.vexsoftware.votifier.bungee.forwarding.proxy.client;
 
+import com.google.gson.JsonObject;
+import com.vexsoftware.votifier.util.GsonInst;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.json.JSONObject;
 
 public class VotifierProtocol2ResponseHandler extends SimpleChannelInboundHandler<String> {
     private final VotifierResponseHandler responseHandler;
@@ -13,12 +14,13 @@ public class VotifierProtocol2ResponseHandler extends SimpleChannelInboundHandle
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        JSONObject object = new JSONObject(msg);
-        String status = object.getString("status");
+        JsonObject object = GsonInst.gson.fromJson(msg, JsonObject.class);
+        String status = object.get("status").getAsString();
         if (status.equals("ok")) {
             responseHandler.onSuccess();
         } else {
-            responseHandler.onFailure(new Exception("Remote server error: " + object.getString("cause") + ": " + object.getString("error")));
+            responseHandler.onFailure(new Exception("Remote server error: " + object.get("cause").getAsString() +
+                    ": " + object.get("error").getAsString()));
         }
         ctx.close();
     }

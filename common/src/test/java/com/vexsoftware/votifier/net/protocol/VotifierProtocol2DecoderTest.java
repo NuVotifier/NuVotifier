@@ -1,8 +1,10 @@
 package com.vexsoftware.votifier.net.protocol;
 
+import com.google.gson.JsonObject;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.util.GsonInst;
 import com.vexsoftware.votifier.util.KeyCreator;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -32,13 +34,14 @@ public class VotifierProtocol2DecoderTest {
         EmbeddedChannel channel = createChannel();
 
         JSONObject object = new JSONObject();
-        JSONObject payload = vote.serialize();
-        payload.put("challenge", SESSION.getChallenge());
-        object.put("payload", payload.toString());
+        JsonObject payload = vote.serialize();
+        payload.addProperty("challenge", SESSION.getChallenge());
+        String payloadEncoded = GsonInst.gson.toJson(payload);
+        object.put("payload", payloadEncoded);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
         object.put("signature",
-                Base64.getEncoder().encodeToString(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encodeToString(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
         if (expectSuccess) {
             assertTrue(channel.writeInbound(object.toString()));
@@ -65,9 +68,9 @@ public class VotifierProtocol2DecoderTest {
 
         Vote vote = new Vote("Test", "test", "test", "0");
         JSONObject object = new JSONObject();
-        JSONObject payload = vote.serialize();
-        payload.put("challenge", SESSION.getChallenge());
-        object.put("payload", payload.toString());
+        JsonObject payload = vote.serialize();
+        payload.addProperty("challenge", SESSION.getChallenge());
+        object.put("payload", GsonInst.gson.toJson(payload));
         // We "forget" the signature.
 
         try {
@@ -84,13 +87,14 @@ public class VotifierProtocol2DecoderTest {
 
         Vote vote = new Vote("Test", "test", "test", "0");
         JSONObject object = new JSONObject();
-        JSONObject payload = vote.serialize();
+        JsonObject payload = vote.serialize();
+        String payloadEncoded = GsonInst.gson.toJson(payload);
         // We "forget" the challenge.
-        object.put("payload", payload.toString());
+        object.put("payload", payloadEncoded);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(TestVotifierPlugin.getI().getTokens().get("default"));
         object.put("signature",
-                Base64.getEncoder().encodeToString(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encodeToString(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
         try {
             channel.writeInbound(object.toString());
@@ -106,14 +110,15 @@ public class VotifierProtocol2DecoderTest {
 
         Vote vote = new Vote("Test", "test", "test", "0");
         JSONObject object = new JSONObject();
-        JSONObject payload = vote.serialize();
+        JsonObject payload = vote.serialize();
         // We provide the wrong challenge.
-        payload.put("challenge", "not a challenge for me");
+        payload.addProperty("challenge", "not a challenge for me");
         object.put("payload", payload.toString());
+        String payloadEncoded = GsonInst.gson.toJson(payload);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(TestVotifierPlugin.getI().getTokens().get("default"));
         object.put("signature",
-                Base64.getEncoder().encode(mac.doFinal(payload.toString().getBytes(StandardCharsets.UTF_8))));
+                Base64.getEncoder().encode(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
         try {
             channel.writeInbound(object.toString());

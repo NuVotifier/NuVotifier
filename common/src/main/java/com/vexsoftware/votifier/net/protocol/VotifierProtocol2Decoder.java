@@ -1,18 +1,18 @@
 package com.vexsoftware.votifier.net.protocol;
 
+import com.google.gson.JsonObject;
 import com.vexsoftware.votifier.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.util.GsonInst;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import org.json.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -25,42 +25,43 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, String s, List<Object> list) throws Exception {
-        JSONObject voteMessage = new JSONObject(s);
+        JsonObject voteMessage = GsonInst.gson.fromJson(s, JsonObject.class);
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
         // Deserialize the payload.
-        JSONObject votePayload = new JSONObject(voteMessage.getString("payload"));
+        String payload = voteMessage.get("payload").getAsString();
+        JsonObject votePayload = GsonInst.gson.fromJson(payload, JsonObject.class);
 
         // Verify challenge.
-        if (!votePayload.getString("challenge").equals(session.getChallenge())) {
+        if (!votePayload.get("challenge").getAsString().equals(session.getChallenge())) {
             throw new CorruptedFrameException("Challenge is not valid");
         }
 
         // Verify that we have keys available.
         VotifierPlugin plugin = ctx.channel().attr(VotifierPlugin.KEY).get();
-        Key key = plugin.getTokens().get(votePayload.getString("serviceName"));
+        Key key = plugin.getTokens().get(votePayload.get("serviceName").getAsString());
 
         if (key == null) {
             key = plugin.getTokens().get("default");
             if (key == null) {
-                throw new RuntimeException("Unknown service '" + votePayload.getString("serviceName") + "'");
+                throw new RuntimeException("Unknown service '" + votePayload.get("serviceName").getAsString() + "'");
             }
         }
 
         // Verify signature.
-        String sigHash = voteMessage.getString("signature");
+        String sigHash = voteMessage.get("signature").getAsString();
         byte[] sigBytes = Base64.getDecoder().decode(sigHash);
 
-        if (!hmacEqual(sigBytes, voteMessage.getString("payload").getBytes(StandardCharsets.UTF_8), key)) {
+        if (!hmacEqual(sigBytes, payload.getBytes(StandardCharsets.UTF_8), key)) {
             throw new CorruptedFrameException("Signature is not valid (invalid token?)");
         }
 
         // Stopgap: verify the "uuid" field is valid, if provided.
         if (votePayload.has("uuid")) {
-            UUID.fromString(votePayload.getString("uuid"));
+            UUID.fromString(votePayload.get("uuid").getAsString());
         }
 
-        if (votePayload.getString("username").length() > 16) {
+        if (votePayload.get("username").getAsString().length() > 16) {
             throw new CorruptedFrameException("Username too long");
         }
 

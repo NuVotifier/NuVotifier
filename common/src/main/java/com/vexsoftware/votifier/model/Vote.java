@@ -18,7 +18,8 @@
 
 package com.vexsoftware.votifier.model;
 
-import org.json.JSONObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * A model for a vote.
@@ -69,21 +70,21 @@ public class Vote {
         this.localTimestamp = localTimestamp;
     }
 
-    private static String getTimestamp(JSONObject object) {
+    private static String getTimestamp(JsonElement object) {
         try {
-            return Long.toString(object.getLong("timestamp"));
+            return Long.toString(object.getAsLong());
         } catch (Exception e) {
-            return object.getString("timestamp");
+            return object.getAsString();
         }
     }
 
-    public Vote(JSONObject jsonObject) {
-        this(jsonObject.getString("serviceName"),
-                jsonObject.getString("username"),
-                jsonObject.getString("address"),
-                getTimestamp(jsonObject),
+    public Vote(JsonObject jsonObject) {
+        this(jsonObject.get("serviceName").getAsString(),
+                jsonObject.get("username").getAsString(),
+                jsonObject.get("address").getAsString(),
+                getTimestamp(jsonObject.get("timestamp")),
                 // maintained for backwards compatibility with <2.3.6 peers
-                (jsonObject.has("localTimestamp") ? jsonObject.getLong("localTimestamp") : System.currentTimeMillis()));
+                (jsonObject.has("localTimestamp") ? jsonObject.get("localTimestamp").getAsLong() : System.currentTimeMillis()));
     }
 
     @Override
@@ -178,13 +179,13 @@ public class Vote {
         return localTimestamp;
     }
 
-    public JSONObject serialize() {
-        JSONObject ret = new JSONObject();
-        ret.put("serviceName", serviceName);
-        ret.put("username", username);
-        ret.put("address", address);
-        ret.put("timestamp", timeStamp);
-        ret.put("localTimestamp", localTimestamp);
+    public JsonObject serialize() {
+        JsonObject ret = new JsonObject();
+        ret.addProperty("serviceName", serviceName);
+        ret.addProperty("username", username);
+        ret.addProperty("address", address);
+        ret.addProperty("timestamp", timeStamp);
+        ret.addProperty("localTimestamp", localTimestamp);
         return ret;
     }
 
