@@ -25,9 +25,9 @@ configuration guide is available [here](docs/usage.md).
 
 # Support
 
-Feel free to join the ParallelBlock Discord server using the below link:
+Feel free to join the MOSS Discord server using the below link:
 
-[![Discord](https://i.imgur.com/HLPoNnY.png)](https://discord.gg/JJdCWgm)
+[![Discord](https://i.imgur.com/HLPoNnY.png)](https://discord.gg/anUtuAC)
 
 # License
 
