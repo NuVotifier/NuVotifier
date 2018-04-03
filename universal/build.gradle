@@ -20,6 +20,7 @@ shadowJar {
     classifier = null
     relocate "io.netty", "com.vexsoftware.votifier.netty"
     relocate "org.json", "com.vexsoftware.votifier.json"
+    relocate "com.google", "com.vexsoftware.votifier.google"
     relocate "org.apache.commons.io", "com.vexsoftware.votifier.commons.io"
 }
 
