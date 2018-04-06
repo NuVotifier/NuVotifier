@@ -75,7 +75,7 @@ public class FileVoteCache extends MemoryVoteCache {
         }
 
         for (String server : servers.keySet()) {
-            voteCache.put(server, readVotes(players.getAsJsonArray(server)));
+            voteCache.put(server, readVotes(servers.getAsJsonArray(server)));
         }
 
         if (resave) {
@@ -149,7 +149,7 @@ public class FileVoteCache extends MemoryVoteCache {
             // if, during our iteration, we TTL invalidated all of the votes
             if (entry.getValue().isEmpty())
                 entryItr.remove();
-            o.add(entry.getKey(), o);
+            o.add(entry.getKey(), array);
         }
         return o;
     }
