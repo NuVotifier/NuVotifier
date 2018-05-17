@@ -54,21 +54,16 @@ import java.util.Optional;
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.7", authors = "ParallelBlock LLC",
         description = "Safe, smart, and secure Votifier server plugin")
 public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin, ForwardedVoteListener {
+
+    @Inject
     private Logger logger;
+
     @Inject
     @ConfigDir(sharedRoot = false)
     private Path baseDirectory;
 
-    @Inject
-    public VotifierPlugin(Logger logger) {
-        this.logger = logger;
-    }
-
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
-        // Set the plugin version.
-        version = this.getClass().getAnnotation(Plugin.class).version();
-
         // Handle configuration.
         Path config = baseDirectory.resolve("config.yml");
         File rsaDirectory = baseDirectory.resolve("rsa").toFile();
