@@ -2,10 +2,11 @@ package com.vexsoftware.votifier.sponge.config;
 
 import com.google.common.reflect.TypeToken;
 import com.vexsoftware.votifier.sponge.VotifierPlugin;
+import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 
 import java.io.File;
 
@@ -23,12 +24,12 @@ public class ConfigLoader {
 
     public boolean loadConfig() {
         try {
-            File file = new File(plugin.getConfigDir(), "config.conf");
+            File file = new File(plugin.getConfigDir(), "config.yml");
             if (!file.exists()) {
                 file.createNewFile();
             }
-            ConfigurationLoader<CommentedConfigurationNode> loader = HoconConfigurationLoader.builder().setFile(file).build();
-            CommentedConfigurationNode config = loader.load(ConfigurationOptions.defaults().setShouldCopyDefaults(true));
+            ConfigurationLoader loader = YAMLConfigurationLoader.builder().setFile(file).build();
+            ConfigurationNode config = loader.load(ConfigurationOptions.defaults().setShouldCopyDefaults(true));
             spongeConfig = config.getValue(TypeToken.of(SpongeConfig.class), new SpongeConfig());
             loader.save(config);
             return true;

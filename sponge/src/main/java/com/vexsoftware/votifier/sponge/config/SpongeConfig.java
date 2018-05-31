@@ -35,7 +35,7 @@ public class SpongeConfig {
     public Forwarding forwarding = new Forwarding();
 
     @ConfigSerializable
-    public class Forwarding {
+    public static class Forwarding {
 
         @Setting(comment = "Sets whether to set up a remote method for fowarding. Supported methods:\n" +
                 "- none - Does not set up a forwarding method.\n" +
@@ -46,7 +46,7 @@ public class SpongeConfig {
         public PluginMessaging pluginMessaging = new PluginMessaging();
 
         @ConfigSerializable
-        public class PluginMessaging {
+        public static class PluginMessaging {
 
             @Setting
             public String channel = "NuVotifier";

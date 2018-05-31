@@ -243,12 +243,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
             }
         }
         Sponge.getScheduler().createTaskBuilder()
-                .execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        VotifierEvent event = new VotifierEvent(vote, Sponge.getCauseStackManager().getCurrentCause());
-                        Sponge.getEventManager().post(event);
-                    }
+                .execute(() -> {
+                    VotifierEvent event = new VotifierEvent(vote, Sponge.getCauseStackManager().getCurrentCause());
+                    Sponge.getEventManager().post(event);
                 })
                 .submit(this);
     }
@@ -273,12 +270,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
             logger.info("Got a forwarded vote -> " + v);
         }
         Sponge.getScheduler().createTaskBuilder()
-                .execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        VotifierEvent event = new VotifierEvent(v, Sponge.getCauseStackManager().getCurrentCause());
-                        Sponge.getEventManager().post(event);
-                    }
+                .execute(() -> {
+                    VotifierEvent event = new VotifierEvent(v, Sponge.getCauseStackManager().getCurrentCause());
+                    Sponge.getEventManager().post(event);
                 })
                 .submit(this);
     }
