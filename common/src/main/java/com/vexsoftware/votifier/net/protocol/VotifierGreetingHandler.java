@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class VotifierGreetingHandler extends ChannelInboundHandlerAdapter {
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
         VotifierPlugin plugin = ctx.channel().attr(VotifierPlugin.KEY).get();
 

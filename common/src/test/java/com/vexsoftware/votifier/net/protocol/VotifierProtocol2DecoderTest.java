@@ -62,7 +62,7 @@ public class VotifierProtocol2DecoderTest {
     }
 
     @Test(expected = DecoderException.class)
-    public void testFailureDecodeBadPacket() throws Exception {
+    public void testFailureDecodeBadPacket() {
         // Create a well-formed request
         EmbeddedChannel channel = createChannel();
 

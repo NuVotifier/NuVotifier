@@ -108,7 +108,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 String cfgStr = new String(ByteStreams.toByteArray(getResourceAsStream("bungeeConfig.yml")), StandardCharsets.UTF_8);
                 String token = TokenUtil.newToken();
                 cfgStr = cfgStr.replace("%default_token%", token);
-                Files.write(cfgStr, config, StandardCharsets.UTF_8);
+                Files.asCharSink(config, StandardCharsets.UTF_8).write(cfgStr);
 
                 /*
                  * Remind hosted server admins to be sure they have the right
@@ -207,7 +207,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                         .group(serverGroup)
                         .childHandler(new ChannelInitializer<NioSocketChannel>() {
                             @Override
-                            protected void initChannel(NioSocketChannel channel) throws Exception {
+                            protected void initChannel(NioSocketChannel channel) {
                                 channel.attr(VotifierSession.KEY).set(new VotifierSession());
                                 channel.attr(VotifierPlugin.KEY).set(NuVotifier.this);
                                 channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
@@ -218,7 +218,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                         .bind(host, port)
                         .addListener(new ChannelFutureListener() {
                             @Override
-                            public void operationComplete(ChannelFuture future) throws Exception {
+                            public void operationComplete(ChannelFuture future) {
                                 if (future.isSuccess()) {
                                     serverChannel = future.channel();
                                     getLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
@@ -335,7 +335,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
     }
 
     @Override
-    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) {
         if (debug) {
             if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
                 getLogger().info("Got a protocol v1 vote record from " + channel.remoteAddress() + " -> " + vote);

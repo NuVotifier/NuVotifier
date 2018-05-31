@@ -1,8 +1,5 @@
 package com.vexsoftware.votifier.sponge;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.model.Vote;
@@ -13,61 +10,47 @@ import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
-import com.vexsoftware.votifier.sponge.config.SpongeConfig;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import com.vexsoftware.votifier.sponge.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.sponge.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.sponge.forwarding.SpongePluginMessagingForwardingSink;
 import com.vexsoftware.votifier.util.KeyCreator;
-import com.vexsoftware.votifier.util.TokenUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.7", authors = "ParallelBlock LLC",
         description = "Safe, smart, and secure Votifier server plugin")
 public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin, ForwardedVoteListener {
 
     @Inject
-    private Logger logger;
+    public Logger logger;
 
     @Inject
     @ConfigDir(sharedRoot = false)
-    private File configDir;
+    public File configDir;
 
     @Listener
-    public void onServerStart(GamePreInitializationEvent event) {
+    public void onServerStart(GameStartedServerEvent event) {
         // Handle configuration.
         ConfigLoader cfgLoader = new ConfigLoader(this);
 
@@ -123,7 +106,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                     .group(serverGroup)
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
-                        protected void initChannel(NioSocketChannel channel) throws Exception {
+                        protected void initChannel(NioSocketChannel channel) {
                             channel.attr(VotifierSession.KEY).set(new VotifierSession());
                             channel.attr(com.vexsoftware.votifier.VotifierPlugin.KEY).set(VotifierPlugin.this);
                             channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
@@ -251,7 +234,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     }
 
     @Override
-    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) {
         if (debug) {
             if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
                 logger.info("Got a protocol v1 vote record from " + channel.remoteAddress() + " -> " + vote);

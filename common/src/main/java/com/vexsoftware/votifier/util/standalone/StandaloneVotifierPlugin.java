@@ -36,7 +36,7 @@ public class StandaloneVotifierPlugin implements VotifierPlugin, VoteHandler {
         this.v1Key = v1Key;
     }
 
-    public Throwable start() throws Throwable {
+    public Throwable start() {
         group = new NioEventLoopGroup(2);
 
         ChannelFuture future = new ServerBootstrap()
@@ -44,7 +44,7 @@ public class StandaloneVotifierPlugin implements VotifierPlugin, VoteHandler {
                 .group(group)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel channel) throws Exception {
+                    protected void initChannel(NioSocketChannel channel) {
                         channel.attr(VotifierSession.KEY).set(new VotifierSession());
                         channel.attr(VotifierPlugin.KEY).set(StandaloneVotifierPlugin.this);
                         channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());

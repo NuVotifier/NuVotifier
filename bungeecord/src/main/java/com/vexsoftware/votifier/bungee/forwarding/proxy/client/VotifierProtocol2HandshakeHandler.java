@@ -18,7 +18,7 @@ public class VotifierProtocol2HandshakeHandler extends SimpleChannelInboundHandl
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, String s) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, String s) {
         String[] handshakeContents = s.split(" ");
         if (handshakeContents.length != 3) {
             throw new CorruptedFrameException("Handshake is not valid.");
@@ -35,7 +35,7 @@ public class VotifierProtocol2HandshakeHandler extends SimpleChannelInboundHandl
 
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         responseHandler.onFailure(cause);
         ctx.close();
     }
