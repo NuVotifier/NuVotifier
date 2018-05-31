@@ -31,14 +31,11 @@ public class FileVoteCache extends MemoryVoteCache {
 
         load();
 
-        saveTask = ProxyServer.getInstance().getScheduler().schedule(plugin, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    save();
-                } catch (IOException e) {
-                    l.log(Level.SEVERE, "Unable to save cached votes, votes will be lost if you restart.", e);
-                }
+        saveTask = ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+            try {
+                save();
+            } catch (IOException e) {
+                l.log(Level.SEVERE, "Unable to save cached votes, votes will be lost if you restart.", e);
             }
         }, 3, 3, TimeUnit.MINUTES);
     }

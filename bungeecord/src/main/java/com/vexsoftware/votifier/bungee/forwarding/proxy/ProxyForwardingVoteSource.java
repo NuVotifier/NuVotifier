@@ -80,12 +80,9 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
                     }
                 })
                 .connect(server.address)
-                .addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture future) {
-                        if (!future.isSuccess()) {
-                            handleFailure(server, v, future.cause(), tries);
-                        }
+                .addListener((ChannelFutureListener) future -> {
+                    if (!future.isSuccess()) {
+                        handleFailure(server, v, future.cause(), tries);
                     }
                 });
     }
@@ -112,12 +109,7 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
         }
 
         if (willRetry) {
-            plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    forwardVote(server, v, tries + 1);
-                }
-            }, nextDelay, TimeUnit.SECONDS);
+            plugin.getProxy().getScheduler().schedule(plugin, () -> forwardVote(server, v, tries + 1), nextDelay, TimeUnit.SECONDS);
         }
     }
 
