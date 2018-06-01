@@ -51,11 +51,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
-        // Handle configuration.
-        ConfigLoader cfgLoader = new ConfigLoader(this);
-
         // Load configuration.
-        cfgLoader.loadConfig();
+        ConfigLoader.loadConfig(this);
 
         /*
          * Create RSA directory and keys if it does not exist; otherwise, read
@@ -76,22 +73,22 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
             return;
         }
 
-        debug = cfgLoader.getSpongeConfig().debug;
+        debug = ConfigLoader.getSpongeConfig().debug;
 
         // Load Votifier tokens.
-        cfgLoader.getSpongeConfig().tokens.forEach((s, s2) -> {
+        ConfigLoader.getSpongeConfig().tokens.forEach((s, s2) -> {
             tokens.put(s, KeyCreator.createKeyFrom(s2));
             logger.info("Loaded token for website: " + s);
         });
 
         // Initialize the receiver.
-        final String host = cfgLoader.getSpongeConfig().host;
-        final int port = cfgLoader.getSpongeConfig().port;
+        final String host = ConfigLoader.getSpongeConfig().host;
+        final int port = ConfigLoader.getSpongeConfig().port;
         if (debug)
             logger.info("DEBUG mode enabled!");
 
         if (port >= 0) {
-            final boolean disablev1 = cfgLoader.getSpongeConfig().disableV1Protocol;
+            final boolean disablev1 = ConfigLoader.getSpongeConfig().disableV1Protocol;
             if (disablev1) {
                 logger.info("------------------------------------------------------------------------------");
                 logger.info("Votifier protocol v1 parsing has been disabled. Most voting websites do not");
@@ -135,12 +132,12 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
             getLogger().info("------------------------------------------------------------------------------");
         }
 
-        if (cfgLoader.getSpongeConfig().forwarding != null) {
-            String method = cfgLoader.getSpongeConfig().forwarding.method.toLowerCase(); //Default to lower case for case-insensitive searches
+        if (ConfigLoader.getSpongeConfig().forwarding != null) {
+            String method = ConfigLoader.getSpongeConfig().forwarding.method.toLowerCase(); //Default to lower case for case-insensitive searches
             if ("none".equals(method)) {
                 getLogger().info("Method none selected for vote forwarding: Votes will not be received from a forwarder.");
             } else if ("pluginmessaging".equals(method)) {
-                String channel = cfgLoader.getSpongeConfig().forwarding.pluginMessaging.channel;
+                String channel = ConfigLoader.getSpongeConfig().forwarding.pluginMessaging.channel;
                 try {
                     forwardingMethod = new SpongePluginMessagingForwardingSink(this, channel, this);
                     getLogger().info("Receiving votes over PluginMessaging channel '" + channel + "'.");
