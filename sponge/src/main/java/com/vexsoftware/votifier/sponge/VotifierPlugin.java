@@ -153,10 +153,15 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     @Listener
     public void onServerStop(GameStoppingServerEvent event) {
         if (serverGroup != null) {
-            if (serverChannel != null)
-                serverChannel.close();
-            serverGroup.shutdownGracefully();
+            try {
+                if (serverChannel != null)
+                    serverChannel.close().sync();
+                serverGroup.shutdownGracefully().sync();
+            } catch (Exception e) {
+                logger.error("Unable to shut down listening port gracefully.", e);
+            }
         }
+
         if (forwardingMethod != null)
             forwardingMethod.halt();
 

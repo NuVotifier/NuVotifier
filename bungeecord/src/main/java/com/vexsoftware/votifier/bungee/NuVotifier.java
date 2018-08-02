@@ -317,9 +317,13 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
     @Override
     public void onDisable() {
         // Shut down the network handlers.
-        if (serverChannel != null)
-            serverChannel.close();
-        serverGroup.shutdownGracefully();
+        try {
+            if (serverChannel != null)
+                serverChannel.close().sync();
+            serverGroup.shutdownGracefully().sync();
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Unable to shut down listening port gracefully.", e);
+        }
 
         if (forwardingMethod != null) {
             forwardingMethod.halt();
