@@ -26,4 +26,4 @@ forwarding:
   # - pluginMessaging - Sets up plugin messaging
   method: none
   pluginMessaging:
-    channel: NuVotifier
+    channel: NuVotifier:votes
