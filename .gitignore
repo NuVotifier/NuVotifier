@@ -46,3 +46,4 @@ debug.txt
 
 # gradle stuff
 .gradle/
+.gradletasknamecache
