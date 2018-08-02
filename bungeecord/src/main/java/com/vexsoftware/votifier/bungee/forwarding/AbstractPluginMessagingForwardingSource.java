@@ -129,7 +129,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         String playerName = e.getPlayer().getName();
 
         final Collection<Vote> cachedVotes = cache.evictPlayer(playerName);
-        final Collection<Vote> failedVotes = dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "player '" + playerName);
+        final Collection<Vote> failedVotes = dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "player '" + playerName + "'");
         for (Vote v : failedVotes)
             cache.addToCachePlayer(v, playerName);
     }
