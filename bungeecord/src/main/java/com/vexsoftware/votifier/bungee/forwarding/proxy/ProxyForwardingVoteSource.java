@@ -59,7 +59,7 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
                 .group(eventLoopGroup)
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel channel) throws Exception {
+                    protected void initChannel(NioSocketChannel channel) {
                         channel.pipeline().addLast(new DelimiterBasedFrameDecoder(256, true, Delimiters.lineDelimiter()));
                         channel.pipeline().addLast(new ReadTimeoutHandler(8, TimeUnit.SECONDS));
                         channel.pipeline().addLast(STRING_DECODER);
@@ -80,12 +80,9 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
                     }
                 })
                 .connect(server.address)
-                .addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture future) throws Exception {
-                        if (!future.isSuccess()) {
-                            handleFailure(server, v, future.cause(), tries);
-                        }
+                .addListener((ChannelFutureListener) future -> {
+                    if (!future.isSuccess()) {
+                        handleFailure(server, v, future.cause(), tries);
                     }
                 });
     }
@@ -112,12 +109,7 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
         }
 
         if (willRetry) {
-            plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    forwardVote(server, v, tries + 1);
-                }
-            }, nextDelay, TimeUnit.SECONDS);
+            plugin.getProxy().getScheduler().schedule(plugin, () -> forwardVote(server, v, tries + 1), nextDelay, TimeUnit.SECONDS);
         }
     }
 

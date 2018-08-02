@@ -13,7 +13,7 @@ public class VotifierProtocol2ResponseHandler extends SimpleChannelInboundHandle
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, String msg) {
         JsonObject object = GsonInst.gson.fromJson(msg, JsonObject.class);
         String status = object.get("status").getAsString();
         if (status.equals("ok")) {
@@ -26,7 +26,7 @@ public class VotifierProtocol2ResponseHandler extends SimpleChannelInboundHandle
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         responseHandler.onFailure(cause);
         ctx.close();
     }

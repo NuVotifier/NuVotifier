@@ -6,9 +6,7 @@ import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.model.Vote;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
-import net.md_5.bungee.event.EventHandler;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -59,7 +57,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
     public void halt() {
         ProxyServer.getInstance().unregisterChannel(channel);
 
-        if (cache != null && cache instanceof FileVoteCache) {
+        if (cache instanceof FileVoteCache) {
             try {
                 ((FileVoteCache) cache).halt();
             } catch (IOException e) {
@@ -101,25 +99,22 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         List<Vote> failures = new ArrayList<>();
 
         if (!cachedVotes.isEmpty()) {
-            nuVotifier.getProxy().getScheduler().schedule(nuVotifier, new Runnable() {
-                @Override
-                public void run() {
-                    int evicted = 0;
-                    int unsuccessfulEvictions = 0;
-                    for (Vote v : cachedVotes) {
-                        if (forwardSpecific(target, v)) {
-                            evicted++;
-                        } else {
-                            // Re-add to cache to send later.
-                            failures.add(v);
-                            unsuccessfulEvictions++;
-                        }
+            nuVotifier.getProxy().getScheduler().schedule(nuVotifier, () -> {
+                int evicted = 0;
+                int unsuccessfulEvictions = 0;
+                for (Vote v : cachedVotes) {
+                    if (forwardSpecific(target, v)) {
+                        evicted++;
+                    } else {
+                        // Re-add to cache to send later.
+                        failures.add(v);
+                        unsuccessfulEvictions++;
                     }
-                    if (nuVotifier.isDebug()) {
-                        nuVotifier.getLogger().info("Successfully evicted " + evicted + " votes to " + identifier + ".");
-                        if (unsuccessfulEvictions > 0) {
-                            nuVotifier.getLogger().info("Held " + unsuccessfulEvictions + " votes for " + identifier + ".");
-                        }
+                }
+                if (nuVotifier.isDebug()) {
+                    nuVotifier.getLogger().info("Successfully evicted " + evicted + " votes to " + identifier + ".");
+                    if (unsuccessfulEvictions > 0) {
+                        nuVotifier.getLogger().info("Held " + unsuccessfulEvictions + " votes for " + identifier + ".");
                     }
                 }
             }, 1, TimeUnit.SECONDS);

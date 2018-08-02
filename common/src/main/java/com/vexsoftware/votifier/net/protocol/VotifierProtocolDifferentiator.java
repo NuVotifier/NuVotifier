@@ -26,7 +26,7 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) {
         // Determine the number of bytes that are available.
         int readable = buf.readableBytes();
 

@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) {
         if (buf.readableBytes() < 256) {
             return;
         }

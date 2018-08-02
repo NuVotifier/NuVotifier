@@ -33,7 +33,7 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
         handler.onError(ctx.channel(), session.hasCompletedVote(), cause);
