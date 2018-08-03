@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 public abstract class AbstractPluginMessagingForwardingSource implements ForwardingVoteSource {
@@ -70,9 +72,10 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         if (cache == null) return;
         final String serverName = e.getServer().getInfo().getName();
         final Collection<Vote> cachedVotes = cache.evict(serverName);
-        final Collection<Vote> failedVotes = dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "server '" + serverName + "'");
-        for (Vote v : failedVotes)
-            cache.addToCache(v, serverName);
+        dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "server '" + serverName + "'", failedVotes -> {
+            for (Vote v : failedVotes)
+                cache.addToCache(v, serverName);
+        });
     }
 
     protected void attemptToAddToCache(Vote v, String server) {
@@ -95,7 +98,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
     }
 
     // returns a collection of failed votes
-    private Collection<Vote> dumpVotesToServer(Collection<Vote> cachedVotes, ServerInfo target, String identifier) {
+    private void dumpVotesToServer(Collection<Vote> cachedVotes, ServerInfo target, String identifier, Consumer<List<Vote>> cb) {
         List<Vote> failures = new ArrayList<>();
 
         if (!cachedVotes.isEmpty()) {
@@ -117,9 +120,11 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
                         nuVotifier.getLogger().info("Held " + unsuccessfulEvictions + " votes for " + identifier + ".");
                     }
                 }
+                cb.accept(failures);
             }, 1, TimeUnit.SECONDS);
+        } else {
+            cb.accept(failures);
         }
-        return failures;
     }
 
     protected void handlePlayerSwitch(ServerConnectedEvent e) {
@@ -129,8 +134,9 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         String playerName = e.getPlayer().getName();
 
         final Collection<Vote> cachedVotes = cache.evictPlayer(playerName);
-        final Collection<Vote> failedVotes = dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "player '" + playerName + "'");
-        for (Vote v : failedVotes)
-            cache.addToCachePlayer(v, playerName);
+        dumpVotesToServer(cachedVotes, e.getServer().getInfo(), "player '" + playerName + "'", failedVotes -> {
+            for (Vote v : failedVotes)
+                cache.addToCachePlayer(v, playerName);
+        });
     }
 }
