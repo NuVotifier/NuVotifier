@@ -217,6 +217,12 @@ don't know what is wrong, you may want to try setting `debug` in each of the
 server's NuVotifier configurations to `true`. This will increase logging within
 your console. 
 
+# Reloading NuVotifier
+
+For Bukkit and Bungee, you may reload NuVotifier through the `/nvreload` command
+in your console only - this command will not work in-game by design. Make sure to
+ensure that it completed correctly before assuming NuVotifier works!
+
 # Default Configurations
 
 If you find you have messed up NuVotifier beyond repair, you can grab a default
