@@ -4,3 +4,10 @@ version: @app.version@
 description: A plugin that gets notified when votes are made for the server on toplists.
 authors: [ParallelBlock, blakeman8192, Kramer, tuxed]
 api-version: 1.13
+
+commands:
+  nvreload:
+    description: Reloads the NuVotifier configuration
+    permission: nuvotifier.console
+    permission-message: "You do not have permission to run this command."
+    usage: "/nvreload"

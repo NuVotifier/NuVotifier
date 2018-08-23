@@ -30,7 +30,11 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -86,8 +90,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
      */
     private ForwardingVoteSource forwardingMethod;
 
-    @Override
-    public void onEnable() {
+    private void loadAndBind() {
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -313,22 +316,65 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
         }
     }
 
-
     @Override
-    public void onDisable() {
+    public void onEnable() {
+        loadAndBind();
+
+        getProxy().getPluginManager().registerCommand(this, new Command("nvreload") {
+            @Override
+            public void execute(CommandSender sender, String[] args) {
+                if (sender instanceof ProxiedPlayer)
+                    sender.sendMessage(ChatColor.RED + "For security and stability, only console may run this command!");
+                else
+                    reload();
+            }
+        });
+    }
+
+    private void halt() {
         // Shut down the network handlers.
-        try {
-            if (serverChannel != null)
-                serverChannel.close().sync();
-            serverGroup.shutdownGracefully().sync();
-        } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Unable to shut down listening port gracefully.", e);
+        if (serverGroup != null) {
+            try {
+                if (serverChannel != null)
+                    serverChannel.close().sync();
+                serverGroup.shutdownGracefully().sync();
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Unable to shut down listening port gracefully.", e);
+            }
+            serverGroup = null;
         }
+
 
         if (forwardingMethod != null) {
             forwardingMethod.halt();
+            forwardingMethod = null;
+        }
+    }
+
+    public void reload() {
+        try {
+            halt();
+        } catch (Exception ex) {
+            getLogger().log(Level.SEVERE, "On halt, an exception was thrown. This may be fine!", ex);
         }
 
+        try {
+            loadAndBind();
+            getLogger().info("Reload was successful.");
+        } catch (Exception ex) {
+            try {
+                halt();
+                getLogger().log(Level.SEVERE, "On reload, there was a problem with the configuration. Votifier currently does nothing!", ex);
+            } catch (Exception ex2) {
+                getLogger().log(Level.SEVERE, "On reload, there was a problem loading, and we could not re-halt the server. Votifier is in an unstable state!", ex);
+                getLogger().log(Level.SEVERE, "(halt exception)", ex2);
+            }
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        halt();
         getLogger().info("Votifier disabled.");
     }
 
