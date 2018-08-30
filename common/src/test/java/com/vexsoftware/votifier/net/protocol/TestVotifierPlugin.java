@@ -1,6 +1,6 @@
 package com.vexsoftware.votifier.net.protocol;
 
-import com.vexsoftware.votifier.VotifierPlugin;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.util.KeyCreator;
 
 import java.net.URL;

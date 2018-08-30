@@ -1,7 +1,7 @@
-package com.vexsoftware.votifier.bungee.forwarding;
+package com.vexsoftware.votifier.support.forwarding;
 
 import com.vexsoftware.votifier.bungee.NuVotifier;
-import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
+import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;

@@ -9,6 +9,7 @@ import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
 import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import com.vexsoftware.votifier.sponge.forwarding.ForwardedVoteListener;
@@ -40,7 +41,7 @@ import java.util.Map;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.7", authors = "ParallelBlock LLC",
         description = "Safe, smart, and secure Votifier server plugin")
-public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin, ForwardedVoteListener {
+public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.platform.VotifierPlugin, ForwardedVoteListener {
 
     @Inject
     public Logger logger;
@@ -105,7 +106,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                         @Override
                         protected void initChannel(NioSocketChannel channel) {
                             channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                            channel.attr(com.vexsoftware.votifier.VotifierPlugin.KEY).set(VotifierPlugin.this);
+                            channel.attr(com.vexsoftware.votifier.platform.VotifierPlugin.KEY).set(VotifierPlugin.this);
                             channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
                             channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
                             channel.pipeline().addLast("voteHandler", new VoteInboundHandler(VotifierPlugin.this));
@@ -215,6 +216,16 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
      */
     public String getVersion() {
         return version;
+    }
+
+    @Override
+    public Logger getPluginLogger() {
+        return logger;
+    }
+
+    @Override
+    public VotifierScheduler getScheduler() {
+        return null;
     }
 
     public boolean isDebug() {

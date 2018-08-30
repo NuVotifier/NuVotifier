@@ -1,41 +1,39 @@
-package com.vexsoftware.votifier.bungee.forwarding.cache;
+package com.vexsoftware.votifier.support.forwarding.cache;
 
 import com.google.common.io.Files;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
+import com.vexsoftware.votifier.platform.scheduler.ScheduledVotifierTask;
 import com.vexsoftware.votifier.util.GsonInst;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.api.scheduler.ScheduledTask;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class FileVoteCache extends MemoryVoteCache {
 
     private final Logger l;
     private final File cacheFile;
     private final int voteTTL;
-    private final ScheduledTask saveTask;
+    private final ScheduledVotifierTask saveTask;
 
-    public FileVoteCache(int initialMemorySize, final Plugin plugin, File cacheFile, int voteTTL) throws IOException {
+    public FileVoteCache(int initialMemorySize, final VotifierPlugin plugin, File cacheFile, int voteTTL) throws IOException {
         super(initialMemorySize);
         this.cacheFile = cacheFile;
         this.voteTTL = voteTTL;
-        this.l = plugin.getLogger();
+        this.l = plugin.getPluginLogger();
 
         load();
 
-        saveTask = ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+        saveTask = plugin.getScheduler().repeatOnPool(() -> {
             try {
                 save();
             } catch (IOException e) {
-                l.log(Level.SEVERE, "Unable to save cached votes, votes will be lost if you restart.", e);
+                l.error("Unable to save cached votes, votes will be lost if you restart.", e);
             }
         }, 3, 3, TimeUnit.MINUTES);
     }
@@ -84,11 +82,11 @@ public class FileVoteCache extends MemoryVoteCache {
             }
 
             if (!cacheFile.renameTo(replacementFile)) {
-                l.log(Level.SEVERE, "Backup movement failed! Will not save.");
+                l.error("Backup movement failed! Will not save.");
                 return;
             }
 
-            l.log(Level.WARNING, "Saving new vote cache format to file - backup moved to " + replacementFile.getAbsolutePath());
+            l.warn("Saving new vote cache format to file - backup moved to " + replacementFile.getAbsolutePath());
             save();
         }
     }
@@ -99,7 +97,7 @@ public class FileVoteCache extends MemoryVoteCache {
             JsonObject voteObject = voteArray.get(i).getAsJsonObject();
             Vote v = new Vote(voteObject);
             if (hasTimedOut(v))
-                l.log(Level.WARNING, "Purging out of date vote.", v);
+                l.warn("Purging out of date vote.", v);
             else
                 votes.add(v);
         }
@@ -135,7 +133,7 @@ public class FileVoteCache extends MemoryVoteCache {
 
                 // if the vote is no longer valid, notify and remove
                 if (hasTimedOut(vote)) {
-                    l.log(Level.WARNING, "Purging out of date vote.", vote);
+                    l.warn("Purging out of date vote.", vote);
                     voteItr.remove();
                 } else {
                     array.add(vote.serialize());

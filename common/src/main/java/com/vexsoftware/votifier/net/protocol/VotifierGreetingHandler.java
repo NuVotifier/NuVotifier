@@ -1,6 +1,6 @@
 package com.vexsoftware.votifier.net.protocol;
 
-import com.vexsoftware.votifier.VotifierPlugin;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.net.VotifierSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

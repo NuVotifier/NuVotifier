@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.util.standalone;
 
 import com.vexsoftware.votifier.VoteHandler;
-import com.vexsoftware.votifier.VotifierPlugin;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;

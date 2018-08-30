@@ -36,7 +36,7 @@ import java.util.Map;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.7", authors = "ParallelBlock LLC",
         description = "Safe, smart, and secure Votifier server plugin")
-public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin {
+public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.platform.VotifierPlugin {
 
     @Inject
     public Logger logger;

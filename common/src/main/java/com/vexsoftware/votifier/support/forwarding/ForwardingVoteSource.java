@@ -1,4 +1,4 @@
-package com.vexsoftware.votifier.bungee.forwarding;
+package com.vexsoftware.votifier.support.forwarding;
 
 import com.vexsoftware.votifier.model.Vote;
 
