@@ -120,6 +120,10 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         logger.info("Votifier disabled.");
     }
 
+    public ProxyServer getServer() {
+        return server;
+    }
+
     private Toml loadConfig() throws IOException {
         Path configPath = configDir.resolve("config.toml");
         try (Reader reader = Files.newBufferedReader(configPath, StandardCharsets.UTF_8)) {

@@ -76,7 +76,11 @@ public class VotifierServerBootstrap {
 
     public void shutdown() {
         if (serverChannel != null) {
-            serverChannel.close();
+            try {
+                serverChannel.close().syncUninterruptibly();
+            } catch (Exception e) {
+                plugin.getPluginLogger().error("Unable to shutdown server channel", e);
+            }
         }
         eventLoopGroup.shutdownGracefully();
         bossLoopGroup.shutdownGracefully();

@@ -1,5 +1,6 @@
 package com.vexsoftware.votifier.bungee;
 
+import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.model.Vote;
@@ -42,8 +43,6 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
             attemptToAddToCache(v, fallbackServer);
     }
 
-    // The below is to allow us to share code since the event handlers from the parent class don't get
-    // picked up.
     @EventHandler
     public void onPluginMessage(PluginMessageEvent e) {
         if (e.getTag().equals(channel)) e.setCancelled(true);
@@ -51,11 +50,8 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
 
     @EventHandler
     public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
+        BackendServer server = new BungeeBackendServer(e.getServer().getInfo());
         handlePlayerSwitch(new BungeeBackendServer(e.getServer().getInfo()), e.getPlayer().getName());
-    }
-
-    @EventHandler
-    public void onPlayerSwitch(ServerConnectedEvent e) {
-        handlePlayerSwitch(new BungeeBackendServer(e.getServer().getInfo()), e.getPlayer().getName());
+        onServerConnect(server);
     }
 }
