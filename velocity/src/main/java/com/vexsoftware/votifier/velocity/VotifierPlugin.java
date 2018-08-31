@@ -1,6 +1,8 @@
 package com.vexsoftware.votifier.velocity;
 
+import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
+import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
@@ -15,7 +17,11 @@ import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
 import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.platform.BackendServer;
+import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.util.KeyCreator;
+import com.vexsoftware.votifier.util.TokenUtil;
 import com.vexsoftware.votifier.velocity.event.VotifierEvent;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -26,24 +32,34 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.7", authors = "ParallelBlock LLC",
         description = "Safe, smart, and secure Votifier server plugin")
-public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.platform.VotifierPlugin {
+public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     @Inject
     public Logger logger;
 
     @Inject
     @DataDirectory
-    public File configDir;
+    public Path configDir;
 
     @Inject
     public ProxyServer server;
@@ -51,13 +67,18 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     @Subscribe
     public void onServerStart(ProxyInitializeEvent event) {
         // Load configuration.
-        ConfigLoader.loadConfig(this);
+        Toml config;
+        try {
+            config = loadConfig();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load configuration.", e);
+        }
 
         /*
          * Create RSA directory and keys if it does not exist; otherwise, read
          * keys.
          */
-        File rsaDirectory = new File(configDir, "rsa");
+        File rsaDirectory = new File(configDir.toFile(), "rsa");
         try {
             if (!rsaDirectory.exists()) {
                 rsaDirectory.mkdir();
@@ -72,81 +93,58 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
             return;
         }
 
-        debug = ConfigLoader.getSpongeConfig().debug;
+        debug = config.getBoolean("debug");
 
         // Load Votifier tokens.
-        ConfigLoader.getSpongeConfig().tokens.forEach((s, s2) -> {
-            tokens.put(s, KeyCreator.createKeyFrom(s2));
-            logger.info("Loaded token for website: " + s);
+        config.getTable("tokens").toMap().forEach((service, key) -> {
+            if (key instanceof String) {
+                tokens.put(service, KeyCreator.createKeyFrom((String) key));
+                logger.info("Loaded token for website: " + service);
+            }
         });
 
         // Initialize the receiver.
-        final String host = ConfigLoader.getSpongeConfig().host;
-        final int port = ConfigLoader.getSpongeConfig().port;
+        final String host = config.getString("host");
+        final int port = Math.toIntExact(config.getLong("port"));
         if (debug)
             logger.info("DEBUG mode enabled!");
 
-        if (port >= 0) {
-            final boolean disablev1 = ConfigLoader.getSpongeConfig().disableV1Protocol;
-            if (disablev1) {
-                logger.info("------------------------------------------------------------------------------");
-                logger.info("Votifier protocol v1 parsing has been disabled. Most voting websites do not");
-                logger.info("currently support the modern Votifier protocol in NuVotifier.");
-                logger.info("------------------------------------------------------------------------------");
-            }
-
-            serverGroup = new NioEventLoopGroup(1);
-
-            new ServerBootstrap()
-                    .channel(NioServerSocketChannel.class)
-                    .group(serverGroup)
-                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                        @Override
-                        protected void initChannel(NioSocketChannel channel) {
-                            channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                            channel.attr(VotifierPlugin.KEY).set(VotifierPlugin.this);
-                            channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
-                            channel.pipeline().addLast("voteHandler", new VoteInboundHandler(VotifierPlugin.this));
-                        }
-                    })
-                    .bind(host, port)
-                    .addListener((ChannelFutureListener) future -> {
-                        if (future.isSuccess()) {
-                            serverChannel = future.channel();
-                            logger.info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
-                        } else {
-                            SocketAddress socketAddress = future.channel().localAddress();
-                            if (socketAddress == null) {
-                                socketAddress = new InetSocketAddress(host, port);
-                            }
-                            logger.error("Votifier was not able to bind to " + socketAddress, future.cause());
-                        }
-                    });
-        } else {
-            getLogger().info("------------------------------------------------------------------------------");
-            getLogger().info("Your Votifier port is less than 0, so we assume you do NOT want to start the");
-            getLogger().info("votifier port server! Votifier will not listen for votes over any port, and");
-            getLogger().info("will only listen for pluginMessaging forwarded votes!");
-            getLogger().info("------------------------------------------------------------------------------");
+        final boolean disablev1 = config.getBoolean("disable-v1-protocol", false);
+        if (disablev1) {
+            logger.info("------------------------------------------------------------------------------");
+            logger.info("Votifier protocol v1 parsing has been disabled. Most voting websites do not");
+            logger.info("currently support the modern Votifier protocol in NuVotifier.");
+            logger.info("------------------------------------------------------------------------------");
         }
 
-        if (ConfigLoader.getSpongeConfig().forwarding != null) {
-            String method = ConfigLoader.getSpongeConfig().forwarding.method.toLowerCase(); //Default to lower case for case-insensitive searches
-            if ("none".equals(method)) {
-                getLogger().info("Method none selected for vote forwarding: Votes will not be received from a forwarder.");
-            } else if ("pluginmessaging".equals(method)) {
-                String channel = ConfigLoader.getSpongeConfig().forwarding.pluginMessaging.channel;
-                try {
-                    forwardingMethod = new SpongePluginMessagingForwardingSink(this, channel, this);
-                    getLogger().info("Receiving votes over PluginMessaging channel '" + channel + "'.");
-                } catch (RuntimeException e) {
-                    logger.error("NuVotifier could not set up PluginMessaging for vote forwarding!", e);
-                }
-            } else {
-                logger.error("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
-            }
-        }
+        serverGroup = new NioEventLoopGroup(1);
+
+        new ServerBootstrap()
+                .channel(NioServerSocketChannel.class)
+                .group(serverGroup)
+                .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                    @Override
+                    protected void initChannel(NioSocketChannel channel) {
+                        channel.attr(VotifierSession.KEY).set(new VotifierSession());
+                        channel.attr(VotifierPlugin.KEY).set(VotifierPlugin.this);
+                        channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
+                        channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
+                        channel.pipeline().addLast("voteHandler", new VoteInboundHandler(VotifierPlugin.this));
+                    }
+                })
+                .bind(host, port)
+                .addListener((ChannelFutureListener) future -> {
+                    if (future.isSuccess()) {
+                        serverChannel = future.channel();
+                        logger.info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
+                    } else {
+                        SocketAddress socketAddress = future.channel().localAddress();
+                        if (socketAddress == null) {
+                            socketAddress = new InetSocketAddress(host, port);
+                        }
+                        logger.error("Votifier was not able to bind to " + socketAddress, future.cause());
+                    }
+                });
     }
 
     @Subscribe
@@ -161,10 +159,45 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
             }
         }
 
-        if (forwardingMethod != null)
-            forwardingMethod.halt();
-
         logger.info("Votifier disabled.");
+    }
+
+    private Toml loadConfig() throws IOException {
+        Path configPath = configDir.resolve("config.toml");
+        try (Reader reader = Files.newBufferedReader(configPath, StandardCharsets.UTF_8)) {
+            return new Toml().read(reader);
+        } catch (NoSuchFileException e) {
+            // This is ok. Just copy the default and load that.
+            // First time run - do some initialization.
+            getLogger().info("Configuring Votifier for the first time...");
+
+            // Initialize the configuration file.
+            String cfgStr = new String(ByteStreams.toByteArray(VotifierPlugin.class.getResourceAsStream("/config.toml")), StandardCharsets.UTF_8);
+            String token = TokenUtil.newToken();
+            cfgStr = cfgStr.replace("%default_token%", token);
+
+            /*
+             * Remind hosted server admins to be sure they have the right
+             * port number.
+             */
+            getLogger().info("------------------------------------------------------------------------------");
+            getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting BungeeCord on a");
+            getLogger().info("shared server please check with your hosting provider to verify that this port");
+            getLogger().info("is available for your use. Chances are that your hosting provider will assign");
+            getLogger().info("a different port, which you need to specify in config.yml");
+            getLogger().info("------------------------------------------------------------------------------");
+            getLogger().info("Assigning NuVotifier to listen to interface 0.0.0.0. This is usually alright,");
+            getLogger().info("however, if you want NuVotifier to only listen to one interface for security ");
+            getLogger().info("reasons (or you use a shared host), you may change this in the config.yml.");
+            getLogger().info("------------------------------------------------------------------------------");
+            getLogger().info("Your default Votifier token is " + token + ".");
+            getLogger().info("You will need to provide this token when you submit your server to a voting");
+            getLogger().info("list.");
+            getLogger().info("------------------------------------------------------------------------------");
+
+            Files.copy(new ByteArrayInputStream(cfgStr.getBytes(StandardCharsets.UTF_8)), configPath);
+            return new Toml().read(cfgStr);
+        }
     }
 
     public Logger getLogger() {
@@ -201,8 +234,6 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
      */
     private Map<String, Key> tokens = new HashMap<>();
 
-    private ForwardingVoteSink forwardingMethod;
-
     private void gracefulExit() {
         logger.error("Votifier did not initialize properly!");
     }
@@ -214,6 +245,16 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
      */
     public String getVersion() {
         return version;
+    }
+
+    @Override
+    public Logger getPluginLogger() {
+        return logger;
+    }
+
+    @Override
+    public VotifierScheduler getScheduler() {
+        return new VelocityScheduler(server, this);
     }
 
     public boolean isDebug() {
@@ -228,10 +269,6 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     @Override
     public KeyPair getProtocolV1Key() {
         return keyPair;
-    }
-
-    public File getConfigDir() {
-        return configDir;
     }
 
     @Override
@@ -259,5 +296,15 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
         } else if (!alreadyHandledVote) {
             logger.error("Unable to process vote from " + channel.remoteAddress());
         }
+    }
+
+    @Override
+    public List<BackendServer> getAllBackendServers() {
+        return server.getAllServers().stream().map(s -> new VelocityBackendServer(server, s)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<BackendServer> getServer(String name) {
+        return server.getServerInfo(name).map(s -> new VelocityBackendServer(server, s));
     }
 }

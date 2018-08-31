@@ -81,7 +81,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
             plugin.getPluginLogger().error("Could not immediately send vote to backend, vote lost! " + v + " -> " + server);
     }
 
-    protected void attempToAddToPlayerCache(Vote v, String player) {
+    protected void attemptToAddToPlayerCache(Vote v, String player) {
         if (cache != null) {
             cache.addToCachePlayer(v, player);
             if (plugin.isDebug())

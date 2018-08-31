@@ -10,8 +10,6 @@ import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSource;
-import com.vexsoftware.votifier.support.forwarding.OnlineForwardPluginMessagingForwardingSource;
-import com.vexsoftware.votifier.support.forwarding.PluginMessagingForwardingSource;
 import com.vexsoftware.votifier.support.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.MemoryVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
@@ -42,7 +40,9 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.impl.JDK14LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +61,8 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlugin {
+
+    private static final ILoggerFactory FACTORY = new JDK14LoggerFactory();
 
     /**
      * The server channel.
@@ -428,7 +430,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
 
     @Override
     public Logger getPluginLogger() {
-        return null;
+        return FACTORY.getLogger(getLogger().getName());
     }
 
     @Override

@@ -1,6 +1,6 @@
-package com.vexsoftware.votifier.support.forwarding;
+package com.vexsoftware.votifier.bungee;
 
-import com.vexsoftware.votifier.bungee.NuVotifier;
+import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -29,6 +29,6 @@ public class PluginMessagingForwardingSource extends AbstractPluginMessagingForw
 
     @EventHandler
     public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
-        handleServerConnected(e);
+        onServerConnect(new BungeeBackendServer(e.getServer().getInfo()));
     }
 }

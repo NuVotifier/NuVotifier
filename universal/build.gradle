@@ -13,11 +13,13 @@ dependencies {
     compile project(":nuvotifier-bukkit")
     compile project(":nuvotifier-bungeecord")
     compile project(":nuvotifier-sponge")
+    compile project(":nuvotifier-velocity")
 }
 
 shadowJar {
     baseName = 'nuvotifier'
     classifier = null
+    relocate "org.slf4j", "com.vexsoftware.votifier.slf4j"
     relocate "io.netty", "com.vexsoftware.votifier.netty"
     relocate "org.json", "com.vexsoftware.votifier.json"
     relocate "com.google.code", "com.vexsoftware.votifier.google"

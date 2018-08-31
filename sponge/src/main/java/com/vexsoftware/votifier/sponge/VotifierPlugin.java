@@ -225,7 +225,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
 
     @Override
     public VotifierScheduler getScheduler() {
-        return null;
+        return new SpongeScheduler(this);
     }
 
     public boolean isDebug() {

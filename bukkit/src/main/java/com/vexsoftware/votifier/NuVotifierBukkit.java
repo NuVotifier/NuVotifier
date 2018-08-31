@@ -50,7 +50,10 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.impl.JDK14LoggerAdapter;
+import org.slf4j.impl.JDK14LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +73,8 @@ import java.util.logging.Level;
  * @author Kramer Campbell
  */
 public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, VotifierPlugin, ForwardedVoteListener {
+
+    private static final ILoggerFactory FACTORY = new JDK14LoggerFactory();
 
     /**
      * The Votifier instance.
@@ -379,7 +384,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
     @Override
     public Logger getPluginLogger() {
-        return null;
+        return FACTORY.getLogger(getLogger().getName());
     }
 
     @Override

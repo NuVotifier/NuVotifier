@@ -1,6 +1,6 @@
-package com.vexsoftware.votifier.support.forwarding;
+package com.vexsoftware.votifier.bungee;
 
-import com.vexsoftware.votifier.bungee.NuVotifier;
+import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.model.Vote;
 import net.md_5.bungee.api.ProxyServer;
@@ -27,16 +27,19 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
     @Override
     public void forward(Vote v) {
         ProxiedPlayer p = ProxyServer.getInstance().getPlayer(v.getUsername());
-        if (p == null || !forwardSpecific(p.getServer().getInfo(), v)) {
-            ServerInfo serverInfo = ProxyServer.getInstance().getServers().get(fallbackServer);
-
-            // nowhere to fall back to, yet still not online. lets save this vote yet!
-            if (serverInfo == null)
-                attempToAddToPlayerCache(v, v.getUsername());
-
-            else if (!forwardSpecific(serverInfo, v))
-                attemptToAddToCache(v, fallbackServer);
+        if (p != null && p.getServer() != null) {
+            if (forwardSpecific(new BungeeBackendServer(p.getServer().getInfo()), v)) {
+                return;
+            }
         }
+
+        ServerInfo serverInfo = ProxyServer.getInstance().getServers().get(fallbackServer);
+
+        // nowhere to fall back to, yet still not online. lets save this vote yet!
+        if (serverInfo == null)
+            attemptToAddToPlayerCache(v, v.getUsername());
+        else if (!forwardSpecific(new BungeeBackendServer(serverInfo), v))
+            attemptToAddToCache(v, fallbackServer);
     }
 
     // The below is to allow us to share code since the event handlers from the parent class don't get
@@ -48,11 +51,11 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
 
     @EventHandler
     public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
-        handleServerConnected(e);
+        handlePlayerSwitch(new BungeeBackendServer(e.getServer().getInfo()), e.getPlayer().getName());
     }
 
     @EventHandler
     public void onPlayerSwitch(ServerConnectedEvent e) {
-        handlePlayerSwitch(e);
+        handlePlayerSwitch(new BungeeBackendServer(e.getServer().getInfo()), e.getPlayer().getName());
     }
 }
