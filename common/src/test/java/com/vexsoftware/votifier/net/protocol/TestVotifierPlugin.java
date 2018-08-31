@@ -1,7 +1,12 @@
 package com.vexsoftware.votifier.net.protocol;
 
+import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.util.KeyCreator;
+import io.netty.channel.Channel;
+import org.slf4j.Logger;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -75,6 +80,16 @@ public class TestVotifierPlugin implements VotifierPlugin {
         return "2.3";
     }
 
+    @Override
+    public Logger getPluginLogger() {
+        return null;
+    }
+
+    @Override
+    public VotifierScheduler getScheduler() {
+        return null;
+    }
+
     public void specificKeysOnly() {
         keyMap.clear();
         keyMap.put("Test", KeyCreator.createKeyFrom("test"));
@@ -83,5 +98,10 @@ public class TestVotifierPlugin implements VotifierPlugin {
     public void restoreDefault() {
         keyMap.clear();
         keyMap.put("default", KeyCreator.createKeyFrom("test"));
+    }
+
+    @Override
+    public void onVoteReceived(Channel channel, Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+
     }
 }

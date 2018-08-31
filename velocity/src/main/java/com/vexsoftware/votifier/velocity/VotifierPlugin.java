@@ -212,6 +212,9 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     }
 
     private Toml loadConfig() throws IOException {
+        if (!Files.exists(configDir)) {
+            Files.createDirectory(configDir);
+        }
         Path configPath = configDir.resolve("config.toml");
         try (Reader reader = Files.newBufferedReader(configPath, StandardCharsets.UTF_8)) {
             return new Toml().read(reader);
@@ -223,6 +226,8 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             // Initialize the configuration file.
             String cfgStr = new String(ByteStreams.toByteArray(VotifierPlugin.class.getResourceAsStream("/config.toml")), StandardCharsets.UTF_8);
             String token = TokenUtil.newToken();
+            // TODO: Velocity doesn't expose any bind address, so use a temporary workaround
+            cfgStr = cfgStr.replace("%ip%", "0.0.0.0");
             cfgStr = cfgStr.replace("%default_token%", token);
 
             /*
