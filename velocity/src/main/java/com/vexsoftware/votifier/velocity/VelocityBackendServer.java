@@ -28,10 +28,10 @@ class VelocityBackendServer implements BackendServer {
                 .filter(Optional::isPresent)
                 .findAny()
                 .flatMap(o -> o);
-        /*if (connection.isPresent()) {
-            connection.get().sendPluginMessage();
-        }*/
-        // TODO: finish implementing
-        return true;
+        if (connection.isPresent()) {
+            connection.get().sendPluginMessage(VelocityUtil.getId(channel), data);
+            return true;
+        }
+        return false;
     }
 }

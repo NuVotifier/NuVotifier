@@ -23,8 +23,48 @@ default = "%default_token%"
 [forwarding]
 # Sets whether to set up a remote method for fowarding. Supported methods:
 # - none - Does not set up a forwarding method.
-# - pluginMessaging - Sets up plugin messaging
+# - pluginMessaging - Sets up plugin messaging.
+# - proxy - Proxies votes to other NuVotifier servers from this server.
 method = "none"
 
-[[pluginMessaging]]
+[forwarding.pluginMessaging]
 channel = "NuVotifier:votes"
+
+# Only send votes to certain servers. If a server is present on excludedServers, then votes will NOT be forwarded
+# to them. If excludedServers is not present, votes will be sent to all servers.
+# If onlySendToJoinedServer is true, this option is ignored.
+# excludedServers = ["server1", "server2"]
+
+# Sets which cache to use if there are no players on the server that the vote is being sent to. Supported caches:
+# - none - Votes will simply be lost when no players are present on the server.
+# - memory - Votes will be cached in memory when no players are present. When Bungee is restarted, the votes will be lost.
+#   This method is NOT recommended for production systems!
+# - file - Votes will be saved to a local file every 3 minutes and on shutdown and reloaded when Bungee is restarted. This is suitable for
+#   most set ups.
+cache = "file"
+# Only sends the vote to the server in which the player is currently joined.
+onlySendToJoinedServer = false
+
+# Sets which server to send the vote in the event the player is not online when the vote is cast
+# If you do not want the vote forwarded to a fallback, set this value to empty ('')
+# ONLY USED IF onlySendToJoinedServer is true!!
+joinedServerFallback = "Hub"
+
+[forwarding.file-cache]
+# Options for file caching.
+name = "cached-votes.json"
+# days before a vote is considered 'dead' - removed from cache with a console warning
+voteTTL = 10
+
+[forwarding.proxy]
+# Specify servers to proxy votes for.
+
+[forwarding.proxy.Hub]
+address = "127.0.0.1"
+port = 8193
+token = "MyKeyHere"
+
+[forwarding.proxy.Hub2]
+address = "127.0.0.1"
+port = 8194
+token = "MyKeyHere"

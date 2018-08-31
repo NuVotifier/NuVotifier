@@ -18,10 +18,10 @@ public class FileVoteCache extends MemoryVoteCache {
 
     private final Logger l;
     private final File cacheFile;
-    private final int voteTTL;
+    private final long voteTTL;
     private final ScheduledVotifierTask saveTask;
 
-    public FileVoteCache(int initialMemorySize, final VotifierPlugin plugin, File cacheFile, int voteTTL) throws IOException {
+    public FileVoteCache(int initialMemorySize, final VotifierPlugin plugin, File cacheFile, long voteTTL) throws IOException {
         super(initialMemorySize);
         this.cacheFile = cacheFile;
         this.voteTTL = voteTTL;
