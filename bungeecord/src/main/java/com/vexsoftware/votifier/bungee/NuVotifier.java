@@ -7,7 +7,6 @@ import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
-import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSource;
@@ -17,20 +16,11 @@ import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.support.forwarding.proxy.ProxyForwardingVoteSource;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -41,15 +31,13 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.impl.JDK14LoggerFactory;
+import org.slf4j.impl.DirtyTricks;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -62,8 +50,6 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlugin {
-
-    private static final ILoggerFactory FACTORY = new JDK14LoggerFactory();
 
     /**
      * The server channel.
@@ -392,7 +378,9 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
 
     @Override
     public Logger getPluginLogger() {
-        return FACTORY.getLogger(getLogger().getName());
+        // Well, Bungee doesn't make it any easier on us to do this. We get to do something terrible and there's nothing
+        // we can do about it!
+        return DirtyTricks.getLogger(getLogger());
     }
 
     @Override

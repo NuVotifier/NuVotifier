@@ -2,6 +2,7 @@ package com.vexsoftware.votifier.support.forwarding.cache;
 
 import com.google.common.io.Files;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
@@ -13,6 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class FileVoteCache extends MemoryVoteCache {
 
@@ -36,6 +38,14 @@ public class FileVoteCache extends MemoryVoteCache {
                 l.error("Unable to save cached votes, votes will be lost if you restart.", e);
             }
         }, 3, 3, TimeUnit.MINUTES);
+    }
+
+    private static Set<String> keySet(JsonObject object) {
+        Set<String> set = new HashSet<>();
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            set.add(entry.getKey());
+        }
+        return set;
     }
 
     private void load() throws IOException {
@@ -65,11 +75,11 @@ public class FileVoteCache extends MemoryVoteCache {
         JsonObject players = object.getAsJsonObject("players");
         JsonObject servers = object.getAsJsonObject("servers");
 
-        for (String player : players.keySet()) {
+        for (String player : keySet(players)) {
             playerVoteCache.put(player, readVotes(players.getAsJsonArray(player)));
         }
 
-        for (String server : servers.keySet()) {
+        for (String server : keySet(servers)) {
             voteCache.put(server, readVotes(servers.getAsJsonArray(server)));
         }
 
