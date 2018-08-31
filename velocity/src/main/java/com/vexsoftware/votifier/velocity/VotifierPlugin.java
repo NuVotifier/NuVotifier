@@ -133,14 +133,14 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
                 try {
                     voteCache = new FileVoteCache(
                             server.getAllServers().size(), this,
-                            configDir.resolve(fwdCfg.getTable("file").getString("name")).toFile(),
-                            fwdCfg.getTable("file").getLong(".cacheTime", -1L));
+                            configDir.resolve(fwdCfg.getTable("file-cache").getString("name")).toFile(),
+                            fwdCfg.getTable("file-cache").getLong("cacheTime", -1L));
                 } catch (IOException e) {
                     getLogger().error("Unload to load file cache. Votes will be lost!", e);
                 }
             }
             if (!pmCfg.getBoolean("onlySendToJoinedServer")) {
-                List<String> ignoredServers = fwdCfg.getList("pluginMessaging.excludedServers");
+                List<String> ignoredServers = pmCfg.getList("excludedServers");
 
                 try {
                     forwardingMethod = new PluginMessagingForwardingSource(channel, ignoredServers, this, voteCache);

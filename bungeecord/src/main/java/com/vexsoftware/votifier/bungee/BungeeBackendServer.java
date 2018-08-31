@@ -20,4 +20,9 @@ public class BungeeBackendServer implements BackendServer {
     public boolean sendPluginMessage(String channel, byte[] data) {
         return info.sendData(channel, data, false);
     }
+
+    @Override
+    public String toString() {
+        return info.getName();
+    }
 }

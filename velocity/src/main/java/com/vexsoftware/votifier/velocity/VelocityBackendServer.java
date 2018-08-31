@@ -34,4 +34,9 @@ class VelocityBackendServer implements BackendServer {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return info.getName();
+    }
 }
