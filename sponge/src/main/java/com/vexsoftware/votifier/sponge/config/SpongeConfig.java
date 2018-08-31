@@ -49,7 +49,7 @@ public class SpongeConfig {
         public static class PluginMessaging {
 
             @Setting
-            public String channel = "NuVotifier";
+            public String channel = "NuVotifier:votes";
         }
     }
 }
