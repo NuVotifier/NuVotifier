@@ -16,6 +16,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.function.Consumer;
 
 public class VotifierServerBootstrap {
     private final String host;
@@ -36,7 +37,7 @@ public class VotifierServerBootstrap {
         this.eventLoopGroup = new NioEventLoopGroup(1, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("Votifier NIO worker").build());
     }
 
-    public void start() {
+    public void start(Consumer<Throwable> error) {
         new ServerBootstrap()
                 .channel(NioServerSocketChannel.class)
                 .group(bossLoopGroup, eventLoopGroup)
@@ -55,12 +56,14 @@ public class VotifierServerBootstrap {
                     if (future.isSuccess()) {
                         serverChannel = future.channel();
                         plugin.getPluginLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
+                        error.accept(null);
                     } else {
                         SocketAddress socketAddress = future.channel().localAddress();
                         if (socketAddress == null) {
                             socketAddress = new InetSocketAddress(host, port);
                         }
                         plugin.getPluginLogger().error("Votifier was not able to bind to {}", socketAddress, future.cause());
+                        error.accept(future.cause());
                     }
                 });
     }

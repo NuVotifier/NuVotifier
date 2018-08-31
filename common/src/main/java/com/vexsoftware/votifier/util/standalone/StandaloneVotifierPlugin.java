@@ -1,19 +1,15 @@
 package com.vexsoftware.votifier.util.standalone;
 
 import com.vexsoftware.votifier.VoteHandler;
+import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
-import io.netty.bootstrap.ServerBootstrap;
+import com.vexsoftware.votifier.platform.scheduler.ScheduledExecutorServiceVotifierScheduler;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.security.Key;
@@ -21,45 +17,31 @@ import java.security.KeyPair;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
-public class StandaloneVotifierPlugin implements VotifierPlugin, VoteHandler {
+public class StandaloneVotifierPlugin implements VotifierPlugin {
     private final Map<String, Key> tokens;
     private final VoteReceiver receiver;
     private final KeyPair v1Key;
     private final InetSocketAddress bind;
-    private NioEventLoopGroup group;
+    private final VotifierScheduler scheduler;
+    private VotifierServerBootstrap bootstrap;
 
     public StandaloneVotifierPlugin(Map<String, Key> tokens, VoteReceiver receiver, KeyPair v1Key, InetSocketAddress bind) {
         this.receiver = receiver;
         this.bind = bind;
         this.tokens = Collections.unmodifiableMap(new HashMap<>(tokens));
         this.v1Key = v1Key;
+        this.scheduler = new ScheduledExecutorServiceVotifierScheduler(Executors.newScheduledThreadPool(1));
     }
 
-    public Throwable start() {
-        group = new NioEventLoopGroup(2);
-
-        ChannelFuture future = new ServerBootstrap()
-                .channel(NioServerSocketChannel.class)
-                .group(group)
-                .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                    @Override
-                    protected void initChannel(NioSocketChannel channel) {
-                        channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                        channel.attr(VotifierPlugin.KEY).set(StandaloneVotifierPlugin.this);
-                        channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                        channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, v1Key != null));
-                        channel.pipeline().addLast("voteHandler", new VoteInboundHandler(StandaloneVotifierPlugin.this));
-                    }
-                })
-                .bind(bind)
-                .syncUninterruptibly();
-
-        if (!future.isSuccess()) {
-            return future.cause();
-        } else {
-            return null;
+    public void start(Consumer<Throwable> error) {
+        if (bootstrap != null) {
+            bootstrap.shutdown();
         }
+        this.bootstrap = new VotifierServerBootstrap(bind.getHostString(), bind.getPort(), this, v1Key == null);
+        this.bootstrap.start(error);
     }
 
     @Override
@@ -75,6 +57,16 @@ public class StandaloneVotifierPlugin implements VotifierPlugin, VoteHandler {
     @Override
     public String getVersion() {
         return "2.3.5";
+    }
+
+    @Override
+    public Logger getPluginLogger() {
+        return LoggerFactory.getLogger(StandaloneVotifierPlugin.class);
+    }
+
+    @Override
+    public VotifierScheduler getScheduler() {
+        return scheduler;
     }
 
     @Override

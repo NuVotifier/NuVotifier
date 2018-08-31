@@ -10,7 +10,6 @@ import com.vexsoftware.votifier.model.Vote;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
@@ -22,19 +21,20 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class ProxyForwardingVoteSource implements ForwardingVoteSource {
     private static final int MAX_RETRIES = 5;
     private final VotifierPlugin plugin;
-    private final NioEventLoopGroup eventLoopGroup;
+    private final Supplier<Bootstrap> nettyBootstrap;
     private final List<BackendServer> backendServers;
     private final VoteCache voteCache;
 
     private static final StringDecoder STRING_DECODER = new StringDecoder(StandardCharsets.US_ASCII);
 
-    public ProxyForwardingVoteSource(VotifierPlugin plugin, NioEventLoopGroup eventLoopGroup, List<BackendServer> backendServers, VoteCache voteCache) {
+    public ProxyForwardingVoteSource(VotifierPlugin plugin, Supplier<Bootstrap> nettyBootstrap, List<BackendServer> backendServers, VoteCache voteCache) {
         this.plugin = plugin;
-        this.eventLoopGroup = eventLoopGroup;
+        this.nettyBootstrap = nettyBootstrap;
         this.backendServers = backendServers;
         this.voteCache = voteCache;
     }
@@ -52,14 +52,12 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
     }
 
     private void forwardVote(final BackendServer server, final Vote v, final int tries) {
-        new Bootstrap()
-                .channel(NioSocketChannel.class)
-                .group(eventLoopGroup)
+        nettyBootstrap.get()
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel channel) {
                         channel.pipeline().addLast(new DelimiterBasedFrameDecoder(256, true, Delimiters.lineDelimiter()));
-                        channel.pipeline().addLast(new ReadTimeoutHandler(8, TimeUnit.SECONDS));
+                        channel.pipeline().addLast(new ReadTimeoutHandler(5, TimeUnit.SECONDS));
                         channel.pipeline().addLast(STRING_DECODER);
                         channel.pipeline().addLast(new VotifierProtocol2Encoder(server.key));
                         channel.pipeline().addLast(new VotifierProtocol2HandshakeHandler(v, new VotifierResponseHandler() {

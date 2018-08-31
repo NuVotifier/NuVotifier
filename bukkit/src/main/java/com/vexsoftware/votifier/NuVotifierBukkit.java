@@ -25,23 +25,15 @@ import com.vexsoftware.votifier.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
+import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -52,13 +44,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.impl.JDK14LoggerAdapter;
 import org.slf4j.impl.JDK14LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
@@ -87,14 +76,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     private String version;
 
     /**
-     * The server channel.
+     * The server bootstrap.
      */
-    private Channel serverChannel;
-
-    /**
-     * The event group handling the channel.
-     */
-    private NioEventLoopGroup serverGroup;
+    private VotifierServerBootstrap bootstrap;
 
     /**
      * The RSA key pair.
@@ -237,34 +221,8 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 getLogger().info("------------------------------------------------------------------------------");
             }
 
-            serverGroup = new NioEventLoopGroup(1);
-
-            new ServerBootstrap()
-                    .channel(NioServerSocketChannel.class)
-                    .group(serverGroup)
-                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                        @Override
-                        protected void initChannel(NioSocketChannel channel) {
-                            channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                            channel.attr(VotifierPlugin.KEY).set(NuVotifierBukkit.this);
-                            channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
-                            channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifierBukkit.this));
-                        }
-                    })
-                    .bind(host, port)
-                    .addListener((ChannelFutureListener) future -> {
-                        if (future.isSuccess()) {
-                            serverChannel = future.channel();
-                            getLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
-                        } else {
-                            SocketAddress socketAddress = future.channel().localAddress();
-                            if (socketAddress == null) {
-                                socketAddress = new InetSocketAddress(host, port);
-                            }
-                            getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + socketAddress, future.cause());
-                        }
-                    });
+            this.bootstrap = new VotifierServerBootstrap(host, port, this, disablev1);
+            this.bootstrap.start(error -> {});
         } else {
             getLogger().info("------------------------------------------------------------------------------");
             getLogger().info("Your Votifier port is less than 0, so we assume you do NOT want to start the");
@@ -295,15 +253,8 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
     private void halt() {
         // Shut down the network handlers.
-        if (serverGroup != null) {
-            try {
-                if (serverChannel != null)
-                    serverChannel.close().sync();
-                serverGroup.shutdownGracefully().sync();
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Unable to shut down listening port gracefully.", e);
-            }
-            serverGroup = null;
+        if (bootstrap != null) {
+            bootstrap.shutdown();
         }
 
         if (forwardingMethod != null) {

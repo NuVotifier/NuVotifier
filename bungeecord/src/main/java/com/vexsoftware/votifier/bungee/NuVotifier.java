@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
+import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
@@ -67,12 +68,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
     /**
      * The server channel.
      */
-    private Channel serverChannel;
-
-    /**
-     * The event group handling the channel.
-     */
-    private NioEventLoopGroup serverGroup;
+    private VotifierServerBootstrap bootstrap;
 
     /**
      * The RSA key pair.
@@ -205,34 +201,8 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
 
         // Must set up server asynchronously due to BungeeCord goofiness.
         FutureTask<?> initTask = new FutureTask<>(Executors.callable(() -> {
-            serverGroup = new NioEventLoopGroup(2);
-
-            new ServerBootstrap()
-                    .channel(NioServerSocketChannel.class)
-                    .group(serverGroup)
-                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                        @Override
-                        protected void initChannel(NioSocketChannel channel) {
-                            channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                            channel.attr(VotifierPlugin.KEY).set(NuVotifier.this);
-                            channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
-                            channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifier.this));
-                        }
-                    })
-                    .bind(host, port)
-                    .addListener((ChannelFutureListener) future -> {
-                        if (future.isSuccess()) {
-                            serverChannel = future.channel();
-                            getLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
-                        } else {
-                            SocketAddress socketAddress = future.channel().localAddress();
-                            if (socketAddress == null) {
-                                socketAddress = new InetSocketAddress(host, port);
-                            }
-                            getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + socketAddress, future.cause());
-                        }
-                    });
+            this.bootstrap = new VotifierServerBootstrap(host, port, NuVotifier.this, disablev1);
+            this.bootstrap.start(err -> {});
         }));
         getProxy().getScheduler().runAsync(this, initTask);
         try {
@@ -313,7 +283,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                 }
             }
 
-            forwardingMethod = new ProxyForwardingVoteSource(this, serverGroup, serverList, null);
+            forwardingMethod = new ProxyForwardingVoteSource(this, bootstrap::client, serverList, null);
             getLogger().info("Forwarding votes from this NuVotifier instance to another NuVotifier server.");
         } else {
             getLogger().severe("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");
@@ -337,17 +307,9 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
 
     private void halt() {
         // Shut down the network handlers.
-        if (serverGroup != null) {
-            try {
-                if (serverChannel != null)
-                    serverChannel.close().sync();
-                serverGroup.shutdownGracefully().sync();
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Unable to shut down listening port gracefully.", e);
-            }
-            serverGroup = null;
+        if (bootstrap != null) {
+            bootstrap.shutdown();
         }
-
 
         if (forwardingMethod != null) {
             forwardingMethod.halt();
