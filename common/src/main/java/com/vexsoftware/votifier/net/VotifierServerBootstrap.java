@@ -16,6 +16,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class VotifierServerBootstrap {
@@ -38,6 +39,7 @@ public class VotifierServerBootstrap {
     }
 
     public void start(Consumer<Throwable> error) {
+        Objects.requireNonNull(error, "error");
         new ServerBootstrap()
                 .channel(NioServerSocketChannel.class)
                 .group(bossLoopGroup, eventLoopGroup)
