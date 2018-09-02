@@ -13,10 +13,6 @@ import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 
 import java.util.Optional;
 
-/**
- * @author Joseph Hirschfeld
- * @date 12/31/2015
- */
 public final class OnlineForwardPluginMessagingForwardingSource extends AbstractPluginMessagingForwardingSource {
 
     private final String fallbackServer;

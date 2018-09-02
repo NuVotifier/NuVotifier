@@ -22,9 +22,6 @@ subprojects {
         maven {
             url "http://repo.spongepowered.org/maven"
         }
-        maven {
-            url "https://repo.velocitypowered.com/snapshots/"
-        }
     }
 
     processResources {
