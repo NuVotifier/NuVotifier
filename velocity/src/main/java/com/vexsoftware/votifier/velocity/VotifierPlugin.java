@@ -59,8 +59,12 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     @Inject
     public ProxyServer server;
 
+    private VotifierScheduler scheduler;
+
     @Subscribe
     public void onServerStart(ProxyInitializeEvent event) {
+        this.scheduler = new VelocityScheduler(server, this);
+
         // Load configuration.
         Toml config;
         try {
@@ -198,10 +202,12 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     public void onServerStop(ProxyShutdownEvent event) {
         if (bootstrap != null) {
             bootstrap.shutdown();
+            bootstrap = null;
         }
 
         if (forwardingMethod != null) {
             forwardingMethod.halt();
+            forwardingMethod = null;
         }
 
         logger.info("Votifier disabled.");
@@ -292,15 +298,6 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         logger.error("Votifier did not initialize properly!");
     }
 
-    /**
-     * Gets the version.
-     *
-     * @return The version
-     */
-    public String getVersion() {
-        return version;
-    }
-
     @Override
     public Logger getPluginLogger() {
         return logger;
@@ -308,7 +305,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     @Override
     public VotifierScheduler getScheduler() {
-        return new VelocityScheduler(server, this);
+        return scheduler;
     }
 
     public boolean isDebug() {
@@ -356,7 +353,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     }
 
     @Override
-    public List<BackendServer> getAllBackendServers() {
+    public Collection<BackendServer> getAllBackendServers() {
         return server.getAllServers().stream().map(s -> new VelocityBackendServer(server, s)).collect(Collectors.toList());
     }
 

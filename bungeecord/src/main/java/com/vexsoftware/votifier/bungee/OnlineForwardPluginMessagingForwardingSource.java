@@ -51,7 +51,7 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
     @EventHandler
     public void onServerConnected(final ServerConnectedEvent e) { //Attempt to resend any votes that were previously cached.
         BackendServer server = new BungeeBackendServer(e.getServer().getInfo());
-        handlePlayerSwitch(new BungeeBackendServer(e.getServer().getInfo()), e.getPlayer().getName());
+        handlePlayerSwitch(server, e.getPlayer().getName());
         onServerConnect(server);
     }
 }

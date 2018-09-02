@@ -30,7 +30,7 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
     public void forward(Vote v) {
         Optional<Player> p = plugin.getServer().getPlayer(v.getUsername());
         Optional<ServerConnection> sc = p.flatMap(Player::getCurrentServer);
-        if (p.isPresent() && sc.isPresent()) {
+        if (sc.isPresent()) {
             if (forwardSpecific(new VelocityBackendServer(plugin.getServer(), sc.get().getServerInfo()), v)) {
                 return;
             }

@@ -76,11 +76,6 @@ public class TestVotifierPlugin implements VotifierPlugin {
     }
 
     @Override
-    public String getVersion() {
-        return "2.3";
-    }
-
-    @Override
     public Logger getPluginLogger() {
         return null;
     }

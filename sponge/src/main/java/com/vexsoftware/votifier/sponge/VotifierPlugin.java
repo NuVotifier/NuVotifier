@@ -40,8 +40,12 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     @ConfigDir(sharedRoot = false)
     public File configDir;
 
+    private VotifierScheduler scheduler;
+
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
+        this.scheduler = new SpongeScheduler(this);
+
         // Load configuration.
         ConfigLoader.loadConfig(this);
 
@@ -119,6 +123,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     public void onServerStop(GameStoppingServerEvent event) {
         if (bootstrap != null) {
             bootstrap.shutdown();
+            bootstrap = null;
         }
 
         if (forwardingMethod != null)
@@ -162,15 +167,6 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
         logger.error("Votifier did not initialize properly!");
     }
 
-    /**
-     * Gets the version.
-     *
-     * @return The version
-     */
-    public String getVersion() {
-        return version;
-    }
-
     @Override
     public Logger getPluginLogger() {
         return logger;
@@ -178,7 +174,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
 
     @Override
     public VotifierScheduler getScheduler() {
-        return new SpongeScheduler(this);
+        return scheduler;
     }
 
     public boolean isDebug() {

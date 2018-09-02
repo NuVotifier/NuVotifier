@@ -16,8 +16,6 @@ public interface VotifierPlugin extends VoteHandler {
 
     KeyPair getProtocolV1Key();
 
-    String getVersion();
-
     Logger getPluginLogger();
 
     VotifierScheduler getScheduler();

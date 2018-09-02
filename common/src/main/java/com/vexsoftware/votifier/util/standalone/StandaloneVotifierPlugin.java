@@ -1,6 +1,5 @@
 package com.vexsoftware.votifier.util.standalone;
 
-import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
@@ -36,6 +35,10 @@ public class StandaloneVotifierPlugin implements VotifierPlugin {
         this.scheduler = new ScheduledExecutorServiceVotifierScheduler(Executors.newScheduledThreadPool(1));
     }
 
+    public void start() {
+        start(o -> {});
+    }
+
     public void start(Consumer<Throwable> error) {
         if (bootstrap != null) {
             bootstrap.shutdown();
@@ -52,11 +55,6 @@ public class StandaloneVotifierPlugin implements VotifierPlugin {
     @Override
     public KeyPair getProtocolV1Key() {
         return v1Key;
-    }
-
-    @Override
-    public String getVersion() {
-        return "2.3.5";
     }
 
     @Override

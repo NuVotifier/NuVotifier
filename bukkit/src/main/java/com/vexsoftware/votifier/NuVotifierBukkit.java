@@ -96,8 +96,12 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     private Map<String, Key> tokens = new HashMap<>();
 
     private ForwardingVoteSink forwardingMethod;
+    private VotifierScheduler scheduler;
+    private Logger pluginLogger;
 
     private boolean loadAndBind() {
+        scheduler = new BukkitScheduler(this);
+        pluginLogger = FACTORY.getLogger(getLogger().getName());
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -255,6 +259,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         // Shut down the network handlers.
         if (bootstrap != null) {
             bootstrap.shutdown();
+            bootstrap = null;
         }
 
         if (forwardingMethod != null) {
@@ -324,23 +329,14 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         return instance;
     }
 
-    /**
-     * Gets the version.
-     *
-     * @return The version
-     */
-    public String getVersion() {
-        return version;
-    }
-
     @Override
     public Logger getPluginLogger() {
-        return FACTORY.getLogger(getLogger().getName());
+        return pluginLogger;
     }
 
     @Override
     public VotifierScheduler getScheduler() {
-        return new BukkitScheduler(this);
+        return scheduler;
     }
 
     public boolean isDebug() {

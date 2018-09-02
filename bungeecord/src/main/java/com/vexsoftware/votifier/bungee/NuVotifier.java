@@ -76,7 +76,12 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
      */
     private ForwardingVoteSource forwardingMethod;
 
+    private VotifierScheduler scheduler;
+    private Logger pluginLogger;
+
     private void loadAndBind() {
+        scheduler = new BungeeScheduler(this);
+        pluginLogger = DirtyTricks.getLogger(getLogger());
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -295,6 +300,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
         // Shut down the network handlers.
         if (bootstrap != null) {
             bootstrap.shutdown();
+            bootstrap = null;
         }
 
         if (forwardingMethod != null) {
@@ -372,20 +378,13 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
     }
 
     @Override
-    public String getVersion() {
-        return getDescription().getVersion();
-    }
-
-    @Override
     public Logger getPluginLogger() {
-        // Well, Bungee doesn't make it any easier on us to do this. We get to do something terrible and there's nothing
-        // we can do about it!
-        return DirtyTricks.getLogger(getLogger());
+        return pluginLogger;
     }
 
     @Override
     public VotifierScheduler getScheduler() {
-        return new BungeeScheduler(this);
+        return scheduler;
     }
 
     public boolean isDebug() {
@@ -393,7 +392,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
     }
 
     @Override
-    public List<BackendServer> getAllBackendServers() {
+    public Collection<BackendServer> getAllBackendServers() {
         return getProxy().getServers().values().stream()
                 .map(BungeeBackendServer::new)
                 .collect(Collectors.toList());
