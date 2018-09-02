@@ -4,71 +4,57 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
-import com.vexsoftware.votifier.VotifierPlugin;
+import com.vexsoftware.votifier.net.VotifierServerBootstrap;
+import com.vexsoftware.votifier.platform.BackendServer;
+import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
-import com.vexsoftware.votifier.bungee.forwarding.ForwardingVoteSource;
-import com.vexsoftware.votifier.bungee.forwarding.OnlineForwardPluginMessagingForwardingSource;
-import com.vexsoftware.votifier.bungee.forwarding.PluginMessagingForwardingSource;
-import com.vexsoftware.votifier.bungee.forwarding.cache.FileVoteCache;
-import com.vexsoftware.votifier.bungee.forwarding.cache.MemoryVoteCache;
-import com.vexsoftware.votifier.bungee.forwarding.cache.VoteCache;
-import com.vexsoftware.votifier.bungee.forwarding.proxy.ProxyForwardingVoteSource;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSource;
+import com.vexsoftware.votifier.support.forwarding.cache.FileVoteCache;
+import com.vexsoftware.votifier.support.forwarding.cache.MemoryVoteCache;
+import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
+import com.vexsoftware.votifier.support.forwarding.proxy.ProxyForwardingVoteSource;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.impl.DirtyTricks;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
-public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
+public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlugin {
 
     /**
      * The server channel.
      */
-    private Channel serverChannel;
-
-    /**
-     * The event group handling the channel.
-     */
-    private NioEventLoopGroup serverGroup;
+    private VotifierServerBootstrap bootstrap;
 
     /**
      * The RSA key pair.
@@ -90,7 +76,12 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
      */
     private ForwardingVoteSource forwardingMethod;
 
+    private VotifierScheduler scheduler;
+    private Logger pluginLogger;
+
     private void loadAndBind() {
+        scheduler = new BungeeScheduler(this);
+        pluginLogger = DirtyTricks.getLogger(getLogger());
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -201,34 +192,8 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
 
         // Must set up server asynchronously due to BungeeCord goofiness.
         FutureTask<?> initTask = new FutureTask<>(Executors.callable(() -> {
-            serverGroup = new NioEventLoopGroup(2);
-
-            new ServerBootstrap()
-                    .channel(NioServerSocketChannel.class)
-                    .group(serverGroup)
-                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                        @Override
-                        protected void initChannel(NioSocketChannel channel) {
-                            channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                            channel.attr(VotifierPlugin.KEY).set(NuVotifier.this);
-                            channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
-                            channel.pipeline().addLast("voteHandler", new VoteInboundHandler(NuVotifier.this));
-                        }
-                    })
-                    .bind(host, port)
-                    .addListener((ChannelFutureListener) future -> {
-                        if (future.isSuccess()) {
-                            serverChannel = future.channel();
-                            getLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
-                        } else {
-                            SocketAddress socketAddress = future.channel().localAddress();
-                            if (socketAddress == null) {
-                                socketAddress = new InetSocketAddress(host, port);
-                            }
-                            getLogger().log(Level.SEVERE, "Votifier was not able to bind to " + socketAddress, future.cause());
-                        }
-                    });
+            this.bootstrap = new VotifierServerBootstrap(host, port, NuVotifier.this, disablev1);
+            this.bootstrap.start(err -> {});
         }));
         getProxy().getScheduler().runAsync(this, initTask);
         try {
@@ -309,7 +274,7 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
                 }
             }
 
-            forwardingMethod = new ProxyForwardingVoteSource(this, serverGroup, serverList, null);
+            forwardingMethod = new ProxyForwardingVoteSource(this, bootstrap::client, serverList, null);
             getLogger().info("Forwarding votes from this NuVotifier instance to another NuVotifier server.");
         } else {
             getLogger().severe("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");
@@ -333,17 +298,10 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
 
     private void halt() {
         // Shut down the network handlers.
-        if (serverGroup != null) {
-            try {
-                if (serverChannel != null)
-                    serverChannel.close().sync();
-                serverGroup.shutdownGracefully().sync();
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Unable to shut down listening port gracefully.", e);
-            }
-            serverGroup = null;
+        if (bootstrap != null) {
+            bootstrap.shutdown();
+            bootstrap = null;
         }
-
 
         if (forwardingMethod != null) {
             forwardingMethod.halt();
@@ -420,11 +378,29 @@ public class NuVotifier extends Plugin implements VoteHandler, VotifierPlugin {
     }
 
     @Override
-    public String getVersion() {
-        return getDescription().getVersion();
+    public Logger getPluginLogger() {
+        return pluginLogger;
+    }
+
+    @Override
+    public VotifierScheduler getScheduler() {
+        return scheduler;
     }
 
     public boolean isDebug() {
         return debug;
+    }
+
+    @Override
+    public Collection<BackendServer> getAllBackendServers() {
+        return getProxy().getServers().values().stream()
+                .map(BungeeBackendServer::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<BackendServer> getServer(String name) {
+        ServerInfo info = getProxy().getServerInfo(name);
+        return Optional.ofNullable(info).map(BungeeBackendServer::new);
     }
 }

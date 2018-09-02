@@ -62,21 +62,21 @@ vote to your server!
 # Multi-server / Network configuration
 
 You will want to use these instructions when you have more than one server and
-are using a Minecraft proxy (Bungeecord / Lilypad)
+are using a Minecraft proxy (such as BungeeCord, LilyPad, or Velocity).
 
-## Single Bungeecord Networks
+## Single-Proxy BungeeCord/Velocity Networks
 
-When running a single-bungeecord network, NuVotifier is able to operate as both
-a Bungeecord vote receiver (emitting events for Bungeecord based vote listeners)
-as well as a vote forwarder. NuVotifier's vote forwarding logic is also advanced
-enough to be used in a wide variety of ways.
+When running a single-proxy network, NuVotifier is able to operate as both
+a vote receiver (emitting events for proxy based vote listeners) as well as
+a vote forwarder. NuVotifier's vote forwarding logic is also advanced enough
+to be used in a wide variety of ways.
 
 ### Installing the plugin on the servers
 
 NuVotifier should be installed on each of the servers you wish to process votes
-on, as well as the Bungeecord server. The Bungeecord server will act as the
+on, as well as the proxy server. The proxy's NuVotifier server will act as the
 public facing Votifier instance, where as the Minecraft servers will instead
-receive instructions from the Bungeecord Nuvotifier for forwarding votes.
+receive votes forwarded from the proxy's NuVotifier.
 
 Like the single server installation, you can download NuVotifier at any one of
 the following locations:
@@ -98,9 +98,9 @@ correct.
 
 ### Plugin messaging based forwarding
 
-This section describes how to set up plugin messaging forwarding. This will only
-work correctly if you have one Bungeecord server, however may also work with
-some exceptions in multi Bungeecord networks.
+This section describes how to set up plugin messaging forwarding. This is
+recommended if you have just one proxy, however this may also work with
+some exceptions in multi-proxy networks.
 
 First off, we should configure each of the Minecraft servers. Open each of the
 servers' NuVotifier configurations. Each one should have `method` under the
@@ -115,15 +115,15 @@ it, make sure you change it everywhere all around your network!
 Since we are receiving forwarded votes through plugin messaging and not through
 network ports, we should set `port` on each of the Minecraft servers to -1. This
 will disable NuVotifier's port, while still allowing it to receive forwarded
-plugin messaging votes. This will only work when using pluginMessaging!
+plugin messaging votes. This will only work when using plugin messaging!
 
-Since we have all of that configured, we can now move to the Bungeecord
-NuVotifier configuration. It is once again located under `plugins/NuVotifier/`
-directory (`config.yml`). Like the single server, `port` should be set to an
-unbound port. The default `8192` works well, however you may have to change it
-depending on your hosting provider.
+Since we have all of that configured, we can now move to the proxy's NuVotifier
+configuration. It is once again located under `plugins/NuVotifier/` directory
+(`config.yml` for BungeeCord, `config.toml` for Velocity). Like the single server,
+`port` should be set to an unbound port. The default `8192` works well, however
+you may have to change it depending on your hosting provider.
 
-Since we are using pluginMessaging based forwarding, lets set `method` under
+Since we are using plugin messaging based forwarding, lets set `method` under
 `forwarding` to `pluginMessaging`. Make sure that `channel` is the same channel
 that you configured your servers to listen to - if you didn't change this value,
 then the default will work.
@@ -131,7 +131,7 @@ then the default will work.
 NuVotifier saves when it can't immediately forward in a user defined cache. In
 almost all installations this should be `file`, however, some installations may
 instead want `none` or `memory`. If you don't know, the `cache` should be set to
-it's default, `file`.
+its default, `file`.
 
 By default, NuVotifier will forward the vote to all of the connected Minecraft
 servers (all servers you can get to when typing /server). You can manually
@@ -166,11 +166,11 @@ Proxy based forwarding does not support vote caching or advanced forwarding
 configurations. If you cannot use plugin messaging forwarding, then the
 following section will describe how to set up proxy based vote forwarding. If
 you still require advanced forwarding features or more advanced behaviors, it
-may be worthwhile to write your own Bungeecord plugin to perform the proper
-forwarding logic (you will know if you need to do this).
+may be worthwhile to write your own plugin to perform the proper forwarding logic
+(you will know if you need to do this).
 
-In proxy based vote forwarding, one of your Bungeecord servers acts as the head
-vote receiver. This server will be the one you configure the voting websites to
+In proxy based vote forwarding, one of your proxy servers acts as the head vote
+receiver. This server will be the one you configure the voting websites to
 vote to. You can set up multiple vote receivers and load balance between them,
 however this configuration has limited benefit and is probably more work than it
 is worth. Instead of communicating through plugin messaging like the plugin
@@ -180,18 +180,17 @@ each of the backend servers it is configured with.
 
 First, we will set up all of the Minecraft servers before setting up the head
 vote receiver. For each of the servers, NuVotifier should be configured to bind
-to an unused port. This port must be valid. If you have multiple votifiers on
+to an unused port. This port must be valid. If you have multiple Votifiers on
 the same IP/server, make sure that the port which you are using between
-NuVotifier instances are different. Remember where to find the port number as we
-will need it later to insert into the vote receiver Bungeecord NuVotifier
-configuration. In addition to the port number, you will also need the default
-token - this is the string auto generated by NuVotifier under the `default` key
-under `tokens`. Since we are using proxy forwarding, change
-`disable-v1-protocol` to true - we will only be using the new NuVotifier
-votifier protocol within our network (vote receiver -> minecraft server). Once
-all configured, that is all we need to do. The rest of the defaults will work.
+NuVotifier instances are different. Remember the the port number as we will need
+it later to insert into the proxy NuVotifier configuration. In addition to the
+port number, you will also need the default token - this is the string auto
+generated by NuVotifier under the `default` key under `tokens`. Since we are using
+proxy forwarding, change `disable-v1-protocol` to true - we will only be using the
+new NuVotifier protocol within our network (vote receiver -> minecraft server).
+Once all configured, that is all we need to do. The rest of the defaults will work.
 
-Now we will configure the vote receiving NuVotifier Bungeecord server. The port
+Now we will configure the vote receiving NuVotifier proxy server. The port
 should be configured as described many times above, being a unique port. Instead
 of setting `method` to `pluginMessaging` like above, we will set `method` to
 `proxy`. This will tell NuVotifier that we instead want to proxy the votes
@@ -199,7 +198,7 @@ instead of forward them through plugin messaging channels.
 
 The last step is to set up the proxy forwaring settings. Under the `proxy`
 section is a place to enter each server. Create a unique name for each of the
-server's you will be forwarding votes to. The default Bungeecord NuVotifier
+server's you will be forwarding votes to. The default proxy NuVotifier
 configuration already has two Minecraft servers filled in - Hub and Hub2. You
 should replace these with your own servers - the names of the servers do not
 matter. Under each of these servers, we need to configure `address`, `port`, and

@@ -3,25 +3,18 @@ package com.vexsoftware.votifier.sponge;
 import com.google.inject.Inject;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import com.vexsoftware.votifier.sponge.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.sponge.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.sponge.forwarding.SpongePluginMessagingForwardingSink;
 import com.vexsoftware.votifier.util.KeyCreator;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
@@ -31,8 +24,6 @@ import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.File;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
@@ -40,7 +31,7 @@ import java.util.Map;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.3.7", authors = "ParallelBlock LLC",
         description = "Safe, smart, and secure Votifier server plugin")
-public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.VotifierPlugin, ForwardedVoteListener {
+public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.platform.VotifierPlugin, ForwardedVoteListener {
 
     @Inject
     public Logger logger;
@@ -49,8 +40,12 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     @ConfigDir(sharedRoot = false)
     public File configDir;
 
+    private VotifierScheduler scheduler;
+
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
+        this.scheduler = new SpongeScheduler(this);
+
         // Load configuration.
         ConfigLoader.loadConfig(this);
 
@@ -96,34 +91,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
                 logger.info("------------------------------------------------------------------------------");
             }
 
-            serverGroup = new NioEventLoopGroup(1);
-
-            new ServerBootstrap()
-                    .channel(NioServerSocketChannel.class)
-                    .group(serverGroup)
-                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                        @Override
-                        protected void initChannel(NioSocketChannel channel) {
-                            channel.attr(VotifierSession.KEY).set(new VotifierSession());
-                            channel.attr(com.vexsoftware.votifier.VotifierPlugin.KEY).set(VotifierPlugin.this);
-                            channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
-                            channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !disablev1));
-                            channel.pipeline().addLast("voteHandler", new VoteInboundHandler(VotifierPlugin.this));
-                        }
-                    })
-                    .bind(host, port)
-                    .addListener((ChannelFutureListener) future -> {
-                        if (future.isSuccess()) {
-                            serverChannel = future.channel();
-                            logger.info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
-                        } else {
-                            SocketAddress socketAddress = future.channel().localAddress();
-                            if (socketAddress == null) {
-                                socketAddress = new InetSocketAddress(host, port);
-                            }
-                            logger.error("Votifier was not able to bind to " + socketAddress, future.cause());
-                        }
-                    });
+            this.bootstrap = new VotifierServerBootstrap(host, port, this, disablev1);
+            this.bootstrap.start(err -> {});
         } else {
             getLogger().info("------------------------------------------------------------------------------");
             getLogger().info("Your Votifier port is less than 0, so we assume you do NOT want to start the");
@@ -152,14 +121,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
 
     @Listener
     public void onServerStop(GameStoppingServerEvent event) {
-        if (serverGroup != null) {
-            try {
-                if (serverChannel != null)
-                    serverChannel.close().sync();
-                serverGroup.shutdownGracefully().sync();
-            } catch (Exception e) {
-                logger.error("Unable to shut down listening port gracefully.", e);
-            }
+        if (bootstrap != null) {
+            bootstrap.shutdown();
+            bootstrap = null;
         }
 
         if (forwardingMethod != null)
@@ -178,14 +142,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
     private String version;
 
     /**
-     * The server channel.
+     * The server bootstrap.
      */
-    private Channel serverChannel;
-
-    /**
-     * The event group handling the channel.
-     */
-    private NioEventLoopGroup serverGroup;
+    private VotifierServerBootstrap bootstrap;
 
     /**
      * The RSA key pair.
@@ -208,13 +167,14 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.Vot
         logger.error("Votifier did not initialize properly!");
     }
 
-    /**
-     * Gets the version.
-     *
-     * @return The version
-     */
-    public String getVersion() {
-        return version;
+    @Override
+    public Logger getPluginLogger() {
+        return logger;
+    }
+
+    @Override
+    public VotifierScheduler getScheduler() {
+        return scheduler;
     }
 
     public boolean isDebug() {

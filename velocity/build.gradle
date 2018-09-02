@@ -1,0 +1,4 @@
+dependencies {
+    compileOnly group: "com.velocitypowered", name: "velocity-api", version: "1.0-SNAPSHOT"
+    compile project(":nuvotifier-common")
+}

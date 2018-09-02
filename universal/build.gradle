@@ -13,6 +13,7 @@ dependencies {
     compile project(":nuvotifier-bukkit")
     compile project(":nuvotifier-bungeecord")
     compile project(":nuvotifier-sponge")
+    compile project(":nuvotifier-velocity")
 }
 
 shadowJar {

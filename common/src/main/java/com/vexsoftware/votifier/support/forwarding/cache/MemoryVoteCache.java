@@ -1,4 +1,4 @@
-package com.vexsoftware.votifier.bungee.forwarding.cache;
+package com.vexsoftware.votifier.support.forwarding.cache;
 
 import com.google.common.collect.ImmutableList;
 import com.vexsoftware.votifier.model.Vote;

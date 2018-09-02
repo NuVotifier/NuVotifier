@@ -12,3 +12,6 @@ findProject(':sponge')?.name = 'nuvotifier-sponge'
 
 include 'universal'
 findProject(':universal')?.name = 'nuvotifier-universal'
+include 'velocity'
+findProject(':velocity')?.name = 'nuvotifier-velocity'
+

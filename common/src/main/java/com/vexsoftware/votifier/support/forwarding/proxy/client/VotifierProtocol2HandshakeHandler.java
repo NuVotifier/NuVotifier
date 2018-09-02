@@ -1,6 +1,6 @@
-package com.vexsoftware.votifier.bungee.forwarding.proxy.client;
+package com.vexsoftware.votifier.support.forwarding.proxy.client;
 
-import com.vexsoftware.votifier.bungee.NuVotifier;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -9,9 +9,9 @@ import io.netty.handler.codec.CorruptedFrameException;
 public class VotifierProtocol2HandshakeHandler extends SimpleChannelInboundHandler<String> {
     private final Vote toSend;
     private final VotifierResponseHandler responseHandler;
-    private final NuVotifier nuVotifier;
+    private final VotifierPlugin nuVotifier;
 
-    public VotifierProtocol2HandshakeHandler(Vote toSend, VotifierResponseHandler responseHandler, NuVotifier nuVotifier) {
+    public VotifierProtocol2HandshakeHandler(Vote toSend, VotifierResponseHandler responseHandler, VotifierPlugin nuVotifier) {
         this.toSend = toSend;
         this.responseHandler = responseHandler;
         this.nuVotifier = nuVotifier;
@@ -26,7 +26,7 @@ public class VotifierProtocol2HandshakeHandler extends SimpleChannelInboundHandl
 
         VoteRequest request = new VoteRequest(handshakeContents[2], toSend);
         if (nuVotifier.isDebug()) {
-            nuVotifier.getLogger().info("Sent request: " + request.toString());
+            nuVotifier.getPluginLogger().info("Sent request: " + request.toString());
         }
         ctx.writeAndFlush(request);
         ctx.pipeline().addLast(new VotifierProtocol2ResponseHandler(responseHandler));

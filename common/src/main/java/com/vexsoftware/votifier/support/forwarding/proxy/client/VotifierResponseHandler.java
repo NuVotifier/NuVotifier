@@ -1,4 +1,4 @@
-package com.vexsoftware.votifier.bungee.forwarding.proxy.client;
+package com.vexsoftware.votifier.support.forwarding.proxy.client;
 
 public interface VotifierResponseHandler {
     void onSuccess();
