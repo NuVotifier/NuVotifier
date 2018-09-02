@@ -78,7 +78,7 @@ on, as well as the Bungeecord server. The Bungeecord server will act as the
 public facing Votifier instance, where as the Minecraft servers will instead
 receive instructions from the Bungeecord Nuvotifier for forwarding votes.
 
-Like, the single server installation, you can download NuVotifier at any one of
+Like the single server installation, you can download NuVotifier at any one of
 the following locations:
 
 + [Github](https://github.com/parallelblock/NuVotifier/releases) - Official
@@ -105,10 +105,12 @@ some exceptions in multi Bungeecord networks.
 First off, we should configure each of the Minecraft servers. Open each of the
 servers' NuVotifier configurations. Each one should have `method` under the
 `forwarding` configuration section set to `pluginMessaging`. Under the
-`pluginMessaging` configuration section, `channel` is set to `NuVotifier`. This
-is a safe default (and is protected from injection by a hacked Minecraft
-client), but feel free to change it. If you choose to change it, make sure you
-change it everywhere all around your network!
+`pluginMessaging` configuration section, `channel` is set to `nuvotifier:votes`.
+Since 1.13, Spigot has decided that channels must now contain a colon. While
+this is a completely senseless change, it is easier to simply conform and change
+the channel name.  This is a safe default (and is protected from injection by a
+hacked Minecraft client), but feel free to change it. If you choose to change
+it, make sure you change it everywhere all around your network!
 
 Since we are receiving forwarded votes through plugin messaging and not through
 network ports, we should set `port` on each of the Minecraft servers to -1. This
