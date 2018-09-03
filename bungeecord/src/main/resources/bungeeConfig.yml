@@ -26,7 +26,7 @@ forwarding:
   # - proxy - Proxies votes to other NuVotifier servers from this server.
   method: none
   pluginMessaging:
-    channel: NuVotifier:votes
+    channel: nuvotifier:votes
 
     #Only send votes to certain servers. If a server is present on excludedServers, then votes will NOT be forwarded
     #to them. If excludedServers is not present, votes will be sent to all servers.

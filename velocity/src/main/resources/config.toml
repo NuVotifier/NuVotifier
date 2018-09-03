@@ -28,7 +28,7 @@ default = "%default_token%"
 method = "none"
 
 [forwarding.pluginMessaging]
-channel = "NuVotifier:votes"
+channel = "nuvotifier:votes"
 
 # Only send votes to certain servers. If a server is present on excludedServers, then votes will NOT be forwarded
 # to them. If excludedServers is not present, votes will be sent to all servers.
