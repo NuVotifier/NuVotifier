@@ -29,6 +29,8 @@ import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.platform.JavaUtilLogger;
+import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.util.KeyCreator;
@@ -42,10 +44,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.impl.JDK14LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -62,8 +60,6 @@ import java.util.logging.Level;
  * @author Kramer Campbell
  */
 public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, VotifierPlugin, ForwardedVoteListener {
-
-    private static final ILoggerFactory FACTORY = new JDK14LoggerFactory();
 
     /**
      * The Votifier instance.
@@ -97,11 +93,11 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
     private ForwardingVoteSink forwardingMethod;
     private VotifierScheduler scheduler;
-    private Logger pluginLogger;
+    private LoggingAdapter pluginLogger;
 
     private boolean loadAndBind() {
         scheduler = new BukkitScheduler(this);
-        pluginLogger = FACTORY.getLogger(getLogger().getName());
+        pluginLogger = new JavaUtilLogger(getLogger());
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -330,7 +326,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     }
 
     @Override
-    public Logger getPluginLogger() {
+    public LoggingAdapter getPluginLogger() {
         return pluginLogger;
     }
 

@@ -7,6 +7,7 @@ import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
@@ -36,6 +37,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     @Inject
     public Logger logger;
 
+    private SLF4JLogger loggerAdapter;
+
     @Inject
     @ConfigDir(sharedRoot = false)
     public File configDir;
@@ -45,6 +48,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
         this.scheduler = new SpongeScheduler(this);
+        this.loggerAdapter = new SLF4JLogger(logger);
 
         // Load configuration.
         ConfigLoader.loadConfig(this);
@@ -168,8 +172,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     }
 
     @Override
-    public Logger getPluginLogger() {
-        return logger;
+    public LoggingAdapter getPluginLogger() {
+        return loggerAdapter;
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.vexsoftware.votifier.platform;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import io.netty.util.AttributeKey;
-import org.slf4j.Logger;
 
 import java.security.Key;
 import java.security.KeyPair;
@@ -16,7 +15,7 @@ public interface VotifierPlugin extends VoteHandler {
 
     KeyPair getProtocolV1Key();
 
-    Logger getPluginLogger();
+    LoggingAdapter getPluginLogger();
 
     VotifierScheduler getScheduler();
 

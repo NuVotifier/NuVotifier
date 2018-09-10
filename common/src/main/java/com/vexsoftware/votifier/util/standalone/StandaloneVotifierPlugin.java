@@ -1,14 +1,14 @@
 package com.vexsoftware.votifier.util.standalone;
 
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
+import com.vexsoftware.votifier.platform.JavaUtilLogger;
+import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.platform.scheduler.ScheduledExecutorServiceVotifierScheduler;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import io.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.security.Key;
@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class StandaloneVotifierPlugin implements VotifierPlugin {
     private final Map<String, Key> tokens;
@@ -58,8 +59,8 @@ public class StandaloneVotifierPlugin implements VotifierPlugin {
     }
 
     @Override
-    public Logger getPluginLogger() {
-        return LoggerFactory.getLogger(StandaloneVotifierPlugin.class);
+    public LoggingAdapter getPluginLogger() {
+        return new JavaUtilLogger(Logger.getAnonymousLogger());
     }
 
     @Override

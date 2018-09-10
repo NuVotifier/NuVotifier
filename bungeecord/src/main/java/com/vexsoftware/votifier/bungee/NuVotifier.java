@@ -6,6 +6,8 @@ import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.platform.BackendServer;
+import com.vexsoftware.votifier.platform.JavaUtilLogger;
+import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
 import com.vexsoftware.votifier.bungee.events.VotifierEvent;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
@@ -31,8 +33,6 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.impl.DirtyTricks;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,11 +77,11 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
     private ForwardingVoteSource forwardingMethod;
 
     private VotifierScheduler scheduler;
-    private Logger pluginLogger;
+    private LoggingAdapter pluginLogger;
 
     private void loadAndBind() {
         scheduler = new BungeeScheduler(this);
-        pluginLogger = DirtyTricks.getLogger(getLogger());
+        pluginLogger = new JavaUtilLogger(getLogger());
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -378,7 +378,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
     }
 
     @Override
-    public Logger getPluginLogger() {
+    public LoggingAdapter getPluginLogger() {
         return pluginLogger;
     }
 

@@ -16,6 +16,7 @@ import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.platform.BackendServer;
+import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSource;
@@ -51,6 +52,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     @Inject
     public Logger logger;
+    private LoggingAdapter loggingAdapter;
 
     @Inject
     @DataDirectory
@@ -64,6 +66,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     @Subscribe
     public void onServerStart(ProxyInitializeEvent event) {
         this.scheduler = new VelocityScheduler(server, this);
+        this.loggingAdapter = new SLF4JLogger(logger);
 
         // Load configuration.
         Toml config;
@@ -299,8 +302,8 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     }
 
     @Override
-    public Logger getPluginLogger() {
-        return logger;
+    public LoggingAdapter getPluginLogger() {
+        return loggingAdapter;
     }
 
     @Override
