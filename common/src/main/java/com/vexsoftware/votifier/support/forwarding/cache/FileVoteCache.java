@@ -19,13 +19,11 @@ public class FileVoteCache extends MemoryVoteCache {
 
     private final LoggingAdapter l;
     private final File cacheFile;
-    private final long voteTTL;
     private final ScheduledVotifierTask saveTask;
 
     public FileVoteCache(int initialMemorySize, final VotifierPlugin plugin, File cacheFile, long voteTTL) throws IOException {
-        super(initialMemorySize);
+        super(initialMemorySize, plugin, voteTTL);
         this.cacheFile = cacheFile;
-        this.voteTTL = voteTTL;
         this.l = plugin.getPluginLogger();
 
         load();
@@ -75,11 +73,11 @@ public class FileVoteCache extends MemoryVoteCache {
         JsonObject servers = object.getAsJsonObject("servers");
 
         for (String player : keySet(players)) {
-            playerVoteCache.put(player, readVotes(players.getAsJsonArray(player)));
+            playerVoteCache.putAll(player, readVotes(players.getAsJsonArray(player)));
         }
 
         for (String server : keySet(servers)) {
-            voteCache.put(server, readVotes(servers.getAsJsonArray(server)));
+            voteCache.putAll(server, readVotes(servers.getAsJsonArray(server)));
         }
 
         if (resave) {
@@ -118,8 +116,8 @@ public class FileVoteCache extends MemoryVoteCache {
         JsonObject votesObject = new JsonObject();
         votesObject.addProperty("version", 2);
         try {
-            votesObject.add("players", serializeMap(playerVoteCache));
-            votesObject.add("servers", serializeMap(voteCache));
+            votesObject.add("players", serializeMap(playerVoteCache.asMap()));
+            votesObject.add("servers", serializeMap(voteCache.asMap()));
         } finally {
             cacheLock.unlock();
         }
@@ -158,11 +156,6 @@ public class FileVoteCache extends MemoryVoteCache {
         return o;
     }
 
-    private boolean hasTimedOut(Vote v) {
-        if (voteTTL == -1) return false;
-        // scale voteTTL to milliseconds
-        return v.getLocalTimestamp() + voteTTL * 24 * 60 * 60 * 1000 < System.currentTimeMillis();
-    }
 
     public void halt() throws IOException {
         saveTask.cancel();

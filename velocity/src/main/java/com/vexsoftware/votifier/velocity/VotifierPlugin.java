@@ -134,7 +134,9 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             if ("none".equals(cacheMethod)) {
                 getLogger().info("Vote cache none selected for caching: votes that cannot be immediately delivered will be lost.");
             } else if ("memory".equals(cacheMethod)) {
-                voteCache = new MemoryVoteCache(server.getAllServers().size());
+                voteCache = new MemoryVoteCache(
+                        server.getAllServers().size(), this,
+                        fwdCfg.getTable("memory-cache").getLong("cacheTime", -1L));
                 getLogger().info("Using in-memory cache for votes that are not able to be delivered.");
             } else if ("file".equals(cacheMethod)) {
                 try {

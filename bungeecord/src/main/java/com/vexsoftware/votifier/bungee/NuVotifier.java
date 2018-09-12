@@ -213,7 +213,9 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
             if ("none".equals(cacheMethod)) {
                 getLogger().info("Vote cache none selected for caching: votes that cannot be immediately delivered will be lost.");
             } else if ("memory".equals(cacheMethod)) {
-                voteCache = new MemoryVoteCache(ProxyServer.getInstance().getServers().size());
+                voteCache = new MemoryVoteCache(
+                        ProxyServer.getInstance().getServers().size(), this,
+                        fwdCfg.getInt("pluginMessaging.memory.cacheTime", -1));
                 getLogger().info("Using in-memory cache for votes that are not able to be delivered.");
             } else if ("file".equals(cacheMethod)) {
                 try {
