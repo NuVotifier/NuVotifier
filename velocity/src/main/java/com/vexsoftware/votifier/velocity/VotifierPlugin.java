@@ -148,11 +148,12 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
                     getLogger().error("Unload to load file cache. Votes will be lost!", e);
                 }
             }
+            int dumpRate = pmCfg.getLong("dumpRate", 5L).intValue();
             if (!pmCfg.getBoolean("onlySendToJoinedServer")) {
                 List<String> ignoredServers = pmCfg.getList("excludedServers");
 
                 try {
-                    forwardingMethod = new PluginMessagingForwardingSource(channel, ignoredServers, this, voteCache);
+                    forwardingMethod = new PluginMessagingForwardingSource(channel, ignoredServers, this, voteCache, dumpRate);
                     getLogger().info("Forwarding votes over PluginMessaging channel '" + channel + "' for vote forwarding!");
                 } catch (RuntimeException e) {
                     getLogger().error("NuVotifier could not set up PluginMessaging for vote forwarding!", e);
@@ -161,7 +162,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
                 try {
                     String fallbackServer = pmCfg.getString("joinedServerFallback", null);
                     if (fallbackServer != null && fallbackServer.isEmpty()) fallbackServer = null;
-                    forwardingMethod = new OnlineForwardPluginMessagingForwardingSource(channel, this, voteCache, fallbackServer);
+                    forwardingMethod = new OnlineForwardPluginMessagingForwardingSource(channel, this, voteCache, fallbackServer, dumpRate);
                 } catch (RuntimeException e) {
                     getLogger().error("NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }

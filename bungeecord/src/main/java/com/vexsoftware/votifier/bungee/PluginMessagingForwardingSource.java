@@ -12,13 +12,13 @@ import java.util.List;
 
 public class PluginMessagingForwardingSource extends AbstractPluginMessagingForwardingSource implements Listener {
 
-    public PluginMessagingForwardingSource(String channel, List<String> ignoredServers, NuVotifier nuVotifier, VoteCache cache) {
-        super(channel, ignoredServers, nuVotifier, cache);
+    public PluginMessagingForwardingSource(String channel, List<String> ignoredServers, NuVotifier nuVotifier, VoteCache cache, int dumpRate) {
+        super(channel, ignoredServers, nuVotifier, cache, dumpRate);
         ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
     }
 
-    protected PluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache voteCache) {
-        super(channel, nuVotifier, voteCache);
+    protected PluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache voteCache, int dumpRate) {
+        super(channel, nuVotifier, voteCache, dumpRate);
         ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
     }
 

@@ -18,8 +18,8 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
     private final String fallbackServer;
     private final VotifierPlugin plugin;
 
-    public OnlineForwardPluginMessagingForwardingSource(String channel, VotifierPlugin plugin, VoteCache cache, String fallbackServer) {
-        super(channel, plugin, cache);
+    public OnlineForwardPluginMessagingForwardingSource(String channel, VotifierPlugin plugin, VoteCache cache, String fallbackServer, int dumpRate) {
+        super(channel, plugin, cache, dumpRate);
         this.fallbackServer = fallbackServer;
         this.plugin = plugin;
         plugin.getServer().getEventManager().register(plugin, this);

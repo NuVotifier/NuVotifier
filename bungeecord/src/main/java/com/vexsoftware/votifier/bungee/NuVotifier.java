@@ -227,12 +227,14 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                     getLogger().log(Level.SEVERE, "Unload to load file cache. Votes will be lost!", e);
                 }
             }
+
+            int dumpRate = fwdCfg.getInt("pluginMessaging.dumpRate", 5);
             if (!fwdCfg.getBoolean("pluginMessaging.onlySendToJoinedServer")) {
 
                 List<String> ignoredServers = fwdCfg.getStringList("pluginMessaging.excludedServers");
 
                 try {
-                    forwardingMethod = new PluginMessagingForwardingSource(channel, ignoredServers, this, voteCache);
+                    forwardingMethod = new PluginMessagingForwardingSource(channel, ignoredServers, this, voteCache, dumpRate);
                     getLogger().info("Forwarding votes over PluginMessaging channel '" + channel + "' for vote forwarding!");
                 } catch (RuntimeException e) {
                     getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
@@ -241,7 +243,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                 try {
                     String fallbackServer = fwdCfg.getString("pluginMessaging.joinedServerFallback", null);
                     if (fallbackServer != null && fallbackServer.isEmpty()) fallbackServer = null;
-                    forwardingMethod = new OnlineForwardPluginMessagingForwardingSource(channel, this, voteCache, fallbackServer);
+                    forwardingMethod = new OnlineForwardPluginMessagingForwardingSource(channel, this, voteCache, fallbackServer, dumpRate);
                 } catch (RuntimeException e) {
                     getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }

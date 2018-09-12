@@ -49,6 +49,8 @@ forwarding:
     #If you do not want the vote forwarded to a fallback, set this value to empty ('')
     #ONLY USED IF onlySendToJoinedServer is true!!
     joinedServerFallback: 'Hub'
+    # Defines how quickly to dump votes over a player's connection when offloading a cache in votes per second
+    dumpRate: 5
     # Options for file caching.
     file:
       name: cached-votes.json

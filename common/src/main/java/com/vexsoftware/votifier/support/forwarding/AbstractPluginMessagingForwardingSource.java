@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -18,21 +19,23 @@ import java.util.logging.Level;
 
 public abstract class AbstractPluginMessagingForwardingSource implements ForwardingVoteSource {
 
-    public AbstractPluginMessagingForwardingSource(String channel, List<String> ignoredServers, ProxyVotifierPlugin plugin, VoteCache cache) {
+    public AbstractPluginMessagingForwardingSource(String channel, List<String> ignoredServers, ProxyVotifierPlugin plugin, VoteCache cache, int dumpRate) {
         this.channel = channel;
         this.plugin = plugin;
         this.cache = cache;
         this.ignoredServers = ignoredServers;
+        this.dumpRate = dumpRate;
     }
 
-    protected AbstractPluginMessagingForwardingSource(String channel, ProxyVotifierPlugin plugin, VoteCache voteCache) {
-        this(channel, null, plugin, voteCache);
+    protected AbstractPluginMessagingForwardingSource(String channel, ProxyVotifierPlugin plugin, VoteCache voteCache, int dumpRate) {
+        this(channel, null, plugin, voteCache, dumpRate);
     }
 
     protected final ProxyVotifierPlugin plugin;
     protected final String channel;
     protected final VoteCache cache;
     protected final List<String> ignoredServers;
+    private final int dumpRate;
 
     @Override
     public void forward(Vote v) {
@@ -92,32 +95,46 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
     }
 
     // returns a collection of failed votes
-    private void dumpVotesToServer(Collection<Vote> cachedVotes, BackendServer target, String identifier, Consumer<List<Vote>> cb) {
-        List<Vote> failures = new ArrayList<>();
-
+    private void dumpVotesToServer(Collection<Vote> cachedVotes, BackendServer target, String identifier, Consumer<Collection<Vote>> cb) {
+        dumpVotesToServer(cachedVotes, target, identifier, 0, cb);
+    }
+    private void dumpVotesToServer(Collection<Vote> cachedVotes, BackendServer target, String identifier, int evictedAlready, Consumer<Collection<Vote>> cb) {
         if (!cachedVotes.isEmpty()) {
             plugin.getScheduler().delayedOnPool(() -> {
                 int evicted = 0;
-                int unsuccessfulEvictions = 0;
-                for (Vote v : cachedVotes) {
+                Iterator<Vote> vi = cachedVotes.iterator();
+
+                while (vi.hasNext() && evicted < dumpRate) {
+                    Vote v = vi.next();
                     if (forwardSpecific(target, v)) {
+                        vi.remove();
                         evicted++;
                     } else {
-                        // Re-add to cache to send later.
-                        failures.add(v);
-                        unsuccessfulEvictions++;
+                        // so since our forwarding failed, break like we are done
+                        break;
                     }
                 }
+
+                if (evicted >= dumpRate && !cachedVotes.isEmpty()) {
+                    // if we evicted everything we could but still need to evict more
+                    dumpVotesToServer(cachedVotes, target, identifier, evictedAlready + evicted, cb);
+                    return;
+                }
+
+                // we either successfully
+
                 if (plugin.isDebug()) {
-                    plugin.getPluginLogger().info("Successfully evicted " + evicted + " votes to " + identifier + ".");
-                    if (unsuccessfulEvictions > 0) {
-                        plugin.getPluginLogger().info("Held " + unsuccessfulEvictions + " votes for " + identifier + ".");
+                    plugin.getPluginLogger().info("Successfully evicted " + (evictedAlready + evicted) + " votes to " + identifier + ".");
+                    if (!cachedVotes.isEmpty()) {
+                        plugin.getPluginLogger().info("Held " + cachedVotes.size() + " votes for " + identifier + ".");
                     }
                 }
-                cb.accept(failures);
-            }, 3, TimeUnit.SECONDS);
+
+                // cachedVotes contains any votes which have yet to be evicted
+                cb.accept(cachedVotes);
+            }, 1, TimeUnit.SECONDS);
         } else {
-            cb.accept(failures);
+            cb.accept(cachedVotes);
         }
     }
 

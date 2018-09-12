@@ -17,8 +17,8 @@ import net.md_5.bungee.event.EventHandler;
  * @date 12/31/2015
  */
 public final class OnlineForwardPluginMessagingForwardingSource extends AbstractPluginMessagingForwardingSource implements Listener {
-    public OnlineForwardPluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache, String fallbackServer) {
-        super(channel, nuVotifier, cache);
+    public OnlineForwardPluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache, String fallbackServer, int dumpRate) {
+        super(channel, nuVotifier, cache, dumpRate);
         this.fallbackServer = fallbackServer;
         ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
     }

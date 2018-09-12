@@ -12,8 +12,8 @@ public class PluginMessagingForwardingSource extends AbstractPluginMessagingForw
 
     private final VotifierPlugin plugin;
 
-    public PluginMessagingForwardingSource(String channel, List<String> ignoredServers, VotifierPlugin plugin, VoteCache cache) {
-        super(channel, ignoredServers, plugin, cache);
+    public PluginMessagingForwardingSource(String channel, List<String> ignoredServers, VotifierPlugin plugin, VoteCache cache, int dumpRate) {
+        super(channel, ignoredServers, plugin, cache, dumpRate);
         this.plugin = plugin;
         plugin.getServer().getEventManager().register(plugin, this);
         plugin.getServer().getChannelRegistrar().register((source, side, identifier, data) -> MessageHandler.ForwardStatus.HANDLED, VelocityUtil.getId(channel));

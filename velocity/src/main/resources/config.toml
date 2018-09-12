@@ -49,6 +49,9 @@ onlySendToJoinedServer = false
 # ONLY USED IF onlySendToJoinedServer is true!!
 joinedServerFallback = "Hub"
 
+# Defines how quickly to dump votes over a player's connection while offloading a cache in votes per second
+dumpRate = 5
+
 [forwarding.file-cache]
 # Options for file caching.
 name = "cached-votes.json"

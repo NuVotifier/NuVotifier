@@ -154,8 +154,14 @@ rather the vote be applied when the player next joins, set
 until the player joins again.
 
 By default, votes are saved for 10 days in the cache. This time can be increased
-or decreased by changing the `voteTTL` field. This number can be as high or low
-as you want. It is measured in days within the cache.
+or decreased by changing the `cacheTime` field. This number can be as high or low
+as you want. It is measured in days within the cache. This is valid for both the
+`file` and `memory` cache.
+
+Sometimes, caches can grow quite large and try to dump lots of votes back over the
+player's game connection. This is a problem, as the Bukkit server may think it is
+instead the player spamming packets! NuVotifier rate-limits the votes which are
+evicted per second over a plugin messaging channel using the `dumpRate` parameter.
 
 ### Proxy based vote forwarding
 
