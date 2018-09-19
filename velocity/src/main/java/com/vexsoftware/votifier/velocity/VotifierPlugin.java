@@ -238,8 +238,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             // Initialize the configuration file.
             String cfgStr = new String(ByteStreams.toByteArray(VotifierPlugin.class.getResourceAsStream("/config.toml")), StandardCharsets.UTF_8);
             String token = TokenUtil.newToken();
-            // TODO: Velocity doesn't expose any bind address, so use a temporary workaround
-            cfgStr = cfgStr.replace("%ip%", "0.0.0.0");
+            cfgStr = cfgStr.replace("%ip%", server.getBoundAddress().getAddress().getHostAddress());
             cfgStr = cfgStr.replace("%default_token%", token);
 
             /*
@@ -365,6 +364,6 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     @Override
     public Optional<BackendServer> getServer(String name) {
-        return server.getServerInfo(name).map(s -> new VelocityBackendServer(server, s));
+        return server.getServer(name).map(s -> new VelocityBackendServer(server, s));
     }
 }
