@@ -3,6 +3,7 @@ package com.vexsoftware.votifier.velocity;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 
@@ -11,10 +12,13 @@ import java.util.List;
 public class PluginMessagingForwardingSource extends AbstractPluginMessagingForwardingSource {
 
     private final VotifierPlugin plugin;
+    private final ChannelIdentifier velocityChannelId;
 
     public PluginMessagingForwardingSource(String channel, List<String> ignoredServers, VotifierPlugin plugin, VoteCache cache, int dumpRate) {
         super(channel, ignoredServers, plugin, cache, dumpRate);
         this.plugin = plugin;
+        this.velocityChannelId = VelocityUtil.getId(channel);
+        plugin.getServer().getChannelRegistrar().register(velocityChannelId);
         plugin.getServer().getEventManager().register(plugin, this);
     }
 
@@ -25,7 +29,7 @@ public class PluginMessagingForwardingSource extends AbstractPluginMessagingForw
 
     @Subscribe
     public void onPluginMessage(PluginMessageEvent e) {
-        if (e.getIdentifier().equals(VelocityUtil.getId(channel))) {
+        if (e.getIdentifier().equals(velocityChannelId)) {
             e.setResult(PluginMessageEvent.ForwardResult.handled());
         }
     }
