@@ -1,11 +1,11 @@
 package com.vexsoftware.votifier.velocity;
 
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
-import com.velocitypowered.api.proxy.messages.MessageHandler;
-import com.velocitypowered.api.proxy.server.ServerInfo;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
@@ -23,7 +23,6 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
         this.fallbackServer = fallbackServer;
         this.plugin = plugin;
         plugin.getServer().getEventManager().register(plugin, this);
-        plugin.getServer().getChannelRegistrar().register((source, side, identifier, data) -> MessageHandler.ForwardStatus.HANDLED, VelocityUtil.getId(channel));
     }
 
     @Override
@@ -31,12 +30,12 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
         Optional<Player> p = plugin.getServer().getPlayer(v.getUsername());
         Optional<ServerConnection> sc = p.flatMap(Player::getCurrentServer);
         if (sc.isPresent()) {
-            if (forwardSpecific(new VelocityBackendServer(plugin.getServer(), sc.get().getServerInfo()), v)) {
+            if (forwardSpecific(new VelocityBackendServer(plugin.getServer(), sc.get().getServer()), v)) {
                 return;
             }
         }
 
-        Optional<ServerInfo> fs = plugin.getServer().getServerInfo(fallbackServer);
+        Optional<RegisteredServer> fs = plugin.getServer().getServer(fallbackServer);
         // nowhere to fall back to, yet still not online. lets save this vote yet!
         if (!fs.isPresent())
             attemptToAddToPlayerCache(v, v.getUsername());
@@ -49,5 +48,12 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
         BackendServer server = new VelocityBackendServer(plugin.getServer(), e.getServer());
         onServerConnect(server);
         handlePlayerSwitch(server, e.getPlayer().getUsername());
+    }
+
+    @Subscribe
+    public void onPluginMessage(PluginMessageEvent e) {
+        if (e.getIdentifier().equals(VelocityUtil.getId(channel))) {
+            e.setResult(PluginMessageEvent.ForwardResult.handled());
+        }
     }
 }
