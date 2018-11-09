@@ -103,7 +103,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         }
 
         // Handle configuration.
-        File config = new File(getDataFolder() + File.separator + "config.yml");
+        File config = new File(getDataFolder(), "config.yml");
 
         /*
          * Use IP address from server.properties as a default for
