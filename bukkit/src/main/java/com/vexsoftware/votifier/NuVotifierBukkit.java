@@ -103,7 +103,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         }
 
         // Handle configuration.
-        File config = new File(getDataFolder() + "/config.yml");
+        File config = new File(getDataFolder(), "config.yml");
 
         /*
          * Use IP address from server.properties as a default for
@@ -153,7 +153,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         }
 
         YamlConfiguration cfg;
-        File rsaDirectory = new File(getDataFolder() + "/rsa");
+        File rsaDirectory = new File(getDataFolder(), "rsa");
 
         // Load configuration.
         cfg = YamlConfiguration.loadConfiguration(config);
