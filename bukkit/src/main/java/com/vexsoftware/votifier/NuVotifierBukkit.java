@@ -153,7 +153,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         }
 
         YamlConfiguration cfg;
-        File rsaDirectory = new File(getDataFolder() + File.separator + "rsa");
+        File rsaDirectory = new File(getDataFolder(), "rsa");
 
         // Load configuration.
         cfg = YamlConfiguration.loadConfiguration(config);
