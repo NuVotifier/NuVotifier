@@ -74,7 +74,7 @@ public class MemoryVoteCache implements VoteCache {
         if (player == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            return playerVoteCache.removeAll(player);
+            return new HashSet<>(playerVoteCache.removeAll(player));
         } finally {
             cacheLock.unlock();
         }
@@ -85,7 +85,7 @@ public class MemoryVoteCache implements VoteCache {
         if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            return voteCache.removeAll(server);
+            return new HashSet<>(voteCache.removeAll(server));
         } finally {
             cacheLock.unlock();
         }

@@ -1,9 +1,10 @@
 package com.vexsoftware.votifier.bungee;
 
+import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
+import com.vexsoftware.votifier.support.forwarding.ServerFilter;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
-import com.vexsoftware.votifier.model.Vote;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -17,8 +18,9 @@ import net.md_5.bungee.event.EventHandler;
  * @date 12/31/2015
  */
 public final class OnlineForwardPluginMessagingForwardingSource extends AbstractPluginMessagingForwardingSource implements Listener {
-    public OnlineForwardPluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, VoteCache cache, String fallbackServer, int dumpRate) {
-        super(channel, nuVotifier, cache, dumpRate);
+    public OnlineForwardPluginMessagingForwardingSource(String channel, NuVotifier nuVotifier, ServerFilter serverFilter,
+                                                        VoteCache cache, String fallbackServer, int dumpRate) {
+        super(channel, serverFilter, nuVotifier, cache, dumpRate);
         this.fallbackServer = fallbackServer;
         ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
     }
@@ -28,7 +30,8 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
     @Override
     public void forward(Vote v) {
         ProxiedPlayer p = ProxyServer.getInstance().getPlayer(v.getUsername());
-        if (p != null && p.getServer() != null) {
+        if (p != null && p.getServer() != null &&
+                serverFilter.isAllowed(p.getServer().getInfo().getName())) {
             if (forwardSpecific(new BungeeBackendServer(p.getServer().getInfo()), v)) {
                 return;
             }

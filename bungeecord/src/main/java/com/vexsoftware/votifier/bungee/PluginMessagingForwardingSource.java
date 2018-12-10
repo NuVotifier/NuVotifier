@@ -1,6 +1,7 @@
 package com.vexsoftware.votifier.bungee;
 
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
+import com.vexsoftware.votifier.support.forwarding.ServerFilter;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -8,12 +9,10 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.util.List;
-
 public class PluginMessagingForwardingSource extends AbstractPluginMessagingForwardingSource implements Listener {
 
-    public PluginMessagingForwardingSource(String channel, List<String> ignoredServers, NuVotifier nuVotifier, VoteCache cache, int dumpRate) {
-        super(channel, ignoredServers, nuVotifier, cache, dumpRate);
+    public PluginMessagingForwardingSource(String channel, ServerFilter serverFilter, NuVotifier nuVotifier, VoteCache cache, int dumpRate) {
+        super(channel, serverFilter, nuVotifier, cache, dumpRate);
         ProxyServer.getInstance().getPluginManager().registerListener(nuVotifier, this);
     }
 

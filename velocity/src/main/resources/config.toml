@@ -32,8 +32,12 @@ channel = "nuvotifier:votes"
 
 # Only send votes to certain servers. If a server is present on excludedServers, then votes will NOT be forwarded
 # to them. If excludedServers is not present, votes will be sent to all servers.
-# If onlySendToJoinedServer is true, this option is ignored.
+# If onlySendToJoinedServer is true and a player is on one of these servers, NuVotifier will process the vote as if the
+# player was not on the network at all.
 # excludedServers = ["server1", "server2"]
+
+# If uncommented, turns excludedServers into an includedServers, where only servers on the list will be used.
+# whitelist = true
 
 # Sets which cache to use if there are no players on the server that the vote is being sent to. Supported caches:
 # - none - Votes will simply be lost when no players are present on the server.

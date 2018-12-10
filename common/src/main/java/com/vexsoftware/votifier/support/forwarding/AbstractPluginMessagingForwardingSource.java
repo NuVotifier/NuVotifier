@@ -1,29 +1,25 @@
 package com.vexsoftware.votifier.support.forwarding;
 
+import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
-import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.support.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
-import com.vexsoftware.votifier.model.Vote;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 public abstract class AbstractPluginMessagingForwardingSource implements ForwardingVoteSource {
 
-    public AbstractPluginMessagingForwardingSource(String channel, List<String> ignoredServers, ProxyVotifierPlugin plugin, VoteCache cache, int dumpRate) {
+    public AbstractPluginMessagingForwardingSource(String channel, ServerFilter serverFilter, ProxyVotifierPlugin plugin, VoteCache cache, int dumpRate) {
         this.channel = channel;
         this.plugin = plugin;
         this.cache = cache;
-        this.ignoredServers = ignoredServers;
+        this.serverFilter = serverFilter;
         this.dumpRate = dumpRate;
     }
 
@@ -34,14 +30,14 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
     protected final ProxyVotifierPlugin plugin;
     protected final String channel;
     protected final VoteCache cache;
-    protected final List<String> ignoredServers;
+    protected final ServerFilter serverFilter;
     private final int dumpRate;
 
     @Override
     public void forward(Vote v) {
         byte[] rawData = v.serialize().toString().getBytes(StandardCharsets.UTF_8);
         for (BackendServer server : plugin.getAllBackendServers()) {
-            if (ignoredServers != null && ignoredServers.contains(server.getName())) continue;
+            if (!serverFilter.isAllowed(server.getName())) continue;
             if (!forwardSpecific(server, rawData)) attemptToAddToCache(v, server.getName());
         }
     }
@@ -140,7 +136,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
 
     protected void handlePlayerSwitch(BackendServer server, String playerName) {
         if (cache == null) return;
-        if (ignoredServers != null && ignoredServers.contains(server.getName())) return;
+        if (!serverFilter.isAllowed(server.getName())) return;
 
         final Collection<Vote> cachedVotes = cache.evictPlayer(playerName);
         dumpVotesToServer(cachedVotes, server, "player '" + playerName + "'", failedVotes -> {
