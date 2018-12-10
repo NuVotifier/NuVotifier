@@ -8,6 +8,7 @@ import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +45,16 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
 
     protected boolean forwardSpecific(BackendServer connection, Vote vote) {
         byte[] rawData = vote.serialize().toString().getBytes(StandardCharsets.UTF_8);
-        return connection.sendPluginMessage(channel, rawData);
+        return forwardSpecific(connection, rawData);
+    }
+
+    protected boolean forwardSpecific(BackendServer connection, Collection<Vote> votes) {
+        StringBuilder data = new StringBuilder();
+        for (Vote v : votes) {
+            data.append(v.serialize().toString());
+        }
+
+        return forwardSpecific(connection, data.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     private boolean forwardSpecific(BackendServer connection, byte[] data) {
@@ -99,25 +109,24 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
             plugin.getScheduler().delayedOnPool(() -> {
                 int evicted = 0;
                 Iterator<Vote> vi = cachedVotes.iterator();
-
+                Collection<Vote> chunk = new ArrayList<>(dumpRate);
                 while (vi.hasNext() && evicted < dumpRate) {
-                    Vote v = vi.next();
-                    if (forwardSpecific(target, v)) {
-                        vi.remove();
-                        evicted++;
-                    } else {
-                        // so since our forwarding failed, break like we are done
-                        break;
+                    chunk.add(vi.next());
+                    vi.remove();
+                }
+
+                if (forwardSpecific(target, chunk)) {
+                    evicted += chunk.size();
+
+                    if (evicted >= dumpRate && !cachedVotes.isEmpty()) {
+                        // if we evicted everything we could but still need to evict more
+                        dumpVotesToServer(cachedVotes, target, identifier, evictedAlready + evicted, cb);
+                        return;
                     }
+                } else {
+                    // so since our forwarding failed, break like we are done
+                    cachedVotes.addAll(chunk);
                 }
-
-                if (evicted >= dumpRate && !cachedVotes.isEmpty()) {
-                    // if we evicted everything we could but still need to evict more
-                    dumpVotesToServer(cachedVotes, target, identifier, evictedAlready + evicted, cb);
-                    return;
-                }
-
-                // we either successfully
 
                 if (plugin.isDebug()) {
                     plugin.getPluginLogger().info("Successfully evicted " + (evictedAlready + evicted) + " votes to " + identifier + ".");

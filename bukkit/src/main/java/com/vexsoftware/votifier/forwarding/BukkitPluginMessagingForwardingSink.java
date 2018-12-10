@@ -1,6 +1,7 @@
 package com.vexsoftware.votifier.forwarding;
 
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 import com.vexsoftware.votifier.NuVotifierBukkit;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.util.GsonInst;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+import java.io.CharArrayReader;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
@@ -37,11 +39,13 @@ public class BukkitPluginMessagingForwardingSink implements ForwardingVoteSink, 
 
     @Override
     public void onPluginMessageReceived(String s, Player player, byte[] bytes) {
-        try {
-            String message = new String(bytes, StandardCharsets.UTF_8);
-            JsonObject jsonObject = GsonInst.gson.fromJson(message, JsonObject.class);
-            Vote v = new Vote(jsonObject);
-            listener.onForward(v);
+        String message = new String(bytes, StandardCharsets.UTF_8);
+        try (JsonReader reader = new JsonReader(new CharArrayReader(message.toCharArray()))){
+            while (reader.hasNext()) {
+                JsonObject jsonObject = GsonInst.gson.fromJson(reader, JsonObject.class);
+                Vote v = new Vote(jsonObject);
+                listener.onForward(v);
+            }
         } catch (Exception e) {
             NuVotifierBukkit.getInstance().getLogger().log(Level.SEVERE, "There was an unknown error when processing a forwarded vote.", e);
         }
