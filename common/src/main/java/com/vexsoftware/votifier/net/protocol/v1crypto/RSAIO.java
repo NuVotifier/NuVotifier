@@ -69,12 +69,12 @@ public class RSAIO {
      */
     public static KeyPair load(File directory) throws Exception {
         // Read the public key file.
-        File publicKeyFile = new File(directory + "/public.key");
+        File publicKeyFile = new File(directory, "public.key");
         byte[] encodedPublicKey = Files.readAllBytes(publicKeyFile.toPath());
         encodedPublicKey = Base64.getDecoder().decode(new String(encodedPublicKey, StandardCharsets.UTF_8));
 
         // Read the private key file.
-        File privateKeyFile = new File(directory + "/private.key");
+        File privateKeyFile = new File(directory, "private.key");
         byte[] encodedPrivateKey = Files.readAllBytes(privateKeyFile.toPath());
         encodedPrivateKey = Base64.getDecoder().decode(new String(encodedPrivateKey, StandardCharsets.UTF_8));
 
