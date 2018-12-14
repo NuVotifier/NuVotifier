@@ -88,8 +88,8 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
         }
 
         // Handle configuration.
-        File config = new File(getDataFolder() + "/config.yml");
-        File rsaDirectory = new File(getDataFolder() + "/rsa");
+        File config = new File(getDataFolder() , "config.yml");
+        File rsaDirectory = new File(getDataFolder() , "rsa");
         Configuration configuration;
 
         if (!config.exists()) {
