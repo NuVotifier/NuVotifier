@@ -1,3 +1,7 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.regex.Pattern
+
 buildscript {
     repositories {
         jcenter()
@@ -34,4 +38,23 @@ artifacts {
     }
 }
 
-build.dependsOn shadowJar
+def artifactPattern = Pattern.compile(/(.*)-([0-9]+\.)*[0-9]+(-SNAPSHOT)?\.jar/)
+
+task('linkLatest') {
+    dependsOn tasks.shadowJar
+    doLast {
+        tasks.shadowJar.outputs.files.each {
+            System.println(it.absolutePath)
+            def noVerMatcher = artifactPattern.matcher(it.absolutePath)
+            if (!noVerMatcher.matches())
+                throw new IllegalStateException("wtf")
+
+            def noVer = Paths.get(noVerMatcher.group(1) + ".jar")
+            def versnd = it.toPath()
+
+            Files.createSymbolicLink(noVer, versnd)
+        }
+    }
+}
+
+build.dependsOn linkLatest

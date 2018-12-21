@@ -1,0 +1,8 @@
+use_netty_dns_resolver: true
+disable_modern_tab_limiter: true
+log_initial_handler_connections: true
+throttling:
+  tab_complete: 1000
+game_version: ''
+log_server_list_ping: false
+allow_empty_packets: false

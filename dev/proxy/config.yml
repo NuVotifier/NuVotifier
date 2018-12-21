@@ -1,0 +1,48 @@
+forge_support: true
+timeout: 30000
+online_mode: true
+log_commands: false
+listeners:
+- query_port: 25577
+  motd: '&4its a bungee cord surbur'
+  tab_list: GLOBAL_PING
+  query_enabled: false
+  proxy_protocol: false
+  forced_hosts: {}
+  ping_passthrough: false
+  priorities:
+  - s1
+  bind_local_address: true
+  host: 0.0.0.0:25577
+  max_players: 1
+  tab_size: 60
+  force_default_server: false
+connection_throttle: 1
+groups:
+  md_5:
+  - admin
+log_pings: true
+ip_forward: true
+prevent_proxy_connections: true
+network_compression_threshold: 256
+disabled_commands: []
+stats: bf8a54ea-2917-4b9e-b463-2c05bd7f1ac6
+permissions:
+  default:
+  - bungeecord.command.server
+  - bungeecord.command.list
+  admin:
+  - bungeecord.command.alert
+  - bungeecord.command.end
+  - bungeecord.command.ip
+  - bungeecord.command.reload
+servers:
+  s1:
+    motd: SERVER 1
+    address: localhost:25565
+    restricted: false
+  s2:
+    motd: SERVER 2
+    address: localhost:25566
+    restricted: false
+player_limit: -1
