@@ -12,6 +12,8 @@ import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import com.vexsoftware.votifier.sponge.forwarding.SpongePluginMessagingForwardingSink;
+import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
+import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.util.KeyCreator;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
