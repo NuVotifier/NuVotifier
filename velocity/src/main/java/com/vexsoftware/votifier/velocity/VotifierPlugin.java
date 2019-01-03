@@ -47,7 +47,7 @@ import java.security.KeyPair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.5.0", authors = "ParallelBlock LLC",
+@Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.5.1-SNAPSHOT", authors = "ParallelBlock LLC",
         description = "Safe, smart, and secure Votifier server plugin")
 public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
