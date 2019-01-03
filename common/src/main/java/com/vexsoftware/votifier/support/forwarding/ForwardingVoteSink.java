@@ -1,4 +1,4 @@
-package com.vexsoftware.votifier.forwarding;
+package com.vexsoftware.votifier.support.forwarding;
 
 /**
  * Represents a method at which to receive forwarded votes.
