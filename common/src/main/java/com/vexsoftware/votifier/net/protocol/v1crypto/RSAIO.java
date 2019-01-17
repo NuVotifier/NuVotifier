@@ -18,6 +18,7 @@
 
 package com.vexsoftware.votifier.net.protocol.v1crypto;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,6 +60,17 @@ public class RSAIO {
         }
     }
 
+    public static byte[] readB64File(File directory, String name) throws IOException {
+        File f = new File(directory, name);
+        byte[] contents = Files.readAllBytes(f.toPath());
+        try {
+            return Base64.getDecoder().decode(contents);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Base64 decoding exception: This is probably due to a corrupted file, " +
+                    "but in case it isn't, here is a b64 representation of what we read: " + new String(Base64.getEncoder().encode(contents), StandardCharsets.UTF_8), e);
+        }
+    }
+
     /**
      * Loads an RSA key pair from a directory. The directory must have the files
      * "public.key" and "private.key".
@@ -69,14 +81,10 @@ public class RSAIO {
      */
     public static KeyPair load(File directory) throws Exception {
         // Read the public key file.
-        File publicKeyFile = new File(directory, "public.key");
-        byte[] encodedPublicKey = Files.readAllBytes(publicKeyFile.toPath());
-        encodedPublicKey = Base64.getDecoder().decode(new String(encodedPublicKey, StandardCharsets.UTF_8));
+        byte[] encodedPublicKey = readB64File(directory, "public.key");
 
         // Read the private key file.
-        File privateKeyFile = new File(directory, "private.key");
-        byte[] encodedPrivateKey = Files.readAllBytes(privateKeyFile.toPath());
-        encodedPrivateKey = Base64.getDecoder().decode(new String(encodedPrivateKey, StandardCharsets.UTF_8));
+        byte[] encodedPrivateKey = readB64File(directory, "private.key");
 
         // Instantiate and return the key pair.
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
