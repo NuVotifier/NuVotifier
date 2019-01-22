@@ -176,7 +176,13 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             return false;
         }
 
-        debug = cfg.getBoolean("debug", false);
+        // the quiet flag always runs priority to the debug flag
+        if (cfg.isBoolean("quiet")) {
+            debug = !cfg.getBoolean("quiet");
+        } else {
+            // otherwise, default to being noisy
+            debug = cfg.getBoolean("debug", true);
+        }
 
         // Load Votifier tokens.
         ConfigurationSection tokenSection = cfg.getConfigurationSection("tokens");
@@ -210,8 +216,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         // Initialize the receiver.
         final String host = cfg.getString("host", hostAddr);
         final int port = cfg.getInt("port", 8192);
-        if (debug)
-            getLogger().info("DEBUG mode enabled!");
+        if (!debug)
+            getLogger().info("QUIET mode enabled!");
+
         if (port >= 0) {
             final boolean disablev1 = cfg.getBoolean("disable-v1-protocol");
             if (disablev1) {

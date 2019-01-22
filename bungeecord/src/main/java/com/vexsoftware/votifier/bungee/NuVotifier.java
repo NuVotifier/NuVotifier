@@ -179,9 +179,14 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
         // Initialize the receiver.
         final String host = configuration.getString("host", "0.0.0.0");
         final int port = configuration.getInt("port", 8192);
-        debug = configuration.getBoolean("debug", false);
-        if (debug)
-            getLogger().info("DEBUG mode enabled!");
+
+        if (configuration.get("quiet") != null)
+            debug = !configuration.getBoolean("quiet");
+        else
+            debug = configuration.getBoolean("debug", true);
+
+        if (!debug)
+            getLogger().info("QUIET mode enabled!");
 
         final boolean disablev1 = configuration.getBoolean("disable-v1-protocol");
         if (disablev1) {

@@ -39,7 +39,6 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
         handler.onError(ctx.channel(), session.hasCompletedVote(), cause);
 
         if (session.getVersion() == VotifierSession.ProtocolVersion.TWO) {
-
             JsonObject object = new JsonObject();
             object.addProperty("status", "error");
             object.addProperty("cause", cause.getClass().getSimpleName());

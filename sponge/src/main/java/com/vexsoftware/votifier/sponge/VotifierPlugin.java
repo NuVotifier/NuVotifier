@@ -83,8 +83,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
         // Initialize the receiver.
         final String host = ConfigLoader.getSpongeConfig().host;
         final int port = ConfigLoader.getSpongeConfig().port;
-        if (debug)
-            logger.info("DEBUG mode enabled!");
+
+        if (!debug)
+            logger.info("QUIET mode enabled!");
 
         if (port >= 0) {
             final boolean disablev1 = ConfigLoader.getSpongeConfig().disableV1Protocol;

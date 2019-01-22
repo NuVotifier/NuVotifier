@@ -20,7 +20,7 @@ public class SpongeConfig {
 
     @Setting(comment = "Whether or not to print debug messages. In a production system, this should be set to false.\n" +
             "This is useful when initially setting up NuVotifier to ensure votes are being delivered.")
-    public boolean debug = false;
+    public boolean debug = true;
 
     @Setting( value = "disable-v1-protocol", comment = "Setting this option to true will disable handling of Protocol v1 packets. While the old protocol is not secure, this\n" +
             "option is currently not recommended as most voting sites only support the old protocol at present. However, if you are\n" +

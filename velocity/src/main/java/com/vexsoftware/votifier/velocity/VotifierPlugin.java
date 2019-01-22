@@ -96,7 +96,10 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             return;
         }
 
-        debug = config.getBoolean("debug");
+        if (config.contains("quiet"))
+            debug = !config.getBoolean("quiet");
+        else
+            debug = config.getBoolean("debug", true);
 
         // Load Votifier tokens.
         config.getTable("tokens").toMap().forEach((service, key) -> {
@@ -109,8 +112,8 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         // Initialize the receiver.
         final String host = config.getString("host");
         final int port = Math.toIntExact(config.getLong("port"));
-        if (debug)
-            logger.info("DEBUG mode enabled!");
+        if (!debug)
+            logger.info("QUIET mode enabled!");
 
         final boolean disablev1 = config.getBoolean("disable-v1-protocol", false);
         if (disablev1) {
