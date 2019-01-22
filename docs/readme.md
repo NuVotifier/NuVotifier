@@ -14,3 +14,7 @@ The developer guide for NuVotifier may be found [here](developer.md).
 
 Some assorted technical questions not important to most people are found
 [here](technical_qa.md).
+
+# FAQ
+
+You can find the answers to those common questions you have [here](faq.md).
