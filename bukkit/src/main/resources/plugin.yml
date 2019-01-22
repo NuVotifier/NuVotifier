@@ -2,7 +2,7 @@ name: Votifier
 main: com.vexsoftware.votifier.NuVotifierBukkit
 version: @app.version@
 description: A plugin that gets notified when votes are made for the server on toplists.
-authors: [ParallelBlock, blakeman8192, Kramer, tuxed]
+authors: [Ichbinjoe, blakeman8192, Kramer, tuxed]
 api-version: 1.13
 
 commands:
