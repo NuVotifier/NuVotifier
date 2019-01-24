@@ -15,16 +15,12 @@ config-version: 16
 settings:
   load-permissions-yml-before-plugins: true
   bungee-online-mode: true
-  save-player-data: true
-  sleep-between-chunk-saves: false
-  region-file-cache-size: 256
-  save-empty-scoreboard-teams: false
   incoming-packet-spam-threshold: 300
+  use-versioned-world: false
   velocity-support:
     enabled: false
     online-mode: false
     secret: ''
-  use-versioned-world: false
   queue-light-updates-max-loss: 10
   suggest-player-names-when-null-tab-completions: true
   watchdog:
@@ -33,17 +29,21 @@ settings:
   spam-limiter:
     tab-spam-increment: 1
     tab-spam-limit: 500
+  save-player-data: true
+  sleep-between-chunk-saves: false
+  region-file-cache-size: 256
+  save-empty-scoreboard-teams: false
   book-size:
     page-max: 2560
     total-multiplier: 0.98
   enable-player-collisions: true
+  player-auto-save-rate: -1
+  max-player-auto-save-per-tick: -1
   async-chunks:
     enable: true
     generation: true
     thread-per-world-generation: true
     load-threads: -1
-  player-auto-save-rate: -1
-  max-player-auto-save-per-tick: -1
   use-alternative-luck-formula: false
 messages:
   no-permission: '&cI''m sorry, but you do not have permission to perform this command.
@@ -124,12 +124,6 @@ world-settings:
       disable-move-event: false
     duplicate-uuid-resolver: saferegen
     duplicate-uuid-saferegen-delete-range: 32
-    disable-thunder: false
-    skeleton-horse-thunder-spawn-chance: 0.01
-    disable-ice-and-snow: false
-    fire-physics-event-for-redstone: false
-    keep-spawn-loaded-range: 8
-    auto-save-interval: -1
     keep-spawn-loaded: true
     anti-xray:
       enabled: false
@@ -156,7 +150,12 @@ world-settings:
       - planks
     skip-entity-ticking-in-chunks-scheduled-for-unload: true
     armor-stands-do-collision-entity-lookups: true
-    prevent-tnt-from-moving-in-water: false
+    keep-spawn-loaded-range: 8
+    auto-save-interval: -1
+    disable-thunder: false
+    skeleton-horse-thunder-spawn-chance: 0.01
+    disable-ice-and-snow: false
+    fire-physics-event-for-redstone: false
     grass-spread-tick-rate: 1
     water-over-lava-flow-speed: 5
     bed-search-radius: 1
@@ -164,15 +163,16 @@ world-settings:
     nether-ceiling-void-damage: false
     allow-non-player-entities-on-scoreboards: false
     container-update-tick-rate: 1
+    parrots-are-unaffected-by-player-movement: false
+    prevent-tnt-from-moving-in-water: false
     non-player-arrow-despawn-rate: -1
     creative-arrow-despawn-rate: -1
-    parrots-are-unaffected-by-player-movement: false
     disable-explosion-knockback: false
     armor-stands-tick: true
     spawner-nerfed-mobs-should-jump: false
     allow-leashing-undead-horse: false
     baby-zombie-movement-speed: 0.5
-    mob-spawner-tick-rate: 1
     all-chunks-are-slime-chunks: false
+    mob-spawner-tick-rate: 1
     squid-spawn-height:
       maximum: 0.0

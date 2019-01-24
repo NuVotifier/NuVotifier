@@ -1,3 +1,4 @@
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.regex.Pattern
@@ -51,8 +52,9 @@ task('linkLatest') {
 
             def noVer = Paths.get(noVerMatcher.group(1) + ".jar")
             def versnd = it.toPath()
-
-            Files.createSymbolicLink(noVer, versnd)
+            try {
+                Files.createSymbolicLink(noVer, versnd)
+            } catch (FileAlreadyExistsException ignored) {}
         }
     }
 }

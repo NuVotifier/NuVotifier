@@ -64,7 +64,7 @@ public class VotifierServerBootstrap {
                         if (socketAddress == null) {
                             socketAddress = new InetSocketAddress(host, port);
                         }
-                        plugin.getPluginLogger().error("Votifier was not able to bind to {}", socketAddress, future.cause());
+                        plugin.getPluginLogger().error("Votifier was not able to bind to " + socketAddress.toString(), future.cause());
                         error.accept(future.cause());
                     }
                 });

@@ -12,6 +12,7 @@
 
 config-version: 11
 settings:
+  debug: false
   save-user-cache-on-stop-only: false
   sample-count: 12
   user-cache-size: 1000
@@ -31,7 +32,6 @@ settings:
       max: 2048.0
     attackDamage:
       max: 2048.0
-  debug: false
 messages:
   whitelist: You are not whitelisted on this server!
   unknown-command: Unknown command. Type "/help" for help.
@@ -61,16 +61,9 @@ advancements:
 world-settings:
   default:
     verbose: true
-    entity-tracking-range:
-      players: 48
-      animals: 48
-      monsters: 48
-      misc: 32
-      other: 64
-    ticks-per:
-      hopper-transfer: 8
-      hopper-check: 1
-    hopper-amount: 1
+    merge-radius:
+      exp: 3.0
+      item: 2.5
     random-light-updates: false
     dragon-death-sound-radius: 0
     seed-village: 10387312
@@ -96,9 +89,6 @@ world-settings:
       entity: 50
     squid-spawn-range:
       min: 45.0
-    merge-radius:
-      exp: 3.0
-      item: 2.5
     mob-spawn-range: 8
     growth:
       cactus-modifier: 100
@@ -117,6 +107,16 @@ world-settings:
       misc: 16
       water: 16
       tick-inactive-villagers: true
+    entity-tracking-range:
+      players: 48
+      animals: 48
+      monsters: 48
+      misc: 32
+      other: 64
+    ticks-per:
+      hopper-transfer: 8
+      hopper-check: 1
+    hopper-amount: 1
     wither-spawn-sound-radius: 0
     enable-zombie-pigmen-portal-spawns: true
     item-despawn-rate: 6000

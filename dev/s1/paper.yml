@@ -49,10 +49,10 @@ messages:
   no-permission: '&cI''m sorry, but you do not have permission to perform this command.
     Please contact the server administrators if you believe that this is in error.'
   kick:
-    connection-throttle: Connection throttled! Please wait before reconnecting.
+    authentication-servers-down: ''
     flying-player: Flying is not enabled on this server
     flying-vehicle: Flying is not enabled on this server
-    authentication-servers-down: ''
+    connection-throttle: Connection throttled! Please wait before reconnecting.
 timings:
   enabled: true
   verbose: true
@@ -64,6 +64,7 @@ timings:
   history-length: 3600
 world-settings:
   default:
+    portal-search-radius: 128
     game-mechanics:
       villages-load-chunks: false
       scan-for-legacy-ender-dragon: true
@@ -73,9 +74,7 @@ world-settings:
       disable-sprint-interruption-on-attack: false
       shield-blocking-delay: 5
       disable-unloaded-chunk-enderpearl-exploit: true
-    remove-corrupt-tile-entities: false
     queue-light-updates: false
-    portal-search-radius: 128
     optimize-explosions: false
     disable-teleportation-suffocation-check: false
     fixed-chunk-inhabited-time: -1
@@ -124,12 +123,7 @@ world-settings:
       disable-move-event: false
     duplicate-uuid-resolver: saferegen
     duplicate-uuid-saferegen-delete-range: 32
-    keep-spawn-loaded-range: 8
-    auto-save-interval: -1
-    disable-thunder: false
-    skeleton-horse-thunder-spawn-chance: 0.01
-    disable-ice-and-snow: false
-    fire-physics-event-for-redstone: false
+    remove-corrupt-tile-entities: false
     keep-spawn-loaded: true
     anti-xray:
       enabled: false
@@ -156,6 +150,12 @@ world-settings:
       - planks
     skip-entity-ticking-in-chunks-scheduled-for-unload: true
     armor-stands-do-collision-entity-lookups: true
+    keep-spawn-loaded-range: 8
+    auto-save-interval: -1
+    disable-thunder: false
+    skeleton-horse-thunder-spawn-chance: 0.01
+    disable-ice-and-snow: false
+    fire-physics-event-for-redstone: false
     grass-spread-tick-rate: 1
     water-over-lava-flow-speed: 5
     bed-search-radius: 1
@@ -163,15 +163,15 @@ world-settings:
     nether-ceiling-void-damage: false
     allow-non-player-entities-on-scoreboards: false
     container-update-tick-rate: 1
-    parrots-are-unaffected-by-player-movement: false
     prevent-tnt-from-moving-in-water: false
     non-player-arrow-despawn-rate: -1
     creative-arrow-despawn-rate: -1
+    parrots-are-unaffected-by-player-movement: false
     disable-explosion-knockback: false
     armor-stands-tick: true
     spawner-nerfed-mobs-should-jump: false
-    baby-zombie-movement-speed: 0.5
     allow-leashing-undead-horse: false
+    baby-zombie-movement-speed: 0.5
     all-chunks-are-slime-chunks: false
     mob-spawner-tick-rate: 1
     squid-spawn-height:
