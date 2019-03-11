@@ -5,8 +5,7 @@ Also know as, the page you go to when NuVotifier isn't doing what it is supposed
 From maintaining NuVotifier for some time, I receive a lot of the same
 questions. I try to answer them the best I can in this document.
 
-## I voted (or submitted a test vote) and nothing happened. Why isn't it
-working?
+## I voted (or submitted a test vote) and nothing happened. Why isn't it working?
 
 Votifier v1 isn't smart enough to recover from errors. Most server list votifier
 implementations are even stupid enough to _ignore_ connection errors and report
@@ -29,8 +28,7 @@ usually to blame:
   temporarily disable the firewall. Linux has a couple of different of culprits,
   including `iptables` and `ufw`.
 
-## I voted (or submitted a test vote) and I got an IOException in the console.
-What gives?
+## I voted (or submitted a test vote) and I got an IOException in the console. What gives?
 
 How to treat an IOException depends on which specific IOException you receive:
 
