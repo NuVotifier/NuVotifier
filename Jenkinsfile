@@ -27,8 +27,12 @@ pipeline {
             when {
                 branch "master"
             }
+            environment {
+                PUBLISH = 'true'
+
+            }
             steps {
-                sh './gradlew publishversionedPublicationToIbjBlockRepository'
+                sh './gradlew publishVersionedPublicationToIbjRepository'
                 sh './gradlew publishLatestToIbjBlockRaw'
             }
         }
