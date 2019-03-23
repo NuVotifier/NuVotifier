@@ -29,7 +29,7 @@ pipeline {
             }
             environment {
                 PUBLISH = 'true'
-
+                LATEST_BUILD = 'true'
             }
             steps {
                 sh './gradlew publishVersionedPublicationToIbjRepository'
