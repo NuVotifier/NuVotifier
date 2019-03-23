@@ -9,12 +9,12 @@ pipeline {
         RAW_UPLOAD_PATH = credentials('ibj-nexus-raw-path')
     }
 
-    /*withCredentials([[$class: 'UsernamePasswordMultiBinding', 
+    withCredentials([[$class: 'UsernamePasswordMultiBinding', 
         credentialsId: 'jenkins-ibj-io',
         usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
         REPO_USERNAME   = credentials('ibj-nexus-repo-username')
         REPO_PASSWORD   = credentials('ibj-nexus-repo-password')
-    }*/
+    }
 
     stages {
         stage('Build') {
