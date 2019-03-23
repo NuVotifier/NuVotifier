@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'cogniteev/oracle-java' }
+        docker { image 'openjdk:12-jdk' }
     }
 
     environment {
