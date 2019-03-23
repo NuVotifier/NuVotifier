@@ -17,7 +17,7 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name 'parallelBlock'
+                name 'ibj'
                 if (project.version.endsWith("-SNAPSHOT"))
                     url "$System.env.SNAPSHOT_REPO"
                 else
@@ -36,7 +36,7 @@ subprojects {
     }
 
     if (System.env.LATEST_BUILD) {
-        task publishLatestToParallelBlockRaw {
+        task publishLatestToIbjBlockRaw {
             inputs.files(configurations.archives.artifacts.files)
             outputs.upToDateWhen {false}
             doLast {
