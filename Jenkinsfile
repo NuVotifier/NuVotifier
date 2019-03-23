@@ -7,13 +7,7 @@ pipeline {
         SNAPSHOT_REPO   = credentials('ibj-nexus-snapshot-repo')
         RELEASE_REPO    = credentials('ibj-nexus-release-repo')
         RAW_UPLOAD_PATH = credentials('ibj-nexus-raw-path')
-    }
-
-    withCredentials([[$class: 'UsernamePasswordMultiBinding', 
-        credentialsId: 'jenkins-ibj-io',
-        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        REPO_USERNAME   = credentials('ibj-nexus-repo-username')
-        REPO_PASSWORD   = credentials('ibj-nexus-repo-password')
+        REPO            = credentials('ibj-nexus-access')
     }
 
     stages {

@@ -23,8 +23,8 @@ subprojects {
                 else
                     url "$System.env.RELEASE_REPO"
                 credentials {
-                    username "$System.env.REPO_USERNAME"
-                    password "$System.env.REPO_PASSWORD"
+                    username "$System.env.REPO_USR"
+                    password "$System.env.REPO_PSW"
                 }
             }
         }
@@ -42,7 +42,7 @@ subprojects {
             doLast {
                 configurations.archives.artifacts.each {
                     def resp = Unirest.put("$System.env.RAW_UPLOAD_PATH/${it.name}.${it.extension}")
-                            .basicAuth("$System.env.REPO_USERNAME", "$System.env.REPO_PASSWORD")
+                            .basicAuth("$System.env.REPO_USR", "$System.env.REPO_PSW")
                             .body(it.file.bytes).asString()
                     assert resp.status >= 200 && resp.status <= 299
                 }
