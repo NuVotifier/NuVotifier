@@ -30,9 +30,9 @@ following code snippets:
 ...
     <repositories>
         <repository>
-            <id>parallelblock-public</id>
-            <name>ParallelBlock Public Repository</name>
-            <url>https://repo.parallelblock.com/repository/maven-public/</url>
+            <id>ibj-public</id>
+            <name>Ichbinjoe Public Repository</name>
+            <url>https://nexus.ibj.io/repository/maven-public/</url>
         </repository>
         ...
     </repositories>
@@ -58,7 +58,7 @@ You can include NuVotifier into your gradle project using the following lines:
 ...
 repositories {
     maven {
-        url 'https://repo.parallelblock.com/repository/maven-public/'
+        url 'https://nexus.ibj.io/repository/maven-public/'
     }
     ...
 }
