@@ -63,8 +63,10 @@ public class RSAIO {
     public static byte[] readB64File(File directory, String name) throws IOException {
         File f = new File(directory, name);
         byte[] contents = Files.readAllBytes(f.toPath());
+        String strContents = new String(contents);
+        strContents = strContents.trim();
         try {
-            return Base64.getDecoder().decode(contents);
+            return Base64.getDecoder().decode(strContents);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Base64 decoding exception: This is probably due to a corrupted file, " +
                     "but in case it isn't, here is a b64 representation of what we read: " + new String(Base64.getEncoder().encode(contents), StandardCharsets.UTF_8), e);
