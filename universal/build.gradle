@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.relocation.SimpleRelocator
+
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -26,7 +28,7 @@ shadowJar {
     classifier = null
     relocate "io.netty", "com.vexsoftware.votifier.netty"
     relocate "org.json", "com.vexsoftware.votifier.json"
-    relocate "com.google.code", "com.vexsoftware.votifier.google.code"
+    relocate new SimpleRelocator("com.google.code", "com.vexsoftware.votifier.google.code", new ArrayList<String>(), Collections.singletonList("com.vexsoftware.votifier.sponge"))
     relocate "com.google.common", "com.vexsoftware.votifier.google.common"
     relocate "com.google.guava", "com.vexsoftware.votifier.google.guava"
     relocate "org.apache.commons.io", "com.vexsoftware.votifier.commons.io"
