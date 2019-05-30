@@ -92,8 +92,13 @@ public class MemoryVoteCache implements VoteCache {
     }
 
     public void sweep() {
-        sweep(voteCache);
-        sweep(playerVoteCache);
+        cacheLock.lock();
+        try {
+            sweep(voteCache);
+            sweep(playerVoteCache);
+        } finally {
+            cacheLock.unlock();
+        }
     }
 
     private void sweep(Multimap<?, Vote> m) {
