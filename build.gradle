@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 allprojects {
     group 'com.vexsoftware'
-    version '3.0.0-SNAPSHOT'
+    version '2.5.3'
 }
 
 subprojects {
