@@ -50,6 +50,9 @@ public class FileVoteCache extends MemoryVoteCache {
         JsonObject object;
         try (BufferedReader reader = Files.newReader(cacheFile, StandardCharsets.UTF_8)) {
             object = GsonInst.gson.fromJson(reader, JsonObject.class);
+            if (object == null)
+                // When the input is not malformed but instead empty, this returns null. Simply assume it is empty.
+                object = new JsonObject();
         } catch (FileNotFoundException e) {
             object = new JsonObject();
         }
