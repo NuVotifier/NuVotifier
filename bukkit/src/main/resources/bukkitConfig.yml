@@ -23,3 +23,6 @@ forwarding:
   method: none
   pluginMessaging:
     channel: nuvotifier:votes
+
+# Record all votes in a log
+log-votes: false

@@ -255,6 +255,12 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 getLogger().severe("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
             }
         }
+
+        final boolean logVotes = cfg.getBoolean("log-votes");
+        if (logVotes){
+            Bukkit.getPluginManager().registerEvents(new FlatFileVoteLogger(), this);
+        }
+
         return true;
     }
 
