@@ -256,9 +256,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             }
         }
 
-        final boolean logVotes = cfg.getBoolean("log-votes");
-        if (logVotes){
-            Bukkit.getPluginManager().registerEvents(new FlatFileVoteLogger(), this);
+        final String logVotesPath = cfg.getString("log-votes");
+        if (!(logVotesPath == null)){
+            Bukkit.getPluginManager().registerEvents(new VoteLogListener(this, logVotesPath), this);
         }
 
         return true;

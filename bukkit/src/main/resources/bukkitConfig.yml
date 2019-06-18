@@ -24,5 +24,5 @@ forwarding:
   pluginMessaging:
     channel: nuvotifier:votes
 
-# Record all votes in a log
-log-votes: false
+# Record all votes in a log. Remove # to initiate logging
+log-votes: #./plugins/NuVotifier/votes.log
