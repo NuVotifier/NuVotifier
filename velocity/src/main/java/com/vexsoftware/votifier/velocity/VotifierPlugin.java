@@ -336,12 +336,12 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     }
 
     @Override
-    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) {
+    public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress) {
         if (debug) {
             if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
-                logger.info("Got a protocol v1 vote record from " + channel.remoteAddress() + " -> " + vote);
+                logger.info("Got a protocol v1 vote record from " + remoteAddress + " -> " + vote);
             } else {
-                logger.info("Got a protocol v2 vote record from " + channel.remoteAddress() + " -> " + vote);
+                logger.info("Got a protocol v2 vote record from " + remoteAddress + " -> " + vote);
             }
         }
 
@@ -352,16 +352,16 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     }
 
     @Override
-    public void onError(Channel channel, boolean alreadyHandledVote, Throwable throwable) {
+    public void onError(Throwable throwable, boolean alreadyHandledVote, String remoteAddress) {
         if (debug) {
             if (alreadyHandledVote) {
                 logger.error("Vote processed, however an exception " +
-                        "occurred with a vote from " + channel.remoteAddress(), throwable);
+                        "occurred with a vote from " + remoteAddress, throwable);
             } else {
-                logger.error("Unable to process vote from " + channel.remoteAddress(), throwable);
+                logger.error("Unable to process vote from " + remoteAddress, throwable);
             }
         } else if (!alreadyHandledVote) {
-            logger.error("Unable to process vote from " + channel.remoteAddress());
+            logger.error("Unable to process vote from " + remoteAddress);
         }
     }
 

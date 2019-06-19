@@ -1,14 +1,13 @@
 package com.vexsoftware.votifier.util.standalone;
 
+import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
+import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.platform.JavaUtilLogger;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
-import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.platform.scheduler.ScheduledExecutorServiceVotifierScheduler;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
-import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
 import java.security.Key;
@@ -69,12 +68,12 @@ public class StandaloneVotifierPlugin implements VotifierPlugin {
     }
 
     @Override
-    public void onVoteReceived(Channel channel, Vote vote, VotifierSession.ProtocolVersion protocolVersion) throws Exception {
+    public void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress) throws Exception {
         receiver.onVote(vote);
     }
 
     @Override
-    public void onError(Channel channel, boolean alreadyHandledVote, Throwable throwable) {
+    public void onError(Throwable throwable, boolean alreadyHandledVote, String remoteAddress) {
         receiver.onException(throwable);
     }
 }

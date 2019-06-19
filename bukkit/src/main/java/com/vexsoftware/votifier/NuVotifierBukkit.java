@@ -357,28 +357,28 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     }
 
     @Override
-    public void onVoteReceived(Channel channel, final Vote vote, VotifierSession.ProtocolVersion protocolVersion) {
+    public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress) {
         if (debug) {
             if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
-                getLogger().info("Got a protocol v1 vote record from " + channel.remoteAddress() + " -> " + vote);
+                getLogger().info("Got a protocol v1 vote record from " + remoteAddress + " -> " + vote);
             } else {
-                getLogger().info("Got a protocol v2 vote record from " + channel.remoteAddress() + " -> " + vote);
+                getLogger().info("Got a protocol v2 vote record from " + remoteAddress + " -> " + vote);
             }
         }
         Bukkit.getScheduler().runTask(this, () -> Bukkit.getPluginManager().callEvent(new VotifierEvent(vote)));
     }
 
     @Override
-    public void onError(Channel channel, boolean alreadyHandledVote, Throwable throwable) {
+    public void onError(Throwable throwable, boolean alreadyHandledVote, String remoteAddress) {
         if (debug) {
             if (alreadyHandledVote) {
                 getLogger().log(Level.SEVERE, "Vote processed, however an exception " +
-                        "occurred with a vote from " + channel.remoteAddress(), throwable);
+                        "occurred with a vote from " + remoteAddress, throwable);
             } else {
-                getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress(), throwable);
+                getLogger().log(Level.SEVERE, "Unable to process vote from " + remoteAddress, throwable);
             }
         } else if (!alreadyHandledVote) {
-            getLogger().log(Level.SEVERE, "Unable to process vote from " + channel.remoteAddress());
+            getLogger().log(Level.SEVERE, "Unable to process vote from " + remoteAddress);
         }
     }
 
