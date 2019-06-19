@@ -21,6 +21,7 @@ package com.vexsoftware.votifier;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.vexsoftware.votifier.cmd.NVReloadCmd;
+import com.vexsoftware.votifier.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
@@ -281,6 +282,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         version = getDescription().getVersion();
 
         getCommand("nvreload").setExecutor(new NVReloadCmd(this));
+        getCommand("testvote").setExecutor(new TestVoteCmd(this));
 
         if (!loadAndBind()) {
             gracefulExit();
@@ -355,11 +357,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     @Override
     public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress) {
         if (debug) {
-            if (protocolVersion == VotifierSession.ProtocolVersion.ONE) {
-                getLogger().info("Got a protocol v1 vote record from " + remoteAddress + " -> " + vote);
-            } else {
-                getLogger().info("Got a protocol v2 vote record from " + remoteAddress + " -> " + vote);
-            }
+            getLogger().info("Got a " + protocolVersion.humanReadable + " vote record from " + remoteAddress + " -> " + vote);
         }
         Bukkit.getScheduler().runTask(this, () -> Bukkit.getPluginManager().callEvent(new VotifierEvent(vote)));
     }

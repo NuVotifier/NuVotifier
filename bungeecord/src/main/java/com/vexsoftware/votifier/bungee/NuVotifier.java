@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.bungee.cmd.NVReloadCmd;
+import com.vexsoftware.votifier.bungee.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.platform.JavaUtilLogger;
@@ -32,6 +33,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -40,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -298,9 +301,11 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
         scheduler = new BungeeScheduler(this);
         pluginLogger = new JavaUtilLogger(getLogger());
 
-        loadAndBind();
+        PluginManager pm = ProxyServer.getInstance().getPluginManager();
+        pm.registerCommand(this, new NVReloadCmd(this));
+        pm.registerCommand(this, new TestVoteCmd(this));
 
-        getProxy().getPluginManager().registerCommand(this, new NVReloadCmd(this));
+        loadAndBind();
     }
 
     private void halt() {

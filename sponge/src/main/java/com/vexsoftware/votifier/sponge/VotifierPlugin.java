@@ -10,6 +10,7 @@ import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.sponge.cmd.NVReloadCmd;
+import com.vexsoftware.votifier.sponge.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import com.vexsoftware.votifier.sponge.forwarding.SpongePluginMessagingForwardingSink;
@@ -18,6 +19,7 @@ import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.util.KeyCreator;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
@@ -168,6 +170,14 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
                 .executor(new NVReloadCmd(this)).build();
 
         Sponge.getCommandManager().register(this, nvreloadSpec, "nvreload");
+
+        CommandSpec testvoteSpec = CommandSpec.builder()
+                .arguments(GenericArguments.allOf(GenericArguments.string(Text.of("args"))))
+                .description(Text.of("Sends a test vote to the server's listeners"))
+                .permission("nuvotifier.testvote")
+                .executor(new TestVoteCmd(this)).build();
+
+        Sponge.getCommandManager().register(this, testvoteSpec, "testvote");
 
         if (!loadAndBind()) {
             gracefulExit();

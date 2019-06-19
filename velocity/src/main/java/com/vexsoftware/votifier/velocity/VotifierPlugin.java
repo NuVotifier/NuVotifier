@@ -28,6 +28,7 @@ import com.vexsoftware.votifier.support.forwarding.proxy.ProxyForwardingVoteSour
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
 import com.vexsoftware.votifier.velocity.cmd.NVReloadCmd;
+import com.vexsoftware.votifier.velocity.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.velocity.event.VotifierEvent;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -121,7 +122,8 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         }
 
         this.bootstrap = new VotifierServerBootstrap(host, port, this, disablev1);
-        this.bootstrap.start(err -> {});
+        this.bootstrap.start(err -> {
+        });
 
         Toml fwdCfg = config.getTable("forwarding");
         String fwdMethod = fwdCfg.getString("method", "none").toLowerCase();
@@ -129,7 +131,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             getLogger().info("Method none selected for vote forwarding: Votes will not be forwarded to backend servers.");
         } else if ("pluginmessaging".equals(fwdMethod)) {
             Toml pmCfg = fwdCfg.getTable("pluginMessaging");
-            String channel =  pmCfg.getString("channel", "NuVotifier");
+            String channel = pmCfg.getString("channel", "NuVotifier");
             String cacheMethod = pmCfg.getString("cache", "file").toLowerCase();
             VoteCache voteCache = null;
             if ("none".equals(cacheMethod)) {
@@ -249,7 +251,8 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         this.scheduler = new VelocityScheduler(server, this);
         this.loggingAdapter = new SLF4JLogger(logger);
 
-         this.getServer().getCommandManager().register(new NVReloadCmd(this), "nvpreload");
+        this.getServer().getCommandManager().register(new NVReloadCmd(this), "nvpreload");
+        this.getServer().getCommandManager().register(new TestVoteCmd(this), "ptestvote");
 
         if (!loadAndBind())
             gracefulExit();

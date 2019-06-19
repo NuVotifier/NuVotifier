@@ -40,8 +40,14 @@ public class VotifierSession {
     }
 
     public enum ProtocolVersion {
-        UNKNOWN,
-        ONE,
-        TWO
+        UNKNOWN("unknown"),
+        ONE("protocol v1"),
+        TWO("protocol v2"),
+        TEST("test");
+
+        public final String humanReadable;
+        ProtocolVersion(String hr) {
+            this.humanReadable = hr;
+        }
     }
 }
