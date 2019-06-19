@@ -37,7 +37,7 @@ public class BukkitPluginMessagingForwardingSink extends AbstractPluginMessaging
         try {
             this.handlePluginMessage(bytes);
         } catch (Exception e) {
-            NuVotifierBukkit.getInstance().getLogger().log(Level.SEVERE, "There was an unknown error when processing a forwarded vote.", e);
+            p.getLogger().log(Level.SEVERE, "There was an unknown error when processing a forwarded vote.", e);
         }
     }
 }
