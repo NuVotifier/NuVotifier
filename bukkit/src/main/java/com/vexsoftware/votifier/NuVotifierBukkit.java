@@ -20,6 +20,7 @@ package com.vexsoftware.votifier;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import com.vexsoftware.votifier.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
@@ -51,6 +52,7 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -278,6 +280,8 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         // Set the plugin version.
         version = getDescription().getVersion();
 
+        getCommand("nvreload").setExecutor(new NVReloadCmd(this));
+
         if (!loadAndBind()) {
             gracefulExit();
             setEnabled(false); // safer to just bomb out
@@ -290,17 +294,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         getLogger().info("Votifier disabled.");
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof ConsoleCommandSender) {
-            reload();
-        } else {
-            sender.sendMessage(ChatColor.RED + "For security and stability, only console may run this command!");
-        }
-        return true;
-    }
-
-    private void reload() {
+    public boolean reload() {
         try {
             halt();
         } catch (Exception ex) {
@@ -309,6 +303,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
         if (loadAndBind()) {
             getLogger().info("Reload was successful.");
+            return true;
         } else {
             try {
                 halt();
@@ -316,6 +311,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             } catch (Exception ex) {
                 getLogger().log(Level.SEVERE, "On reload, there was a problem loading, and we could not re-halt the server. Votifier is in an unstable state!", ex);
             }
+            return false;
         }
     }
 

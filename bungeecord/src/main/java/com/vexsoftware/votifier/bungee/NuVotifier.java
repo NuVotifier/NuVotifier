@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
+import com.vexsoftware.votifier.bungee.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.platform.JavaUtilLogger;
@@ -81,8 +82,6 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
     private LoggingAdapter pluginLogger;
 
     private void loadAndBind() {
-        scheduler = new BungeeScheduler(this);
-        pluginLogger = new JavaUtilLogger(getLogger());
         if (!getDataFolder().exists()) {
             getDataFolder().mkdir();
         }
@@ -296,17 +295,12 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
 
     @Override
     public void onEnable() {
+        scheduler = new BungeeScheduler(this);
+        pluginLogger = new JavaUtilLogger(getLogger());
+
         loadAndBind();
 
-        getProxy().getPluginManager().registerCommand(this, new Command("nvreload") {
-            @Override
-            public void execute(CommandSender sender, String[] args) {
-                if (sender instanceof ProxiedPlayer)
-                    sender.sendMessage(ChatColor.RED + "For security and stability, only console may run this command!");
-                else
-                    reload();
-            }
-        });
+        getProxy().getPluginManager().registerCommand(this, new NVReloadCmd(this));
     }
 
     private void halt() {
@@ -322,7 +316,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
         }
     }
 
-    public void reload() {
+    public boolean reload() {
         try {
             halt();
         } catch (Exception ex) {
@@ -332,6 +326,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
         try {
             loadAndBind();
             getLogger().info("Reload was successful.");
+            return true;
         } catch (Exception ex) {
             try {
                 halt();
@@ -340,6 +335,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                 getLogger().log(Level.SEVERE, "On reload, there was a problem loading, and we could not re-halt the server. Votifier is in an unstable state!", ex);
                 getLogger().log(Level.SEVERE, "(halt exception)", ex2);
             }
+            return false;
         }
     }
 

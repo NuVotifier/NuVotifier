@@ -9,20 +9,22 @@ import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import com.vexsoftware.votifier.sponge.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import com.vexsoftware.votifier.sponge.forwarding.SpongePluginMessagingForwardingSink;
 import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.util.KeyCreator;
-import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.text.Text;
 
 import java.io.File;
 import java.security.Key;
@@ -45,11 +47,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
 
     private VotifierScheduler scheduler;
 
-    @Listener
-    public void onServerStart(GameStartedServerEvent event) {
-        this.scheduler = new SpongeScheduler(this);
-        this.loggerAdapter = new SLF4JLogger(logger);
-
+    private boolean loadAndBind() {
         // Load configuration.
         ConfigLoader.loadConfig(this);
 
@@ -68,8 +66,7 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
             }
         } catch (Exception ex) {
             logger.error("Error creating or reading RSA tokens", ex);
-            gracefulExit();
-            return;
+            return false;
         }
 
         debug = ConfigLoader.getSpongeConfig().debug;
@@ -97,7 +94,8 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
             }
 
             this.bootstrap = new VotifierServerBootstrap(host, port, this, disablev1);
-            this.bootstrap.start(err -> {});
+            this.bootstrap.start(err -> {
+            });
         } else {
             getLogger().info("------------------------------------------------------------------------------");
             getLogger().info("Your Votifier port is less than 0, so we assume you do NOT want to start the");
@@ -122,18 +120,63 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
                 logger.error("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
             }
         }
+        return true;
     }
 
-    @Listener
-    public void onServerStop(GameStoppingServerEvent event) {
+    private void halt() {
+        // Shut down the network handlers.
         if (bootstrap != null) {
             bootstrap.shutdown();
             bootstrap = null;
         }
 
-        if (forwardingMethod != null)
+        if (forwardingMethod != null) {
             forwardingMethod.halt();
+            forwardingMethod = null;
+        }
+    }
 
+    public boolean reload() {
+        try {
+            halt();
+        } catch (Exception ex) {
+            logger.error("On halt, an exception was thrown. This may be fine!", ex);
+        }
+
+        if (loadAndBind()) {
+            logger.info("Reload was successful.");
+            return true;
+        } else {
+            try {
+                halt();
+                logger.error("On reload, there was a problem with the configuration. Votifier currently does nothing!");
+            } catch (Exception ex) {
+                logger.error("On reload, there was a problem loading, and we could not re-halt the server. Votifier is in an unstable state!", ex);
+            }
+            return false;
+        }
+    }
+
+    @Listener
+    public void onServerStart(GameStartedServerEvent event) {
+        this.scheduler = new SpongeScheduler(this);
+        this.loggerAdapter = new SLF4JLogger(logger);
+
+        CommandSpec nvreloadSpec = CommandSpec.builder()
+                .description(Text.of("Reloads NuVotifier"))
+                .permission("nuvotifier.reload")
+                .executor(new NVReloadCmd(this)).build();
+
+        Sponge.getCommandManager().register(this, nvreloadSpec, "nvreload");
+
+        if (!loadAndBind()) {
+            gracefulExit();
+        }
+    }
+
+    @Listener
+    public void onServerStop(GameStoppingServerEvent event) {
+        halt();
         logger.info("Votifier disabled.");
     }
 

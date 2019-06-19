@@ -27,6 +27,7 @@ import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.support.forwarding.proxy.ProxyForwardingVoteSource;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
+import com.vexsoftware.votifier.velocity.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.velocity.event.VotifierEvent;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "3.0.0-SNAPSHOT", authors = "Ichbinjoe",
@@ -64,11 +66,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     private VotifierScheduler scheduler;
 
-    @Subscribe
-    public void onServerStart(ProxyInitializeEvent event) {
-        this.scheduler = new VelocityScheduler(server, this);
-        this.loggingAdapter = new SLF4JLogger(logger);
-
+    private boolean loadAndBind() {
         // Load configuration.
         Toml config;
         try {
@@ -92,8 +90,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             }
         } catch (Exception ex) {
             logger.error("Error creating or reading RSA tokens", ex);
-            gracefulExit();
-            return;
+            return false;
         }
 
         if (config.contains("quiet"))
@@ -210,10 +207,11 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         } else {
             getLogger().error("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");
         }
+
+        return true;
     }
 
-    @Subscribe
-    public void onServerStop(ProxyShutdownEvent event) {
+    void halt() {
         if (bootstrap != null) {
             bootstrap.shutdown();
             bootstrap = null;
@@ -223,6 +221,42 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             forwardingMethod.halt();
             forwardingMethod = null;
         }
+    }
+
+    public boolean reload() {
+        try {
+            halt();
+        } catch (Exception ex) {
+            getLogger().error("On halt, an exception was thrown. This may be fine!", ex);
+        }
+
+        if (loadAndBind()) {
+            getLogger().info("Reload was successful.");
+            return true;
+        } else {
+            try {
+                halt();
+                getLogger().error("On reload, there was a problem with the configuration. Votifier currently does nothing!");
+            } catch (Exception ex) {
+                getLogger().error("On reload, there was a problem loading, and we could not re-halt the server. Votifier is in an unstable state!", ex);
+            }
+            return false;
+        }
+    }
+
+    @Subscribe
+    public void onServerStart(ProxyInitializeEvent event) {
+        this.scheduler = new VelocityScheduler(server, this);
+        this.loggingAdapter = new SLF4JLogger(logger);
+
+         this.getServer().getCommandManager().register(new NVReloadCmd(this), "nvpreload");
+
+        if (!loadAndBind())
+            gracefulExit();
+    }
+
+    @Subscribe
+    public void onServerStop(ProxyShutdownEvent event) {
 
         logger.info("Votifier disabled.");
     }
