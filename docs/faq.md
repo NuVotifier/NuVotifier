@@ -1,6 +1,6 @@
 # FAQ
 
-Also know as, the page you go to when NuVotifier isn't doing what it is supposed to.
+Also known as, the page you go to when NuVotifier isn't doing what it is supposed to.
 
 From maintaining NuVotifier for some time, I receive a lot of the same
 questions. I try to answer them the best I can in this document.
