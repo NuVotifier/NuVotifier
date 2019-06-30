@@ -1,35 +1,29 @@
 # NuVotifier
 
-NuVotifier is a Bukkit plugin whose purpose is to be notified (aka *votified*)
-when a vote is made on a Minecraft server top list for the server.  NuVotifier
-creates a *lightweight* server that waits for connections by Minecraft server
-lists and uses a simple protocol to get the required information.  NuVotifier is
-*secure*, and makes sure that all vote notifications are delivered by authentic
-top lists.
+NuVotifier is a secure alternative to using the original Votifier project.
+NuVotifier will work in place of Votifier - any vote listener that supports
+Votifier will also support NuVotifier.
 
-## Why fork Votifier?
+NuVotifier supports many different platforms using the same universal JAR:
 
-Votifier has lagged in activity, has severe security flaws in its protocol, and
-is vulnerable to denial of service attacks.
++ Bukkit / Spigot / Paper >=1.8
++ Sponge 7
++ BungeeCord / Waterfall
++ Velocity
 
-## Is NuVotifier a drop-in replacement for Votifier?
+NuVotifier also adds forwarding and listener test commands not present in the
+original version.
 
-Yes! Except for some minor non-breaking changes (look into the [technical qa
-docs](docs/technical_qa.md) for more info), NuVotifier is 100% compatible with
-the old Votifier with many more features.
-
-# Documentation / Configuration Guide
-
-All documentation is located under the [docs](docs/) directory. A server admin
-configuration guide is available [here](docs/usage.md).
+[Setup Guide](https://github.com/NuVotifier/NuVotifier/wiki/Setup-Guide)
+[Troubleshooting Guide](https://github.com/NuVotifier/NuVotifier/wiki/Troubleshooting-Guide)
+[Developer Information](https://github.com/NuVotifier/NuVotifier/wiki/Developer-Documentation)
 
 # Support
 
 Feel free to join the MOSS Discord server using the below link:
 
-[![Discord](https://i.imgur.com/HLPoNnY.png)](https://discord.gg/anUtuAC)
+[![Discord](https://discordapp.com/api/guilds/390942438061113344/widget.png?style=banner2)](https://discord.gg/anUtuAC)
 
 # License
 
-NuVotifier is GNU GPLv3 licensed. This project's license can be viewed
-[here](LICENSE).
+NuVotifier is GNU GPLv3 licensed. This project's license can be viewed [here](LICENSE).
