@@ -17,7 +17,7 @@ public class PMForwardingSinkTest {
 
         List<Vote> sentVotes = Lists.newArrayList(
                 new Vote("serviceA", "usernameA", "1.1.1.1", "1546300800"),
-                new Vote("serviceB", "usernameBBBBBBB", "1.2.23.4", "1514764800", System.currentTimeMillis())
+                new Vote("serviceB", "usernameBBBBBBB", "1.2.23.4", "1514764800")
         );
 
         StringBuilder message = new StringBuilder();

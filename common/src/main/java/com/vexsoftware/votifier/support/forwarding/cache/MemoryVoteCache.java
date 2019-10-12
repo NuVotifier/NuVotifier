@@ -114,7 +114,9 @@ public class MemoryVoteCache implements VoteCache {
 
     protected boolean hasTimedOut(Vote v) {
         if (voteTTL == -1) return false;
+        // TODO: FIX FOR 3.0 RELEASE
         // scale voteTTL to milliseconds
-        return v.getLocalTimestamp() + voteTTL * 24 * 60 * 60 * 1000 < System.currentTimeMillis();
+        return false;
+        //return v.getLocalTimestamp() + voteTTL * 24 * 60 * 60 * 1000 < System.currentTimeMillis();
     }
 }

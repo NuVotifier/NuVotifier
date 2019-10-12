@@ -34,12 +34,6 @@ public class ArgsToVote {
                     username = v;
                 } else if (key.equals("address")) {
                     address = v;
-                } else if (key.equals("localTimestamp")) {
-                    try {
-                        localTimestamp = Long.valueOf(v);
-                    } catch (NumberFormatException e) {
-                        throw new IllegalArgumentException("localTimestamp must be a long! It does not accept any string.");
-                    }
                 } else if (key.equals("timestamp")) {
                     timestamp = v;
                 } else {
@@ -57,6 +51,6 @@ public class ArgsToVote {
         if (username == null)
             throw new IllegalArgumentException("Username not specified!");
 
-        return new Vote(serviceName, username, address, timestamp, localTimestamp);
+        return new Vote(serviceName, username, address, timestamp);
     }
 }
