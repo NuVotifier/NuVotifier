@@ -10,14 +10,15 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.DecoderException;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.crypto.Mac;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class VotifierProtocol2DecoderTest {
     private static final VotifierSession SESSION = new VotifierSession();
@@ -61,7 +62,7 @@ public class VotifierProtocol2DecoderTest {
         sendVote(new Vote("Test", "test", "test", "0"), TestVotifierPlugin.getI().getTokens().get("default"), true);
     }
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testFailureDecodeBadPacket() {
         // Create a well-formed request
         EmbeddedChannel channel = createChannel();
@@ -73,14 +74,11 @@ public class VotifierProtocol2DecoderTest {
         object.put("payload", GsonInst.gson.toJson(payload));
         // We "forget" the signature.
 
-        try {
-            channel.writeInbound(object.toString());
-        } finally {
-            channel.close();
-        }
+        assertThrows(DecoderException.class, () -> channel.writeInbound(object.toString()));
+        channel.close();
     }
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testFailureDecodeBadVoteField() throws Exception {
         // Create a well-formed request
         EmbeddedChannel channel = createChannel();
@@ -96,14 +94,11 @@ public class VotifierProtocol2DecoderTest {
         object.put("signature",
                 Base64.getEncoder().encodeToString(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
-        try {
-            channel.writeInbound(object.toString());
-        } finally {
-            channel.close();
-        }
+        assertThrows(DecoderException.class, () -> channel.writeInbound(object.toString()));
+        channel.close();
     }
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testFailureDecodeBadChallenge() throws Exception {
         // Create a well-formed request
         EmbeddedChannel channel = createChannel();
@@ -120,29 +115,24 @@ public class VotifierProtocol2DecoderTest {
         object.put("signature",
                 Base64.getEncoder().encode(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
-        try {
-            channel.writeInbound(object.toString());
-        } finally {
-            channel.close();
-        }
+        assertThrows(DecoderException.class, () -> channel.writeInbound(object.toString()));
+        channel.close();
     }
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testFailureDecodeNonExistentKey() throws Exception {
         TestVotifierPlugin.getI().specificKeysOnly();
 
         Vote vote = new Vote("Bad Service", "test", "test", "0");
 
-        try {
-            sendVote(vote, TestVotifierPlugin.getI().getTokens().get("Test"), false);
-        } finally {
-            TestVotifierPlugin.getI().restoreDefault();
-        }
+        assertThrows(DecoderException.class, () -> sendVote(vote, TestVotifierPlugin.getI().getTokens().get("Test"), false));
+
+        TestVotifierPlugin.getI().restoreDefault();
     }
 
-    @Test(expected = CorruptedFrameException.class)
-    public void testFailureDecodeBadSignature() throws Exception {
+    @Test
+    public void testFailureDecodeBadSignature() {
         Vote vote = new Vote("Bad Service", "test", "test", "0");
-        sendVote(vote, KeyCreator.createKeyFrom("BadKey"), false);
+        assertThrows(CorruptedFrameException.class, () -> sendVote(vote, KeyCreator.createKeyFrom("BadKey"), false));
     }
 }

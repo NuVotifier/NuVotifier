@@ -26,11 +26,18 @@ subprojects {
             url "https://repo.velocitypowered.com/snapshots/"
         }
     }
+
+    dependencies {
+        testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.2"
+        testRuntime "org.junit.jupiter:junit-jupiter-engine:5.4.2"
+        testCompile "org.mockito:mockito-core:2.+"
+    }
+
     processResources {
         filter(ReplaceTokens, tokens: ["app.version": this.project.version])
     }
-}
 
-if (System.env.PUBLISH) {
-    apply from: 'publish.gradle'
+    test {
+        useJUnitPlatform()
+    }
 }

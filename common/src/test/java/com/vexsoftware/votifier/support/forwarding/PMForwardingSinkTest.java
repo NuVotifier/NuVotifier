@@ -2,13 +2,11 @@ package com.vexsoftware.votifier.support.forwarding;
 
 import com.google.common.collect.Lists;
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PMForwardingSinkTest {
 

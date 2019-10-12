@@ -8,14 +8,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.CorruptedFrameException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VotifierProtocol1DecoderTest {
     private static final VotifierSession SESSION = new VotifierSession();
@@ -50,24 +50,21 @@ public class VotifierProtocol1DecoderTest {
         byte[] encrypted = RSA.encrypt(bad.getBytes(StandardCharsets.UTF_8), TestVotifierPlugin.getI().getProtocolV1Key().getPublic());
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
-        try {
-            channel.writeInbound(encryptedByteBuf);
-        } finally {
-            channel.close();
-        }
+        assertThrows(CorruptedFrameException.class, () -> channel.writeInbound(encryptedByteBuf));
+        channel.close();
     }
 
-    @Test(expected = CorruptedFrameException.class)
+    @Test
     public void testFailureDecodeMissingField() throws Exception {
         verifyFailure("VOTE\nTest\ntest\ntest"); // missing field
     }
 
-    @Test(expected = CorruptedFrameException.class)
+    @Test
     public void testFailureDecodeBadOpcode() throws Exception {
         verifyFailure("TEST\nTest\ntest\ntest\ntest\n");
     }
 
-    @Test(expected = CorruptedFrameException.class)
+    @Test
     public void testFailureDecodeBadRsa() throws Exception {
         // Decode our bad RSA key
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -80,10 +77,7 @@ public class VotifierProtocol1DecoderTest {
         byte[] encrypted = VoteUtil.encodePOJOv1(new Vote("Test", "test", "test", "test"), badPublicKey);
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
-        try {
-            channel.writeInbound(encryptedByteBuf);
-        } finally {
-            channel.close();
-        }
+        assertThrows(CorruptedFrameException.class, ()->channel.writeInbound(encryptedByteBuf));
+        channel.close();
     }
 }

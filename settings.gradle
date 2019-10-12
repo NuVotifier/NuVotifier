@@ -1,5 +1,8 @@
 rootProject.name = 'nuvotifier'
 
+include 'api'
+findProject(':api')?.name = 'nuvotifier-api'
+
 include 'common'
 findProject(':common')?.name = 'nuvotifier-common'
 

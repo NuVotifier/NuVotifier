@@ -5,10 +5,12 @@ import com.vexsoftware.votifier.net.VotifierSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.DecoderException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class VotifierProtocolDifferentiatorTest {
     @Test
@@ -43,7 +45,7 @@ public class VotifierProtocolDifferentiatorTest {
         channel.close();
     }
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void failIfv1NotSupported() {
         EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
 
@@ -54,13 +56,11 @@ public class VotifierProtocolDifferentiatorTest {
         for (int i = 0; i < 256; i++) {
             test.writeByte(0);
         }
-        channel.writeInbound(test);
-
-        assertEquals(VotifierSession.ProtocolVersion.ONE, session.getVersion());
+        assertThrows(CorruptedFrameException.class, () -> channel.writeInbound(test));
         channel.close();
     }
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void failOnBadPacketTest() {
         EmbeddedChannel channel = new EmbeddedChannel(new VotifierProtocolDifferentiator(true, false));
 
@@ -69,11 +69,8 @@ public class VotifierProtocolDifferentiatorTest {
             buf.writeByte(0);
         }
 
-        try {
-            channel.writeInbound(buf);
-        } finally {
-            channel.close();
-        }
+        assertThrows(DecoderException.class, () -> channel.writeInbound(buf));
+        channel.close();
     }
 
     @Test
