@@ -14,10 +14,18 @@ subprojects {
     repositories {
         mavenCentral()
         maven {
-            url 'https://nexus.ibj.io/repository/maven-public/'
+            url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+        }
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+        maven {
+            url "https://repo.spongepowered.org/maven"
+        }
+        maven {
+            url "https://repo.velocitypowered.com/snapshots/"
         }
     }
-
     processResources {
         filter(ReplaceTokens, tokens: ["app.version": this.project.version])
     }
