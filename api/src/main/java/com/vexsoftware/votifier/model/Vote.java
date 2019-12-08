@@ -21,6 +21,9 @@ package com.vexsoftware.votifier.model;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.Arrays;
+import java.util.Base64;
+
 /**
  * A model for a vote.
  *
@@ -48,11 +51,22 @@ public class Vote {
      */
     private String timeStamp;
 
+    private byte[] additionalData;
+
     public Vote(String serviceName, String username, String address, String timeStamp) {
         this.serviceName = serviceName;
         this.username = username;
         this.address = address;
         this.timeStamp = timeStamp;
+        this.additionalData = null;
+    }
+
+    public Vote(String serviceName, String username, String address, String timeStamp, byte[] additionalData) {
+        this.serviceName = serviceName;
+        this.username = username;
+        this.address = address;
+        this.timeStamp = timeStamp;
+        this.additionalData = additionalData;
     }
 
     private static String getTimestamp(JsonElement object) {
@@ -68,12 +82,21 @@ public class Vote {
                 jsonObject.get("username").getAsString(),
                 jsonObject.get("address").getAsString(),
                 getTimestamp(jsonObject.get("timestamp")));
+        if (jsonObject.has("additionalData"))
+            additionalData = Base64.getDecoder().decode(jsonObject.get("additionalData").getAsString());
     }
 
     @Override
     public String toString() {
+        String data;
+        if (additionalData == null)
+            data = "null";
+        else
+            data = Base64.getEncoder().encodeToString(additionalData);
+
         return "Vote (from:" + serviceName + " username:" + username
-                + " address:" + address + " timeStamp:" + timeStamp + ")";
+                + " address:" + address + " timeStamp:" + timeStamp
+                + " additionalData:" + data + ")";
     }
 
     /**
@@ -152,12 +175,23 @@ public class Vote {
         return timeStamp;
     }
 
+    /**
+     * Returns additional data sent with the vote, if it exists.
+     *
+     * @return Additional data sent with the vote
+     */
+    public byte[] getAdditionalData() {
+        return additionalData;
+    }
+
     public JsonObject serialize() {
         JsonObject ret = new JsonObject();
         ret.addProperty("serviceName", serviceName);
         ret.addProperty("username", username);
         ret.addProperty("address", address);
         ret.addProperty("timestamp", timeStamp);
+        if (additionalData != null)
+            ret.addProperty("additionalData", Base64.getEncoder().encodeToString(additionalData));
         return ret;
     }
 
@@ -171,7 +205,8 @@ public class Vote {
         if (!serviceName.equals(vote.serviceName)) return false;
         if (!username.equals(vote.username)) return false;
         if (!address.equals(vote.address)) return false;
-        return timeStamp.equals(vote.timeStamp);
+        if (!timeStamp.equals(vote.timeStamp)) return false;
+        return Arrays.equals(additionalData, vote.additionalData);
     }
 
     @Override
