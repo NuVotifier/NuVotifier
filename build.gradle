@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 allprojects {
     group 'com.vexsoftware'
-    version '2.5.3'
+    version '2.6.0-SNAPSHOT'
 }
 
 subprojects {
@@ -12,9 +12,19 @@ subprojects {
     sourceCompatibility = 1.8
 
     repositories {
+        jcenter()
         mavenCentral()
         maven {
-            url 'https://nexus.ibj.io/repository/maven-public/'
+            url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+        }
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+        maven {
+            url "https://repo.spongepowered.org/maven"
+        }
+        maven {
+            url "https://repo.velocitypowered.com/snapshots/"
         }
     }
 

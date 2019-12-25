@@ -17,7 +17,7 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name 'ibj'
+                name 'bintray'
                 if (project.version.endsWith("-SNAPSHOT"))
                     url "$System.env.SNAPSHOT_REPO"
                 else
@@ -31,21 +31,6 @@ subprojects {
         publications {
             versioned(MavenPublication) {
                 from components.java
-            }
-        }
-    }
-
-    if (System.env.LATEST_BUILD) {
-        task publishLatestToIbjBlockRaw {
-            inputs.files(configurations.archives.artifacts.files)
-            outputs.upToDateWhen {false}
-            doLast {
-                configurations.archives.artifacts.each {
-                    def resp = Unirest.put("$System.env.RAW_UPLOAD_PATH/${it.name}.${it.extension}")
-                            .basicAuth("$System.env.REPO_USR", "$System.env.REPO_PSW")
-                            .body(it.file.bytes).asString()
-                    assert resp.status >= 200 && resp.status <= 299
-                }
             }
         }
     }

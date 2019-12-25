@@ -1,0 +1,9 @@
+{
+  "id":"nuvotifier",
+  "name":"NuVotifier",
+  "version":"@app.version@",
+  "description":"Safe, smart, and secure Votifier server plugin",
+  "authors":["Ichbinjoe"],
+  "dependencies":[],
+  "main":"com.vexsoftware.votifier.velocity.VotifierPlugin"
+}
