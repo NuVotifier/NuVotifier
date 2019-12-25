@@ -6,6 +6,9 @@ import java.util.Collections;
 public class ServerFilter {
 
     public ServerFilter(Collection<String> names, boolean whitelist) {
+        if (names == null)
+            names = Collections.EMPTY_SET;
+
         this.names = names;
         this.whitelist = whitelist;
     }
