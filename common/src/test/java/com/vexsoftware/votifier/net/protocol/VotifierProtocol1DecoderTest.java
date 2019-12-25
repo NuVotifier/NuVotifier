@@ -1,9 +1,10 @@
 package com.vexsoftware.votifier.net.protocol;
 
+import com.vexsoftware.votifier.net.server.protocol.VotifierProtocol1Decoder;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.v1crypto.RSA;
+import com.vexsoftware.votifier.net.server.VotifierSession;
+import com.vexsoftware.votifier.net.server.protocol.v1crypto.RSA;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;

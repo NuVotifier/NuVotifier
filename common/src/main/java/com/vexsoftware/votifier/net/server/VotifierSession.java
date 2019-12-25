@@ -1,4 +1,4 @@
-package com.vexsoftware.votifier.net;
+package com.vexsoftware.votifier.net.server;
 
 import com.vexsoftware.votifier.util.TokenUtil;
 import io.netty.util.AttributeKey;

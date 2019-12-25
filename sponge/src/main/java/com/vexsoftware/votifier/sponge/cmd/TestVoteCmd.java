@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.sponge.cmd;
 
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.server.VotifierSession;
 import com.vexsoftware.votifier.sponge.VotifierPlugin;
 import com.vexsoftware.votifier.util.ArgsToVote;
 import org.spongepowered.api.command.CommandException;

@@ -16,7 +16,7 @@
  * along with Votifier.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.vexsoftware.votifier.net.protocol.v1crypto;
+package com.vexsoftware.votifier.net.server.protocol.v1crypto;
 
 import javax.crypto.Cipher;
 import java.security.PrivateKey;

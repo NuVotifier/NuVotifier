@@ -11,10 +11,10 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierServerBootstrap;
-import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
-import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.net.server.VotifierServerBootstrap;
+import com.vexsoftware.votifier.net.server.VotifierSession;
+import com.vexsoftware.votifier.net.server.protocol.v1crypto.RSAIO;
+import com.vexsoftware.votifier.net.server.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
@@ -30,7 +30,6 @@ import com.vexsoftware.votifier.util.TokenUtil;
 import com.vexsoftware.votifier.velocity.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.velocity.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.velocity.event.VotifierEvent;
-import io.netty.channel.Channel;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
@@ -47,7 +46,6 @@ import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "3.0.0-SNAPSHOT", authors = "Ichbinjoe",

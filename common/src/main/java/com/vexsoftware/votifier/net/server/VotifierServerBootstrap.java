@@ -1,9 +1,9 @@
-package com.vexsoftware.votifier.net;
+package com.vexsoftware.votifier.net.server;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
-import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
+import com.vexsoftware.votifier.net.server.protocol.VoteInboundHandler;
+import com.vexsoftware.votifier.net.server.protocol.VotifierGreetingHandler;
+import com.vexsoftware.votifier.net.server.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;

@@ -3,7 +3,7 @@ package com.vexsoftware.votifier.velocity.cmd;
 import com.velocitypowered.api.command.Command;
 import com.velocitypowered.api.command.CommandSource;
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.server.VotifierSession;
 import com.vexsoftware.votifier.util.ArgsToVote;
 import com.vexsoftware.votifier.velocity.VotifierPlugin;
 import net.kyori.text.TextComponent;

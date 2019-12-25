@@ -2,7 +2,7 @@ package com.vexsoftware.votifier.cmd;
 
 import com.vexsoftware.votifier.NuVotifierBukkit;
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.server.VotifierSession;
 import com.vexsoftware.votifier.util.ArgsToVote;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

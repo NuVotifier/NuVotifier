@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.net.protocol;
 
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.protocol.v1crypto.RSA;
+import com.vexsoftware.votifier.net.server.protocol.v1crypto.RSA;
 
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;

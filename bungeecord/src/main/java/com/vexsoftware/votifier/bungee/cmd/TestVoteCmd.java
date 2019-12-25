@@ -2,7 +2,7 @@ package com.vexsoftware.votifier.bungee.cmd;
 
 import com.vexsoftware.votifier.bungee.NuVotifier;
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.server.VotifierSession;
 import com.vexsoftware.votifier.util.ArgsToVote;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
