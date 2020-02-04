@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.bungee;
 
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.platform.BackendServer;
+import io.ibj.nuvotifier.platform.platform.BackendServer;
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
 import com.vexsoftware.votifier.support.forwarding.ServerFilter;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;

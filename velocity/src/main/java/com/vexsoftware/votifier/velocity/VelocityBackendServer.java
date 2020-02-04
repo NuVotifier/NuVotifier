@@ -2,7 +2,7 @@ package com.vexsoftware.votifier.velocity;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import com.vexsoftware.votifier.platform.BackendServer;
+import io.ibj.nuvotifier.platform.platform.BackendServer;
 
 class VelocityBackendServer implements BackendServer {
     private final ProxyServer server;

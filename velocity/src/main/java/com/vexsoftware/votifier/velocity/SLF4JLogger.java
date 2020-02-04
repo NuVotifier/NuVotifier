@@ -1,6 +1,6 @@
 package com.vexsoftware.votifier.velocity;
 
-import com.vexsoftware.votifier.platform.LoggingAdapter;
+import io.ibj.nuvotifier.platform.platform.LoggingAdapter;
 import org.slf4j.Logger;
 
 public class SLF4JLogger implements LoggingAdapter {

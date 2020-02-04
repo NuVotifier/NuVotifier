@@ -8,7 +8,7 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.platform.BackendServer;
+import io.ibj.nuvotifier.platform.platform.BackendServer;
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSource;
 import com.vexsoftware.votifier.support.forwarding.ServerFilter;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;

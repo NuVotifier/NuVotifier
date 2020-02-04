@@ -2,12 +2,13 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 allprojects {
-    group 'com.vexsoftware'
+    group 'io.ibj.nuvotifier'
     version '3.0.0-SNAPSHOT'
 }
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
 
     sourceCompatibility = 1.8
 

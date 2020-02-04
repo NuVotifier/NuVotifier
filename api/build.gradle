@@ -1,5 +1,0 @@
-dependencies {
-    compile 'com.google.code.gson:gson:2.8.0'
-    testCompile "junit:junit:4.11"
-    testCompile "org.mockito:mockito-core:2.+"
-}

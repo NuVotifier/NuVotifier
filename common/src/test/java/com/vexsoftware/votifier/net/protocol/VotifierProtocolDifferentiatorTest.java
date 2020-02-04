@@ -2,7 +2,7 @@ package com.vexsoftware.votifier.net.protocol;
 
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.server.VotifierSession;
-import com.vexsoftware.votifier.net.server.protocol.VotifierProtocolDifferentiator;
+import io.ibj.nuvotifier.legacyserver.protocol.VotifierProtocolDifferentiator;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;

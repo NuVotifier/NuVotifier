@@ -5,10 +5,10 @@ import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.server.VotifierServerBootstrap;
 import com.vexsoftware.votifier.net.server.VotifierSession;
-import com.vexsoftware.votifier.net.server.protocol.v1crypto.RSAIO;
-import com.vexsoftware.votifier.net.server.protocol.v1crypto.RSAKeygen;
-import com.vexsoftware.votifier.platform.LoggingAdapter;
-import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import io.ibj.nuvotifier.legacyserver.protocol.v1crypto.RSAIO;
+import io.ibj.nuvotifier.legacyserver.protocol.v1crypto.RSAKeygen;
+import io.ibj.nuvotifier.platform.platform.LoggingAdapter;
+import io.ibj.nuvotifier.platform.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.sponge.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.sponge.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.sponge.config.ConfigLoader;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "3.0.0-SNAPSHOT", authors = "Ichbinjoe",
         description = "Safe, smart, and secure Votifier server plugin")
-public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.platform.VotifierPlugin, ForwardedVoteListener {
+public class VotifierPlugin implements VoteHandler, io.ibj.nuvotifier.platform.platform.VotifierPlugin, ForwardedVoteListener {
 
     @Inject
     public Logger logger;

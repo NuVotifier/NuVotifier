@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.bungee;
 
-import com.vexsoftware.votifier.platform.scheduler.ScheduledVotifierTask;
-import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import io.ibj.nuvotifier.platform.platform.scheduler.ScheduledVotifierTask;
+import io.ibj.nuvotifier.platform.platform.scheduler.VotifierScheduler;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 
 import java.util.concurrent.TimeUnit;

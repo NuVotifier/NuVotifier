@@ -17,10 +17,10 @@ buildscript {
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-    compile project(":nuvotifier-bukkit")
-    compile project(":nuvotifier-bungeecord")
-    compile project(":nuvotifier-sponge")
-    compile project(":nuvotifier-velocity")
+    compile project(":bukkit")
+    compile project(":bungeecord")
+    compile project(":sponge")
+    compile project(":velocity")
 }
 
 shadowJar {

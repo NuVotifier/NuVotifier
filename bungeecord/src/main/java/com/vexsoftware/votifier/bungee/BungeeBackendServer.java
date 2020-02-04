@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.bungee;
 
 import com.google.common.base.Preconditions;
-import com.vexsoftware.votifier.platform.BackendServer;
+import io.ibj.nuvotifier.platform.platform.BackendServer;
 import net.md_5.bungee.api.config.ServerInfo;
 
 public class BungeeBackendServer implements BackendServer {
