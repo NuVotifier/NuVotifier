@@ -5,13 +5,15 @@ include 'model'
 
 // The 'platform' api.
 include 'platform'
+include 'multiplatform'
+
+// Servers
 include 'legacyserver'
 
-include 'bukkit'
-include 'bungeecord'
-include 'common'
-include 'sponge'
-include 'universal'
-include 'velocity'
-include 'multiplatform'
+// Apis
+include 'bukkit-api'
+include 'bungeecord-api'
+include 'sponge-api'
+include 'velocity-api'
+include 'engine'
 

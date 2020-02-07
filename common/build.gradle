@@ -1,7 +1,0 @@
-dependencies {
-    compile project(":model")
-    compile group: "io.netty", name: "netty-handler", version: "4.1.32.Final"
-    compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.google.guava:guava:24.1-jre'
-    testCompile group: "org.json", name: "json", version: "20180130" // retain this for testing reasons
-}

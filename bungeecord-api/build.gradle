@@ -1,0 +1,4 @@
+dependencies {
+    api group: "net.md-5", name: "bungeecord-api", version: "1.8-SNAPSHOT"
+    implementation project(":model")
+}
