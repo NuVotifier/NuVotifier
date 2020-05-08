@@ -35,11 +35,7 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
             return;
         }
 
-        short readMagic = buf.readShort();
-
-        // Reset reader index again
-        buf.readerIndex(0);
-
+        short readMagic = buf.getShort(0);
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
         if (readMagic == PROTOCOL_2_MAGIC) {

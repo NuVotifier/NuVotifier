@@ -19,7 +19,6 @@ import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class VotifierProtocol2DecoderTest {
     private static final VotifierSession SESSION = new VotifierSession();
 
