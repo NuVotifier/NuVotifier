@@ -294,11 +294,11 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             getLogger().info("Assigning NuVotifier to listen on port 8192. If you are hosting BungeeCord on a");
             getLogger().info("shared server please check with your hosting provider to verify that this port");
             getLogger().info("is available for your use. Chances are that your hosting provider will assign");
-            getLogger().info("a different port, which you need to specify in config.yml");
+            getLogger().info("a different port, which you need to specify in config.toml.");
             getLogger().info("------------------------------------------------------------------------------");
             getLogger().info("Assigning NuVotifier to listen to interface 0.0.0.0. This is usually alright,");
             getLogger().info("however, if you want NuVotifier to only listen to one interface for security ");
-            getLogger().info("reasons (or you use a shared host), you may change this in the config.yml.");
+            getLogger().info("reasons (or you use a shared host), you may change this in the config.toml.");
             getLogger().info("------------------------------------------------------------------------------");
             getLogger().info("Your default Votifier token is " + token + ".");
             getLogger().info("You will need to provide this token when you submit your server to a voting");
