@@ -359,7 +359,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         if (debug) {
             getLogger().info("Got a " + protocolVersion.humanReadable + " vote record from " + remoteAddress + " -> " + vote);
         }
-        Bukkit.getScheduler().runTask(this, () -> Bukkit.getPluginManager().callEvent(new VotifierEvent(vote)));
+        Bukkit.getScheduler().runTask(this, () -> fireVotifierEvent(vote));
     }
 
     @Override
@@ -381,6 +381,15 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         if (debug) {
             getLogger().info("Got a forwarded vote -> " + v);
         }
-        Bukkit.getScheduler().runTask(this, () -> Bukkit.getPluginManager().callEvent(new VotifierEvent(v)));
+        Bukkit.getScheduler().runTask(this, () -> fireVotifierEvent(v));
+    }
+
+    private void fireVotifierEvent(Vote vote) {
+        if (VotifierEvent.getHandlerList().getRegisteredListeners().length == 0) {
+            getLogger().log(Level.SEVERE, "A vote was received, but you don't have any listeners available to listen for it.");
+            getLogger().log(Level.SEVERE, "See https://github.com/NuVotifier/NuVotifier/wiki/Setup-Guide#vote-listeners for");
+            getLogger().log(Level.SEVERE, "a list of listeners you can configure.");
+        }
+        Bukkit.getPluginManager().callEvent(new VotifierEvent(vote));
     }
 }
