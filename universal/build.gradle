@@ -1,8 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.relocation.SimpleRelocator
 
-import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.util.regex.Pattern
 
 buildscript {
@@ -54,9 +54,7 @@ task('linkLatest') {
 
             def noVer = Paths.get(noVerMatcher.group(1) + ".jar")
             def versnd = it.toPath()
-            try {
-                Files.createSymbolicLink(noVer, versnd)
-            } catch (FileAlreadyExistsException ignored) {}
+            Files.copy(versnd, noVer, StandardCopyOption.REPLACE_EXISTING)
         }
     }
 }
