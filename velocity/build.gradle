@@ -1,5 +1,6 @@
 dependencies {
-    compileOnly group: "com.velocitypowered", name: "velocity-api", version: "1.0-SNAPSHOT"
-    annotationProcessor group: "com.velocitypowered", name: "velocity-api", version: "1.0-SNAPSHOT"
-    compile project(":nuvotifier-common")
+    compileOnly "com.velocitypowered:velocity-api:1.0.0-SNAPSHOT"
+    annotationProcessor "com.velocitypowered:velocity-api:1.0.0-SNAPSHOT"
+    implementation project(":nuvotifier-api")
+    implementation project(":nuvotifier-common")
 }

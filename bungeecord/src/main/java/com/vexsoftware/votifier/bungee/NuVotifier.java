@@ -284,7 +284,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                 }
             }
 
-            forwardingMethod = new ProxyForwardingVoteSource(this, bootstrap::client, serverList, null);
+            forwardingMethod = bootstrap.createForwardingSource(serverList, null);
             getLogger().info("Forwarding votes from this NuVotifier instance to another NuVotifier server.");
         } else {
             getLogger().severe("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");

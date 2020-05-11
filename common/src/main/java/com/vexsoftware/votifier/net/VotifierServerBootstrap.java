@@ -4,6 +4,8 @@ import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
 import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
 import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
+import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
+import com.vexsoftware.votifier.support.forwarding.proxy.ProxyForwardingVoteSource;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -16,6 +18,7 @@ import io.netty.util.concurrent.FastThreadLocalThread;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
@@ -82,10 +85,15 @@ public class VotifierServerBootstrap {
                 });
     }
 
-    public Bootstrap client() {
+    private Bootstrap client() {
         return new Bootstrap()
                 .channel(NioSocketChannel.class)
                 .group(eventLoopGroup);
+    }
+
+    public ProxyForwardingVoteSource createForwardingSource(List<ProxyForwardingVoteSource.BackendServer> backendServers,
+                                                            VoteCache voteCache) {
+        return new ProxyForwardingVoteSource(plugin, this::client, backendServers, voteCache);
     }
 
     public void shutdown() {

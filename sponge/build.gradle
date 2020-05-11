@@ -1,5 +1,6 @@
 dependencies {
     compileOnly group: "org.spongepowered", name: "spongeapi", version: "7.1.0"
     annotationProcessor group: "org.spongepowered", name: "spongeapi", version: "7.1.0"
-    compile project(":nuvotifier-common")
+    implementation project(":nuvotifier-api")
+    implementation project(":nuvotifier-common")
 }
