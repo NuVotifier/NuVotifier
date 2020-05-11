@@ -1,8 +1,5 @@
 package com.vexsoftware.votifier.bungee;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.bungee.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.bungee.cmd.TestVoteCmd;
@@ -23,28 +20,26 @@ import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.util.IOUtil;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
-import io.netty.channel.Channel;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.*;
@@ -102,10 +97,10 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                 // Initialize the configuration file.
                 config.createNewFile();
 
-                String cfgStr = new String(ByteStreams.toByteArray(getResourceAsStream("bungeeConfig.yml")), StandardCharsets.UTF_8);
+                String cfgStr = new String(IOUtil.readAllBytes(getResourceAsStream("bungeeConfig.yml")), StandardCharsets.UTF_8);
                 String token = TokenUtil.newToken();
                 cfgStr = cfgStr.replace("%default_token%", token);
-                Files.asCharSink(config, StandardCharsets.UTF_8).write(cfgStr);
+                Files.copy(new ByteArrayInputStream(cfgStr.getBytes(StandardCharsets.UTF_8)), config.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 /*
                  * Remind hosted server admins to be sure they have the right
@@ -163,7 +158,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
             }
         } else {
             String token = TokenUtil.newToken();
-            configuration.set("tokens", ImmutableMap.of("default", token));
+            configuration.set("tokens", Collections.singletonMap("default", token));
             tokens.put("default", KeyCreator.createKeyFrom(token));
             try {
                 ConfigurationProvider.getProvider(YamlConfiguration.class).save(configuration, config);

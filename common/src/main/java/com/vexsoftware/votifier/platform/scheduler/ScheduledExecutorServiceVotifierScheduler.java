@@ -1,7 +1,6 @@
 package com.vexsoftware.votifier.platform.scheduler;
 
-import com.google.common.base.Preconditions;
-
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +9,7 @@ public class ScheduledExecutorServiceVotifierScheduler implements VotifierSchedu
     private final ScheduledExecutorService service;
 
     public ScheduledExecutorServiceVotifierScheduler(ScheduledExecutorService service) {
-        this.service = Preconditions.checkNotNull(service, "service");
+        this.service = Objects.requireNonNull(service, "service");
     }
 
     @Override

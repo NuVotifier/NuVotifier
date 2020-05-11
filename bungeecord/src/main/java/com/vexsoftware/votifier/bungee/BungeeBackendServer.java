@@ -1,14 +1,15 @@
 package com.vexsoftware.votifier.bungee;
 
-import com.google.common.base.Preconditions;
 import com.vexsoftware.votifier.platform.BackendServer;
 import net.md_5.bungee.api.config.ServerInfo;
+
+import java.util.Objects;
 
 public class BungeeBackendServer implements BackendServer {
     private final ServerInfo info;
 
     public BungeeBackendServer(ServerInfo info) {
-        this.info = Preconditions.checkNotNull(info, "info");
+        this.info = Objects.requireNonNull(info, "info");
     }
 
     @Override

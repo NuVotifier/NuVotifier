@@ -1,8 +1,5 @@
 package com.vexsoftware.votifier.support.forwarding.cache;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
@@ -20,16 +17,16 @@ public class MemoryVoteCache implements VoteCache {
     private final LoggingAdapter l;
     private final long voteTTL;
 
-    protected final Multimap<String, Vote> voteCache;
-    protected final Multimap<String, Vote> playerVoteCache;
+    protected final Map<String, Collection<Vote>> voteCache;
+    protected final Map<String, Collection<Vote>> playerVoteCache;
 
     protected final ReentrantLock cacheLock = new ReentrantLock();
 
     private final ScheduledVotifierTask sweepTask;
 
     public MemoryVoteCache(int initialSize, VotifierPlugin p, long voteTTL) {
-        voteCache = HashMultimap.create(initialSize, 10); // 10 is a complete guess. I have no idea .-.
-        playerVoteCache = HashMultimap.create();
+        voteCache = new HashMap<>();
+        playerVoteCache = new HashMap<>();
 
         this.voteTTL = voteTTL;
 
@@ -41,7 +38,7 @@ public class MemoryVoteCache implements VoteCache {
     public Collection<String> getCachedServers() {
         cacheLock.lock();
         try {
-            return ImmutableList.copyOf(voteCache.keySet());
+            return Collections.unmodifiableCollection(new ArrayList<>(voteCache.keySet()));
         } finally {
             cacheLock.unlock();
         }
@@ -52,7 +49,7 @@ public class MemoryVoteCache implements VoteCache {
         if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            voteCache.put(server, v);
+            voteCache.computeIfAbsent(server, k -> new HashSet<>()).add(v);
         } finally {
             cacheLock.unlock();
         }
@@ -63,7 +60,7 @@ public class MemoryVoteCache implements VoteCache {
         if (player == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            playerVoteCache.put(player, v);
+            playerVoteCache.computeIfAbsent(player, k -> new HashSet<>()).add(v);
         } finally {
             cacheLock.unlock();
         }
@@ -74,7 +71,12 @@ public class MemoryVoteCache implements VoteCache {
         if (player == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            return new HashSet<>(playerVoteCache.removeAll(player));
+            Collection<Vote> playerVotes = playerVoteCache.remove(player);
+            if (playerVotes != null) {
+                return new HashSet<>(playerVotes);
+            } else {
+                return Collections.emptySet();
+            }
         } finally {
             cacheLock.unlock();
         }
@@ -85,7 +87,12 @@ public class MemoryVoteCache implements VoteCache {
         if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            return new HashSet<>(voteCache.removeAll(server));
+            Collection<Vote> serverVotes = voteCache.remove(server);
+            if (serverVotes != null) {
+                return new HashSet<>(serverVotes);
+            } else {
+                return Collections.emptySet();
+            }
         } finally {
             cacheLock.unlock();
         }
@@ -101,13 +108,15 @@ public class MemoryVoteCache implements VoteCache {
         }
     }
 
-    private void sweep(Multimap<?, Vote> m) {
-        Iterator<Vote> vi = m.values().iterator();
-        while (vi.hasNext()) {
-            Vote v = vi.next();
-            if (hasTimedOut(v)) {
-                l.warn("Purging out of date vote.", v);
-                vi.remove();
+    private void sweep(Map<String, Collection<Vote>> m) {
+        for (Map.Entry<String, Collection<Vote>> entry : m.entrySet()) {
+            Iterator<Vote> vi = entry.getValue().iterator();
+            while (vi.hasNext()) {
+                Vote v = vi.next();
+                if (hasTimedOut(v)) {
+                    l.warn("Purging out of date vote.", v);
+                    vi.remove();
+                }
             }
         }
     }

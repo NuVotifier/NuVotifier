@@ -18,8 +18,6 @@
 
 package com.vexsoftware.votifier;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import com.vexsoftware.votifier.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
@@ -35,25 +33,24 @@ import com.vexsoftware.votifier.platform.JavaUtilLogger;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import com.vexsoftware.votifier.util.IOUtil;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
-import io.netty.channel.Channel;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -130,10 +127,10 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 config.createNewFile();
 
                 // Load and manually replace variables in the configuration.
-                String cfgStr = new String(ByteStreams.toByteArray(getResource("bukkitConfig.yml")), StandardCharsets.UTF_8);
+                String cfgStr = new String(IOUtil.readAllBytes(getResource("bukkitConfig.yml")), StandardCharsets.UTF_8);
                 String token = TokenUtil.newToken();
                 cfgStr = cfgStr.replace("%default_token%", token).replace("%ip%", hostAddr);
-                Files.asCharSink(config, StandardCharsets.UTF_8).write(cfgStr);
+                Files.copy(new ByteArrayInputStream(cfgStr.getBytes(StandardCharsets.UTF_8)), config.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 /*
                  * Remind hosted server admins to be sure they have the right

@@ -1,6 +1,5 @@
 package com.vexsoftware.votifier.net;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.vexsoftware.votifier.net.protocol.VoteInboundHandler;
 import com.vexsoftware.votifier.net.protocol.VotifierGreetingHandler;
 import com.vexsoftware.votifier.net.protocol.VotifierProtocolDifferentiator;
@@ -13,10 +12,12 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.FastThreadLocalThread;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
 public class VotifierServerBootstrap {
@@ -34,8 +35,19 @@ public class VotifierServerBootstrap {
         this.port = port;
         this.plugin = plugin;
         this.v1Disable = v1Disable;
-        this.bossLoopGroup = new NioEventLoopGroup(1, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("Votifier NIO boss").build());
-        this.eventLoopGroup = new NioEventLoopGroup(1, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("Votifier NIO worker").build());
+        this.bossLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO boss"));
+        this.eventLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO worker"));
+    }
+
+    private static ThreadFactory createThreadFactory(String name) {
+        return new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                FastThreadLocalThread thread = new FastThreadLocalThread(runnable, name);
+                thread.setDaemon(true);
+                return thread;
+            }
+        };
     }
 
     public void start(Consumer<Throwable> error) {

@@ -1,6 +1,5 @@
 package com.vexsoftware.votifier.velocity;
 
-import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
@@ -25,12 +24,12 @@ import com.vexsoftware.votifier.support.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.MemoryVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.support.forwarding.proxy.ProxyForwardingVoteSource;
+import com.vexsoftware.votifier.util.IOUtil;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
 import com.vexsoftware.votifier.velocity.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.velocity.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.velocity.event.VotifierEvent;
-import io.netty.channel.Channel;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
@@ -44,10 +43,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "3.0.0-SNAPSHOT", authors = "Ichbinjoe",
@@ -281,7 +280,8 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             getLogger().info("Configuring Votifier for the first time...");
 
             // Initialize the configuration file.
-            String cfgStr = new String(ByteStreams.toByteArray(VotifierPlugin.class.getResourceAsStream("/config.toml")), StandardCharsets.UTF_8);
+
+            String cfgStr = new String(IOUtil.readAllBytes(VotifierPlugin.class.getResourceAsStream("/config.toml")), StandardCharsets.UTF_8);
             String token = TokenUtil.newToken();
             cfgStr = cfgStr.replace("%ip%", server.getBoundAddress().getAddress().getHostAddress());
             cfgStr = cfgStr.replace("%default_token%", token);
@@ -305,7 +305,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             getLogger().info("list.");
             getLogger().info("------------------------------------------------------------------------------");
 
-            Files.copy(new ByteArrayInputStream(cfgStr.getBytes(StandardCharsets.UTF_8)), configPath);
+            Files.copy(new ByteArrayInputStream(cfgStr.getBytes(StandardCharsets.UTF_8)), configPath, StandardCopyOption.REPLACE_EXISTING);
             return new Toml().read(cfgStr);
         }
     }

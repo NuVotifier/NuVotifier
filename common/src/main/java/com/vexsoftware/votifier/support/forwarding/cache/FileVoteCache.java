@@ -1,6 +1,5 @@
 package com.vexsoftware.votifier.support.forwarding.cache;
 
-import com.google.common.io.Files;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,6 +11,7 @@ import com.vexsoftware.votifier.util.GsonInst;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +48,7 @@ public class FileVoteCache extends MemoryVoteCache {
     private void load() throws IOException {
         // Load the cache from disk
         JsonObject object;
-        try (BufferedReader reader = Files.newReader(cacheFile, StandardCharsets.UTF_8)) {
+        try (BufferedReader reader = Files.newBufferedReader(cacheFile.toPath(), StandardCharsets.UTF_8)) {
             object = GsonInst.gson.fromJson(reader, JsonObject.class);
             if (object == null)
                 // When the input is not malformed but instead empty, this returns null. Simply assume it is empty.
@@ -76,11 +76,11 @@ public class FileVoteCache extends MemoryVoteCache {
         JsonObject servers = object.getAsJsonObject("servers");
 
         for (String player : keySet(players)) {
-            playerVoteCache.putAll(player, readVotes(players.getAsJsonArray(player)));
+            playerVoteCache.put(player, readVotes(players.getAsJsonArray(player)));
         }
 
         for (String server : keySet(servers)) {
-            voteCache.putAll(server, readVotes(servers.getAsJsonArray(server)));
+            voteCache.put(server, readVotes(servers.getAsJsonArray(server)));
         }
 
         if (resave) {
@@ -102,7 +102,7 @@ public class FileVoteCache extends MemoryVoteCache {
     }
 
     private Collection<Vote> readVotes(JsonArray voteArray) {
-        List<Vote> votes = new ArrayList<>(voteArray.size());
+        Collection<Vote> votes = new HashSet<>(voteArray.size());
         for (int i = 0; i < voteArray.size(); i++) {
             JsonObject voteObject = voteArray.get(i).getAsJsonObject();
             Vote v = new Vote(voteObject);
@@ -119,13 +119,13 @@ public class FileVoteCache extends MemoryVoteCache {
         JsonObject votesObject = new JsonObject();
         votesObject.addProperty("version", 2);
         try {
-            votesObject.add("players", serializeMap(playerVoteCache.asMap()));
-            votesObject.add("servers", serializeMap(voteCache.asMap()));
+            votesObject.add("players", serializeMap(playerVoteCache));
+            votesObject.add("servers", serializeMap(voteCache));
         } finally {
             cacheLock.unlock();
         }
 
-        try (BufferedWriter writer = Files.newWriter(cacheFile, StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(cacheFile.toPath(), StandardCharsets.UTF_8)) {
             GsonInst.gson.toJson(votesObject, writer);
         }
     }

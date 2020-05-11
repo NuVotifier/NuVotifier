@@ -24,18 +24,11 @@ dependencies {
 }
 
 shadowJar {
-    dependencies {
-        // All current implementations include Google Guava already, and explicitly shading in Guava causes the plugin
-        // to fail to initialize on Sponge.
-        exclude(dependency('com.google.guava:guava:24.1-jre'))
-    }
-    
     baseName = 'nuvotifier'
     classifier = null
     relocate "io.netty", "com.vexsoftware.votifier.netty"
     relocate "org.json", "com.vexsoftware.votifier.json"
     relocate new SimpleRelocator("com.google.code", "com.vexsoftware.votifier.google.code", new ArrayList<String>(), Collections.singletonList("com.vexsoftware.votifier.sponge"))
-    relocate "com.google.guava", "com.vexsoftware.votifier.google.guava"
     relocate "org.apache.commons.io", "com.vexsoftware.votifier.commons.io"
 }
 
