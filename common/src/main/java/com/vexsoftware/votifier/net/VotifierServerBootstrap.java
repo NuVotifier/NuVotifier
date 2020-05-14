@@ -48,11 +48,11 @@ public class VotifierServerBootstrap {
         this.v1Disable = v1Disable;
         if (USE_EPOLL) {
             this.bossLoopGroup = new EpollEventLoopGroup(1, createThreadFactory("Votifier epoll boss"));
-            this.eventLoopGroup = new EpollEventLoopGroup(1, createThreadFactory("Votifier epoll worker"));
+            this.eventLoopGroup = new EpollEventLoopGroup(3, createThreadFactory("Votifier epoll worker"));
             plugin.getPluginLogger().info("Using epoll transport to accept votes.");
         } else {
             this.bossLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO boss"));
-            this.eventLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO worker"));
+            this.eventLoopGroup = new NioEventLoopGroup(3, createThreadFactory("Votifier NIO worker"));
             plugin.getPluginLogger().info("Using NIO transport to accept votes.");
         }
     }
