@@ -2,6 +2,7 @@ package com.vexsoftware.votifier.net.protocol;
 
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.util.QuietException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -56,7 +57,7 @@ public class VotifierProtocolDifferentiatorTest {
         for (int i = 0; i < 256; i++) {
             test.writeByte(0);
         }
-        assertThrows(CorruptedFrameException.class, () -> channel.writeInbound(test));
+        assertThrows(DecoderException.class, () -> channel.writeInbound(test));
         channel.close();
     }
 

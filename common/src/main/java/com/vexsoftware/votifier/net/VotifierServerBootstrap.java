@@ -55,6 +55,9 @@ public class VotifierServerBootstrap {
 
     public void start(Consumer<Throwable> error) {
         Objects.requireNonNull(error, "error");
+
+        VoteInboundHandler voteInboundHandler = new VoteInboundHandler(plugin);
+
         new ServerBootstrap()
                 .channel(NioServerSocketChannel.class)
                 .group(bossLoopGroup, eventLoopGroup)
@@ -63,9 +66,9 @@ public class VotifierServerBootstrap {
                     protected void initChannel(NioSocketChannel channel) {
                         channel.attr(VotifierSession.KEY).set(new VotifierSession());
                         channel.attr(VotifierPlugin.KEY).set(plugin);
-                        channel.pipeline().addLast("greetingHandler", new VotifierGreetingHandler());
+                        channel.pipeline().addLast("greetingHandler", VotifierGreetingHandler.INSTANCE);
                         channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !v1Disable));
-                        channel.pipeline().addLast("voteHandler", new VoteInboundHandler(plugin));
+                        channel.pipeline().addLast("voteHandler", voteInboundHandler);
                     }
                 })
                 .bind(host, port)

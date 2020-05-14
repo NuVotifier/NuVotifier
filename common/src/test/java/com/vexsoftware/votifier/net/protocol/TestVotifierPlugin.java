@@ -85,6 +85,11 @@ public class TestVotifierPlugin implements VotifierPlugin {
         return null;
     }
 
+    @Override
+    public boolean isDebug() {
+        return true;
+    }
+
     public void specificKeysOnly() {
         keyMap.clear();
         keyMap.put("Test", KeyCreator.createKeyFrom("test"));

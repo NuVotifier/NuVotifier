@@ -4,10 +4,12 @@ import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSA;
+import com.vexsoftware.votifier.util.QuietException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.handler.codec.DecoderException;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -50,7 +52,7 @@ public class VotifierProtocol1DecoderTest {
         byte[] encrypted = RSA.encrypt(bad.getBytes(StandardCharsets.UTF_8), TestVotifierPlugin.getI().getProtocolV1Key().getPublic());
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
-        assertThrows(CorruptedFrameException.class, () -> channel.writeInbound(encryptedByteBuf));
+        assertThrows(DecoderException.class, () -> channel.writeInbound(encryptedByteBuf));
         channel.close();
     }
 
@@ -77,7 +79,7 @@ public class VotifierProtocol1DecoderTest {
         byte[] encrypted = VoteUtil.encodePOJOv1(new Vote("Test", "test", "test", "test"), badPublicKey);
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
-        assertThrows(CorruptedFrameException.class, ()->channel.writeInbound(encryptedByteBuf));
+        assertThrows(DecoderException.class, ()->channel.writeInbound(encryptedByteBuf));
         channel.close();
     }
 }

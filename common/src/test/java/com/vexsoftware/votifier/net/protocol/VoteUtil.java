@@ -26,6 +26,6 @@ public class VoteUtil {
             builder.append(s).append('\n'); // naive join needed!
         }
 
-        return RSA.encrypt(builder.toString().getBytes(StandardCharsets.UTF_8), key);
+        return RSA.encrypt(builder.toString().getBytes(StandardCharsets.US_ASCII), key);
     }
 }

@@ -1,10 +1,10 @@
 package com.vexsoftware.votifier.net.protocol;
 
 import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.util.QuietException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
@@ -16,6 +16,8 @@ import java.util.List;
  * Attempts to determine if original protocol or protocol v2 is being used.
  */
 public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
+    private static final QuietException V2_ONLY = new QuietException("This server only accepts well-formed Votifier v2 packets.");
+
     private static final short PROTOCOL_2_MAGIC = 0x733A;
     private final boolean testMode;
     private final boolean allowv1;
@@ -26,7 +28,7 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> list) throws Exception {
         // Determine the number of bytes that are available.
         int readable = buf.readableBytes();
 
@@ -51,7 +53,7 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
             }
         } else {
             if (!allowv1) {
-                throw new CorruptedFrameException("This server only accepts well-formed Votifier v2 packets.");
+                throw V2_ONLY;
             }
             // Probably Protocol v1 Vote Message
             session.setVersion(VotifierSession.ProtocolVersion.ONE);
