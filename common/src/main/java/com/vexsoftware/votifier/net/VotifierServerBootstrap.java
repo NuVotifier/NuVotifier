@@ -11,7 +11,13 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.FastThreadLocalThread;
@@ -24,10 +30,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
 public class VotifierServerBootstrap {
+    private static final boolean USE_EPOLL = Epoll.isAvailable();
+
     private final String host;
     private final int port;
-    private final NioEventLoopGroup bossLoopGroup;
-    private final NioEventLoopGroup eventLoopGroup;
+    private final EventLoopGroup bossLoopGroup;
+    private final EventLoopGroup eventLoopGroup;
     private final VotifierPlugin plugin;
     private final boolean v1Disable;
 
@@ -38,18 +46,22 @@ public class VotifierServerBootstrap {
         this.port = port;
         this.plugin = plugin;
         this.v1Disable = v1Disable;
-        this.bossLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO boss"));
-        this.eventLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO worker"));
+        if (USE_EPOLL) {
+            this.bossLoopGroup = new EpollEventLoopGroup(1, createThreadFactory("Votifier epoll boss"));
+            this.eventLoopGroup = new EpollEventLoopGroup(1, createThreadFactory("Votifier epoll worker"));
+            plugin.getPluginLogger().info("Using epoll transport to accept votes.");
+        } else {
+            this.bossLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO boss"));
+            this.eventLoopGroup = new NioEventLoopGroup(1, createThreadFactory("Votifier NIO worker"));
+            plugin.getPluginLogger().info("Using NIO transport to accept votes.");
+        }
     }
 
     private static ThreadFactory createThreadFactory(String name) {
-        return new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable runnable) {
-                FastThreadLocalThread thread = new FastThreadLocalThread(runnable, name);
-                thread.setDaemon(true);
-                return thread;
-            }
+        return runnable -> {
+            FastThreadLocalThread thread = new FastThreadLocalThread(runnable, name);
+            thread.setDaemon(true);
+            return thread;
         };
     }
 
@@ -59,11 +71,11 @@ public class VotifierServerBootstrap {
         VoteInboundHandler voteInboundHandler = new VoteInboundHandler(plugin);
 
         new ServerBootstrap()
-                .channel(NioServerSocketChannel.class)
+                .channel(USE_EPOLL ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
                 .group(bossLoopGroup, eventLoopGroup)
-                .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel channel) {
+                    protected void initChannel(SocketChannel channel) {
                         channel.attr(VotifierSession.KEY).set(new VotifierSession());
                         channel.attr(VotifierPlugin.KEY).set(plugin);
                         channel.pipeline().addLast("greetingHandler", VotifierGreetingHandler.INSTANCE);
@@ -90,7 +102,7 @@ public class VotifierServerBootstrap {
 
     private Bootstrap client() {
         return new Bootstrap()
-                .channel(NioSocketChannel.class)
+                .channel(USE_EPOLL ? EpollSocketChannel.class : NioSocketChannel.class)
                 .group(eventLoopGroup);
     }
 
