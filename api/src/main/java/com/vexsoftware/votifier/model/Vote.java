@@ -53,6 +53,10 @@ public class Vote {
 
     private byte[] additionalData;
 
+    @Deprecated
+    public Vote() {
+    }
+
     public Vote(String serviceName, String username, String address, String timeStamp) {
         this.serviceName = serviceName;
         this.username = username;
