@@ -217,13 +217,13 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                 getLogger().info("Vote cache none selected for caching: votes that cannot be immediately delivered will be lost.");
             } else if ("memory".equals(cacheMethod)) {
                 voteCache = new MemoryVoteCache(
-                        ProxyServer.getInstance().getServers().size(), this,
+                        this,
                         fwdCfg.getInt("pluginMessaging.memory.cacheTime", -1));
                 getLogger().info("Using in-memory cache for votes that are not able to be delivered.");
             } else if ("file".equals(cacheMethod)) {
                 try {
                     voteCache = new FileVoteCache(
-                            ProxyServer.getInstance().getServers().size(), this,
+                            this,
                             new File(getDataFolder(), fwdCfg.getString("pluginMessaging.file.name")),
                             fwdCfg.getInt("pluginMessaging.file.cacheTime", -1));
                 } catch (IOException e) {

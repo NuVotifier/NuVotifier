@@ -1,5 +1,6 @@
 package com.vexsoftware.votifier.support.forwarding.cache;
 
+import com.google.gson.JsonObject;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
@@ -17,14 +18,14 @@ public class MemoryVoteCache implements VoteCache {
     private final LoggingAdapter l;
     private final long voteTTL;
 
-    protected final Map<String, Collection<Vote>> voteCache;
-    protected final Map<String, Collection<Vote>> playerVoteCache;
+    protected final Map<String, Collection<VoteWithRecordedTimestamp>> voteCache;
+    protected final Map<String, Collection<VoteWithRecordedTimestamp>> playerVoteCache;
 
     protected final ReentrantLock cacheLock = new ReentrantLock();
 
     private final ScheduledVotifierTask sweepTask;
 
-    public MemoryVoteCache(int initialSize, VotifierPlugin p, long voteTTL) {
+    public MemoryVoteCache(VotifierPlugin p, long voteTTL) {
         voteCache = new HashMap<>();
         playerVoteCache = new HashMap<>();
 
@@ -49,7 +50,7 @@ public class MemoryVoteCache implements VoteCache {
         if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            voteCache.computeIfAbsent(server, k -> new HashSet<>()).add(v);
+            voteCache.computeIfAbsent(server, k -> new HashSet<>()).add(new VoteWithRecordedTimestamp(v));
         } finally {
             cacheLock.unlock();
         }
@@ -60,7 +61,7 @@ public class MemoryVoteCache implements VoteCache {
         if (player == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            playerVoteCache.computeIfAbsent(player, k -> new HashSet<>()).add(v);
+            playerVoteCache.computeIfAbsent(player, k -> new HashSet<>()).add(new VoteWithRecordedTimestamp(v));
         } finally {
             cacheLock.unlock();
         }
@@ -71,7 +72,7 @@ public class MemoryVoteCache implements VoteCache {
         if (player == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            Collection<Vote> playerVotes = playerVoteCache.remove(player);
+            Collection<VoteWithRecordedTimestamp> playerVotes = playerVoteCache.remove(player);
             if (playerVotes != null) {
                 return new HashSet<>(playerVotes);
             } else {
@@ -87,7 +88,7 @@ public class MemoryVoteCache implements VoteCache {
         if (server == null) throw new NullPointerException();
         cacheLock.lock();
         try {
-            Collection<Vote> serverVotes = voteCache.remove(server);
+            Collection<VoteWithRecordedTimestamp> serverVotes = voteCache.remove(server);
             if (serverVotes != null) {
                 return new HashSet<>(serverVotes);
             } else {
@@ -108,11 +109,11 @@ public class MemoryVoteCache implements VoteCache {
         }
     }
 
-    private void sweep(Map<String, Collection<Vote>> m) {
-        for (Map.Entry<String, Collection<Vote>> entry : m.entrySet()) {
-            Iterator<Vote> vi = entry.getValue().iterator();
+    private void sweep(Map<String, Collection<VoteWithRecordedTimestamp>> m) {
+        for (Map.Entry<String, Collection<VoteWithRecordedTimestamp>> entry : m.entrySet()) {
+            Iterator<VoteWithRecordedTimestamp> vi = entry.getValue().iterator();
             while (vi.hasNext()) {
-                Vote v = vi.next();
+                VoteWithRecordedTimestamp v = vi.next();
                 if (hasTimedOut(v)) {
                     l.warn("Purging out of date vote.", v);
                     vi.remove();
@@ -121,11 +122,36 @@ public class MemoryVoteCache implements VoteCache {
         }
     }
 
-    protected boolean hasTimedOut(Vote v) {
+    protected boolean hasTimedOut(VoteWithRecordedTimestamp v) {
         if (voteTTL == -1) return false;
-        // TODO: FIX FOR 3.0 RELEASE
-        // scale voteTTL to milliseconds
-        return false;
-        //return v.getLocalTimestamp() + voteTTL * 24 * 60 * 60 * 1000 < System.currentTimeMillis();
+
+        long daysAsMillis = TimeUnit.DAYS.toMillis(voteTTL);
+        return v.recorded + daysAsMillis < System.currentTimeMillis();
+    }
+
+    static class VoteWithRecordedTimestamp extends Vote {
+        private final long recorded;
+
+        VoteWithRecordedTimestamp(Vote vote) {
+            super(vote);
+            this.recorded = System.currentTimeMillis();
+        }
+
+        VoteWithRecordedTimestamp(JsonObject object) {
+            super(object);
+            if (object.has("recorded")) {
+                this.recorded = object.get("recorded").getAsLong();
+            } else {
+                // Assign the current time, in the hope that the stale votes will eventually get purged.
+                this.recorded = System.currentTimeMillis();
+            }
+        }
+
+        @Override
+        public JsonObject serialize() {
+            JsonObject object = super.serialize();
+            object.addProperty("recorded", this.recorded);
+            return object;
+        }
     }
 }

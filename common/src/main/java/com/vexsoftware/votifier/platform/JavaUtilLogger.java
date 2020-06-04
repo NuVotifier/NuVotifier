@@ -1,7 +1,5 @@
 package com.vexsoftware.votifier.platform;
 
-import com.vexsoftware.votifier.platform.LoggingAdapter;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

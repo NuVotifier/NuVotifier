@@ -73,6 +73,11 @@ public class Vote {
         this.additionalData = additionalData;
     }
 
+    public Vote(Vote vote) {
+        this(vote.getServiceName(), vote.getUsername(), vote.getAddress(), vote.getTimeStamp(),
+                vote.getAdditionalData() == null ? null : vote.getAdditionalData().clone());
+    }
+
     private static String getTimestamp(JsonElement object) {
         try {
             return Long.toString(object.getAsLong());

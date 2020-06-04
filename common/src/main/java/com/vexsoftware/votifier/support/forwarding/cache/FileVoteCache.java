@@ -21,8 +21,8 @@ public class FileVoteCache extends MemoryVoteCache {
     private final File cacheFile;
     private final ScheduledVotifierTask saveTask;
 
-    public FileVoteCache(int initialMemorySize, final VotifierPlugin plugin, File cacheFile, long voteTTL) throws IOException {
-        super(initialMemorySize, plugin, voteTTL);
+    public FileVoteCache(final VotifierPlugin plugin, File cacheFile, long voteTTL) throws IOException {
+        super(plugin, voteTTL);
         this.cacheFile = cacheFile;
         this.l = plugin.getPluginLogger();
 
@@ -101,11 +101,11 @@ public class FileVoteCache extends MemoryVoteCache {
         }
     }
 
-    private Collection<Vote> readVotes(JsonArray voteArray) {
-        Collection<Vote> votes = new HashSet<>(voteArray.size());
+    private Collection<VoteWithRecordedTimestamp> readVotes(JsonArray voteArray) {
+        Collection<VoteWithRecordedTimestamp> votes = new HashSet<>(voteArray.size());
         for (int i = 0; i < voteArray.size(); i++) {
             JsonObject voteObject = voteArray.get(i).getAsJsonObject();
-            Vote v = new Vote(voteObject);
+            VoteWithRecordedTimestamp v = new VoteWithRecordedTimestamp(voteObject);
             if (hasTimedOut(v))
                 l.warn("Purging out of date vote.", v);
             else
@@ -130,16 +130,16 @@ public class FileVoteCache extends MemoryVoteCache {
         }
     }
 
-    public JsonObject serializeMap(Map<String, Collection<Vote>> map) {
+    public JsonObject serializeMap(Map<String, Collection<VoteWithRecordedTimestamp>> map) {
         JsonObject o = new JsonObject();
 
-        Iterator<Map.Entry<String, Collection<Vote>>> entryItr = map.entrySet().iterator();
+        Iterator<Map.Entry<String, Collection<VoteWithRecordedTimestamp>>> entryItr = map.entrySet().iterator();
         while (entryItr.hasNext()) {
-            Map.Entry<String, Collection<Vote>> entry = entryItr.next();
+            Map.Entry<String, Collection<VoteWithRecordedTimestamp>> entry = entryItr.next();
             JsonArray array = new JsonArray();
-            Iterator<Vote> voteItr = entry.getValue().iterator();
+            Iterator<VoteWithRecordedTimestamp> voteItr = entry.getValue().iterator();
             while (voteItr.hasNext()) {
-                Vote vote = voteItr.next();
+                VoteWithRecordedTimestamp vote = voteItr.next();
 
                 // if the vote is no longer valid, notify and remove
                 if (hasTimedOut(vote)) {
