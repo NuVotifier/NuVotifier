@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
@@ -261,6 +262,11 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     public void onServerStop(ProxyShutdownEvent event) {
 
         logger.info("Votifier disabled.");
+    }
+
+    @Subscribe
+    public void onProxyReload(ProxyReloadEvent event) {
+        this.reload();
     }
 
     public ProxyServer getServer() {

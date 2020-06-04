@@ -299,6 +299,7 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
         PluginManager pm = ProxyServer.getInstance().getPluginManager();
         pm.registerCommand(this, new NVReloadCmd(this));
         pm.registerCommand(this, new TestVoteCmd(this));
+        pm.registerListener(this, new ReloadListener(this));
 
         loadAndBind();
     }
