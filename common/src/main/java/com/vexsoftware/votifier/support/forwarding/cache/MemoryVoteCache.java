@@ -153,5 +153,23 @@ public class MemoryVoteCache implements VoteCache {
             object.addProperty("recorded", this.recorded);
             return object;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            VoteWithRecordedTimestamp that = (VoteWithRecordedTimestamp) o;
+
+            return recorded == that.recorded;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (int) (recorded ^ (recorded >>> 32));
+            return result;
+        }
     }
 }

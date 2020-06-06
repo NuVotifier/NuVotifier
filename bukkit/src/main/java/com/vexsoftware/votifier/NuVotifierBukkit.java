@@ -62,16 +62,6 @@ import java.util.logging.Level;
 public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, VotifierPlugin, ForwardedVoteListener {
 
     /**
-     * The Votifier instance.
-     */
-    private static NuVotifierBukkit instance;
-
-    /**
-     * The current Votifier version.
-     */
-    private String version;
-
-    /**
      * The server bootstrap.
      */
     private VotifierServerBootstrap bootstrap;
@@ -99,7 +89,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         scheduler = new BukkitScheduler(this);
         pluginLogger = new JavaUtilLogger(getLogger());
         if (!getDataFolder().exists()) {
-            getDataFolder().mkdir();
+            if (!getDataFolder().mkdir()) {
+                throw new RuntimeException("Unable to create the plugin data folder " + getDataFolder());
+            }
         }
 
         // Handle configuration.
@@ -124,7 +116,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 getLogger().info("Configuring Votifier for the first time...");
 
                 // Initialize the configuration file.
-                config.createNewFile();
+                if (!config.createNewFile()) {
+                    throw new IOException("Unable to create the config file at " + config);
+                }
 
                 // Load and manually replace variables in the configuration.
                 String cfgStr = new String(IOUtil.readAllBytes(getResource("bukkitConfig.yml")), StandardCharsets.UTF_8);
@@ -164,7 +158,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
          */
         try {
             if (!rsaDirectory.exists()) {
-                rsaDirectory.mkdir();
+                if (!rsaDirectory.mkdir()) {
+                    throw new RuntimeException("Unable to create the RSA key folder " + rsaDirectory);
+                }
                 keyPair = RSAKeygen.generate(2048);
                 RSAIO.save(rsaDirectory, keyPair);
             } else {
@@ -273,11 +269,6 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
     @Override
     public void onEnable() {
-        NuVotifierBukkit.instance = this;
-
-        // Set the plugin version.
-        version = getDescription().getVersion();
-
         getCommand("nvreload").setExecutor(new NVReloadCmd(this));
         getCommand("testvote").setExecutor(new TestVoteCmd(this));
 
@@ -316,15 +307,6 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
     private void gracefulExit() {
         getLogger().log(Level.SEVERE, "Votifier did not initialize properly!");
-    }
-
-    /**
-     * Gets the instance.
-     *
-     * @return The instance
-     */
-    public static NuVotifierBukkit getInstance() {
-        return instance;
     }
 
     @Override

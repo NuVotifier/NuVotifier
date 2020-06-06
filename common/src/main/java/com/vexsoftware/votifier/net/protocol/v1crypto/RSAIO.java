@@ -63,7 +63,7 @@ public class RSAIO {
     public static byte[] readB64File(File directory, String name) throws IOException {
         File f = new File(directory, name);
         byte[] contents = Files.readAllBytes(f.toPath());
-        String strContents = new String(contents);
+        String strContents = new String(contents, StandardCharsets.US_ASCII);
         strContents = strContents.trim();
         try {
             return Base64.getDecoder().decode(strContents);

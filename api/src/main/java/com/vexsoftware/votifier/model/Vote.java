@@ -70,7 +70,7 @@ public class Vote {
         this.username = username;
         this.address = address;
         this.timeStamp = timeStamp;
-        this.additionalData = additionalData;
+        this.additionalData = additionalData == null ? null : additionalData.clone();
     }
 
     public Vote(Vote vote) {
@@ -190,7 +190,7 @@ public class Vote {
      * @return Additional data sent with the vote
      */
     public byte[] getAdditionalData() {
-        return additionalData;
+        return additionalData == null ? null : additionalData.clone();
     }
 
     public JsonObject serialize() {
@@ -207,7 +207,7 @@ public class Vote {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Vote)) return false;
 
         Vote vote = (Vote) o;
 

@@ -1,6 +1,10 @@
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
+plugins {
+    id "com.github.spotbugs" version "4.2.4" apply false
+}
+
 allprojects {
     group 'com.vexsoftware'
     version '3.0.0-SNAPSHOT'
@@ -8,6 +12,7 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: "com.github.spotbugs"
 
     sourceCompatibility = 1.8
 
@@ -39,5 +44,15 @@ subprojects {
 
     test {
         useJUnitPlatform()
+    }
+
+    tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+        reports {
+            html {
+                enabled = true
+                destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+                stylesheet = 'fancy-hist.xsl'
+            }
+        }
     }
 }

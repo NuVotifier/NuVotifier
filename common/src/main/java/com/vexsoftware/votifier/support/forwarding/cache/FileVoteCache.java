@@ -115,10 +115,11 @@ public class FileVoteCache extends MemoryVoteCache {
     }
 
     public void save() throws IOException {
-        cacheLock.lock();
         JsonObject votesObject = new JsonObject();
-        votesObject.addProperty("version", 2);
+
+        cacheLock.lock();
         try {
+            votesObject.addProperty("version", 2);
             votesObject.add("players", serializeMap(playerVoteCache));
             votesObject.add("servers", serializeMap(voteCache));
         } finally {

@@ -3,6 +3,7 @@ package com.vexsoftware.votifier.support.forwarding;
 import com.vexsoftware.votifier.model.Vote;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +28,7 @@ public class PMForwardingSinkTest {
             message.append(v.serialize());
         }
 
-        byte[] messageBytes = message.toString().getBytes();
+        byte[] messageBytes = message.toString().getBytes(StandardCharsets.UTF_8);
         System.out.println(message.toString());
 
         AbstractPluginMessagingForwardingSink sink = new AbstractPluginMessagingForwardingSink(vl) {

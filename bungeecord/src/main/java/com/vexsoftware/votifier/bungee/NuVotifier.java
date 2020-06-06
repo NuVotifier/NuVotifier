@@ -81,7 +81,9 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
 
     private void loadAndBind() {
         if (!getDataFolder().exists()) {
-            getDataFolder().mkdir();
+            if (!getDataFolder().mkdir()) {
+                throw new RuntimeException("Unable to create the plugin data folder " + getDataFolder());
+            }
         }
 
         // Handle configuration.
@@ -95,7 +97,9 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
                 getLogger().info("Configuring Votifier for the first time...");
 
                 // Initialize the configuration file.
-                config.createNewFile();
+                if (!config.createNewFile()) {
+                    throw new IOException("Unable to create the config file at " + config);
+                }
 
                 String cfgStr = new String(IOUtil.readAllBytes(getResourceAsStream("bungeeConfig.yml")), StandardCharsets.UTF_8);
                 String token = TokenUtil.newToken();
@@ -138,7 +142,9 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
          */
         try {
             if (!rsaDirectory.exists()) {
-                rsaDirectory.mkdir();
+                if (!rsaDirectory.mkdir()) {
+                    throw new RuntimeException("Unable to create the RSA key folder " + rsaDirectory);
+                }
                 keyPair = RSAKeygen.generate(2048);
                 RSAIO.save(rsaDirectory, keyPair);
             } else {

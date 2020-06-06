@@ -8,6 +8,7 @@ import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 import com.vexsoftware.votifier.sponge.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.sponge.cmd.TestVoteCmd;
@@ -37,7 +38,7 @@ import java.util.Map;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "3.0.0-SNAPSHOT", authors = "Ichbinjoe",
         description = "Safe, smart, and secure Votifier server plugin")
-public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.platform.VotifierPlugin, ForwardedVoteListener {
+public class NuVotifier implements VoteHandler, VotifierPlugin, ForwardedVoteListener {
 
     @Inject
     public Logger logger;
@@ -61,7 +62,9 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
         File rsaDirectory = new File(configDir, "rsa");
         try {
             if (!rsaDirectory.exists()) {
-                rsaDirectory.mkdir();
+                if (!rsaDirectory.mkdir()) {
+                    throw new RuntimeException("Unable to create the RSA key folder " + rsaDirectory);
+                }
                 keyPair = RSAKeygen.generate(2048);
                 RSAIO.save(rsaDirectory, keyPair);
             } else {
@@ -199,11 +202,6 @@ public class VotifierPlugin implements VoteHandler, com.vexsoftware.votifier.pla
     public Logger getLogger() {
         return logger;
     }
-
-    /**
-     * The current Votifier version.
-     */
-    private String version;
 
     /**
      * The server bootstrap.

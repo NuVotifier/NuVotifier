@@ -83,7 +83,9 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         File rsaDirectory = new File(configDir.toFile(), "rsa");
         try {
             if (!rsaDirectory.exists()) {
-                rsaDirectory.mkdir();
+                if (!rsaDirectory.mkdir()) {
+                    throw new RuntimeException("Unable to create the RSA key folder " + rsaDirectory);
+                }
                 keyPair = RSAKeygen.generate(2048);
                 RSAIO.save(rsaDirectory, keyPair);
             } else {

@@ -1,6 +1,6 @@
 package com.vexsoftware.votifier.sponge.cmd;
 
-import com.vexsoftware.votifier.sponge.VotifierPlugin;
+import com.vexsoftware.votifier.sponge.NuVotifier;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -11,9 +11,9 @@ import org.spongepowered.api.text.format.TextColors;
 
 public class NVReloadCmd implements CommandExecutor {
 
-    private final VotifierPlugin plugin;
+    private final NuVotifier plugin;
 
-    public NVReloadCmd(VotifierPlugin plugin) {
+    public NVReloadCmd(NuVotifier plugin) {
         this.plugin = plugin;
     }
 
