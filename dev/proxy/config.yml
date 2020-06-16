@@ -1,7 +1,4 @@
-forge_support: true
-timeout: 30000
-online_mode: true
-log_commands: false
+server_connect_timeout: 5000
 listeners:
 - query_port: 25577
   motd: '&4its a bungee cord surbur'
@@ -17,16 +14,7 @@ listeners:
   max_players: 1
   tab_size: 60
   force_default_server: false
-connection_throttle: 1
-groups:
-  md_5:
-  - admin
-log_pings: true
-ip_forward: true
-prevent_proxy_connections: true
-network_compression_threshold: 256
-disabled_commands: []
-stats: bf8a54ea-2917-4b9e-b463-2c05bd7f1ac6
+remote_ping_cache: -1
 permissions:
   default:
   - bungeecord.command.server
@@ -36,6 +24,23 @@ permissions:
   - bungeecord.command.end
   - bungeecord.command.ip
   - bungeecord.command.reload
+network_compression_threshold: 256
+timeout: 30000
+log_pings: true
+connection_throttle_limit: 3
+prevent_proxy_connections: true
+player_limit: -1
+ip_forward: true
+groups:
+  md_5:
+  - admin
+remote_ping_timeout: 5000
+connection_throttle: 1
+log_commands: false
+stats: bf8a54ea-2917-4b9e-b463-2c05bd7f1ac6
+online_mode: true
+forge_support: true
+disabled_commands: []
 servers:
   s1:
     motd: SERVER 1
@@ -45,4 +50,3 @@ servers:
     motd: SERVER 2
     address: localhost:25566
     restricted: false
-player_limit: -1

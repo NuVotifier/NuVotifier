@@ -10,9 +10,12 @@
 # Website: https://papermc.io/ 
 # Docs: https://paper.readthedocs.org/ 
 
+allow-perm-block-break-exploits: false
 verbose: false
-config-version: 16
+config-version: 20
 settings:
+  console-has-all-permissions: false
+  chunk-tasks-per-tick: 1000
   load-permissions-yml-before-plugins: true
   bungee-online-mode: true
   use-versioned-world: false
@@ -41,10 +44,10 @@ settings:
   max-player-auto-save-per-tick: -1
   async-chunks:
     enable: true
-    generation: true
-    thread-per-world-generation: true
-    load-threads: -1
+    threads: -1
   use-alternative-luck-formula: false
+  unsupported-settings:
+    allow-tnt-duplication: false
 messages:
   no-permission: '&cI''m sorry, but you do not have permission to perform this command.
     Please contact the server administrators if you believe that this is in error.'
@@ -54,6 +57,7 @@ messages:
     flying-vehicle: Flying is not enabled on this server
     connection-throttle: Connection throttled! Please wait before reconnecting.
 timings:
+  server-name: Unknown Server
   enabled: true
   verbose: true
   server-name-privacy: false
@@ -64,8 +68,23 @@ timings:
   history-length: 3600
 world-settings:
   default:
+    per-player-mob-spawns: false
+    phantoms-do-not-spawn-on-creative-players: true
+    phantoms-only-attack-insomniacs: true
+    light-queue-size: 20
+    count-all-mobs-for-spawning: false
+    seed-based-feature-search: true
+    nether-ceiling-void-damage-height: 0
+    fix-zero-tick-instant-grow-farms: true
+    portal-create-radius: 16
+    iron-golems-can-spawn-in-air: false
+    entities-target-with-follow-range: false
+    zombie-villager-infection-chance: -1.0
     portal-search-radius: 128
     game-mechanics:
+      disable-pillager-patrols: false
+      nerf-pigmen-from-nether-portals: false
+      disable-relative-projectile-velocity: false
       villages-load-chunks: false
       scan-for-legacy-ender-dragon: true
       disable-chest-cat-detection: false
@@ -74,6 +93,14 @@ world-settings:
       disable-sprint-interruption-on-attack: false
       shield-blocking-delay: 5
       disable-unloaded-chunk-enderpearl-exploit: true
+      pillager-patrols:
+        spawn-chance: 0.2
+        spawn-delay:
+          per-player: false
+          ticks: 12000
+        start:
+          per-player: false
+          day: 5
     queue-light-updates: false
     optimize-explosions: false
     disable-teleportation-suffocation-check: false
@@ -141,13 +168,12 @@ world-settings:
       - chest
       - diamond_ore
       - redstone_ore
-      - lit_redstone_ore
       - clay
       - emerald_ore
       - ender_chest
       replacement-blocks:
       - stone
-      - planks
+      - oak_planks
     skip-entity-ticking-in-chunks-scheduled-for-unload: true
     armor-stands-do-collision-entity-lookups: true
     keep-spawn-loaded-range: 8
@@ -176,3 +202,12 @@ world-settings:
     mob-spawner-tick-rate: 1
     squid-spawn-height:
       maximum: 0.0
+    alt-item-despawn-rate:
+      enabled: false
+      items:
+        COBBLESTONE: 300
+    viewdistances:
+      no-tick-view-distance: -1
+    generator-settings:
+      flat-bedrock: false
+    baby-zombie-movement-modifier: 0.5

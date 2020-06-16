@@ -7,4 +7,4 @@ well as overriding the eula check. If you don't agree to the Mojang EULA
 thingie, then uh, smash your computer or something because you totally agreed
 to it so just fyi
 WARNING
-java -DIReallyKnowWhatIAmDoingISwear -Dcom.mojang.eula.agree=true -jar paper.jar
+java -DIReallyKnowWhatIAmDoingISwear -Dcom.mojang.eula.agree=true -jar paper.jar nogui

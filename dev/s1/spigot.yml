@@ -10,8 +10,9 @@
 # IRC: #spigot @ irc.spi.gt ( http://www.spigotmc.org/pages/irc/ )
 # Forums: http://www.spigotmc.org/
 
-config-version: 11
+config-version: 12
 settings:
+  log-villager-deaths: true
   debug: false
   save-user-cache-on-stop-only: false
   sample-count: 12
@@ -60,6 +61,11 @@ advancements:
   - minecraft:story/disabled
 world-settings:
   default:
+    seed-outpost: 165745296
+    seed-endcity: 10387313
+    view-distance: default
+    trident-despawn-rate: 1200
+    end-portal-sound-radius: 0
     verbose: true
     merge-radius:
       exp: 3.0
@@ -91,6 +97,12 @@ world-settings:
       min: 45.0
     mob-spawn-range: 8
     growth:
+      beetroot-modifier: 100
+      carrot-modifier: 100
+      potato-modifier: 100
+      bamboo-modifier: 100
+      sweetberry-modifier: 100
+      kelp-modifier: 100
       cactus-modifier: 100
       cane-modifier: 100
       melon-modifier: 100
@@ -102,11 +114,30 @@ world-settings:
       vine-modifier: 100
       cocoa-modifier: 100
     entity-activation-range:
+      raiders: 48
+      villagers: 32
+      flying-monsters: 32
+      villagers-work-immunity-after: 100
+      villagers-work-immunity-for: 20
+      villagers-active-for-panic: true
       animals: 32
       monsters: 32
       misc: 16
       water: 16
       tick-inactive-villagers: true
+      wake-up-inactive:
+        animals-max-per-tick: 4
+        animals-every: 1200
+        animals-for: 100
+        monsters-max-per-tick: 8
+        monsters-every: 400
+        monsters-for: 100
+        villagers-max-per-tick: 4
+        villagers-every: 600
+        villagers-for: 100
+        flying-monsters-max-per-tick: 8
+        flying-monsters-every: 200
+        flying-monsters-for: 100
     entity-tracking-range:
       players: 48
       animals: 48
@@ -120,7 +151,6 @@ world-settings:
     wither-spawn-sound-radius: 0
     enable-zombie-pigmen-portal-spawns: true
     item-despawn-rate: 6000
-    view-distance: 10
     arrow-despawn-rate: 1200
     hanging-tick-frequency: 100
     zombie-aggressive-towards-villager: true
