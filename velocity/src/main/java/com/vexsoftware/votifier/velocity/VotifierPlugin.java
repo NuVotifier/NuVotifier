@@ -253,7 +253,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         this.scheduler = new VelocityScheduler(server, this);
         this.loggingAdapter = new SLF4JLogger(logger);
 
-        this.getServer().getCommandManager().register(new NVReloadCmd(this), "nvpreload");
+        this.getServer().getCommandManager().register(new NVReloadCmd(this), "pnvreload");
         this.getServer().getCommandManager().register(new TestVoteCmd(this), "ptestvote");
 
         if (!loadAndBind())
