@@ -1,8 +1,7 @@
 ## Using this testbed
 
-This testbed runs two proxies (Waterfall and Velocity, labeled p1 and p2)
-as well as two Paper servers behind it, labeled s1 and s2. Ports for where
-everything is bound is listed below.
+This testbed runs two proxies, labeled p1 and p2, as well as two servers behind it,
+labeled s1 and s2. Ports for where everything is bound is listed below.
 
 First, download required sources using the following command:
 
@@ -20,9 +19,11 @@ FYI, this only works in Linux afaik because thats what I do my development on.
 
 # Ports
 
-| Server | MC Port | Votifier Port |
-| ------ | ------- | ------------- |
-| p1     | 25577   | 8192          |
-| p2     | 25578   | 8193          |
-| s1     | 25565   | 8194          |
-| s2     | 25566   | 8195          |
+| Server | Server Software        | MC Port | Votifier Port |
+| ------ | ---------------------- | ------- | ------------- |
+| p1     | Waterfall/BungeeCord   | 25577   | 8192          |
+| p2     | Velocity               | 25578   | 8193          |
+| s1     | Paper (1.15.2)         | 25565   | 8194          |
+| s2     | SpongeVanilla (1.12.2) | 25566   | 8195          |
+
+For compatibility with 1.15.2, s2 includes ViaVersion.

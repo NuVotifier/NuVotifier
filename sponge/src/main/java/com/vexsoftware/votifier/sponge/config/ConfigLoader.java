@@ -22,7 +22,7 @@ public class ConfigLoader {
         }
         try {
             File config = new File(pl.getConfigDir(), "config.yml");
-            if (!config.createNewFile()) {
+            if (!config.exists() && !config.createNewFile()) {
                 throw new IOException("Unable to create the config file at " + config);
             }
             ConfigurationLoader loader = YAMLConfigurationLoader.builder().setFile(config).build();

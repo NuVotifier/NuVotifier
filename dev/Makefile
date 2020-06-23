@@ -1,7 +1,7 @@
 
-.PHONY: clean, all, run
+.PHONY: clean all run
 
-all : resources/paper.jar resources/waterfall.jar resources/velocity.jar
+all : resources/paper.jar resources/waterfall.jar resources/velocity.jar resources/sponge.jar
 
 resources :
 	mkdir resources
@@ -14,6 +14,9 @@ resources/waterfall.jar : resources
 
 resources/velocity.jar : resources
 	wget -O resources/velocity.jar https://ci.velocitypowered.com/job/velocity-1.1.0/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.1.0-SNAPSHOT-all.jar
+
+resources/sponge.jar : resources
+	wget -O resources/sponge.jar https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.2.2/spongevanilla-1.12.2-7.2.2.jar
 
 clean :
 	rm -r resources/

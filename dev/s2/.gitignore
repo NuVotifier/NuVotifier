@@ -3,17 +3,15 @@ banned-players.json
 
 cache/
 
-eula.txt
-
 logs/
 
 permissions.yml
 
 ops.json
 usercache.json
+usernamecache.json
 version_history.json
 whitelist.json
 
 world/
-world_nether/
-world_the_end/
+.mixin.out

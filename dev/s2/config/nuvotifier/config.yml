@@ -1,0 +1,8 @@
+host: 127.0.0.1
+port: 8195
+debug: true
+disable-v1-protocol: false
+tokens: {default: server2token}
+forwarding:
+    method: pluginMessaging
+    pluginMessaging: {channel: 'nuvotifier:votes'}
