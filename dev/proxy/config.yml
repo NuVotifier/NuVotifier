@@ -15,6 +15,7 @@ listeners:
   tab_size: 60
   force_default_server: false
 remote_ping_cache: -1
+network_compression_threshold: 256
 permissions:
   default:
   - bungeecord.command.server
@@ -24,11 +25,10 @@ permissions:
   - bungeecord.command.end
   - bungeecord.command.ip
   - bungeecord.command.reload
-network_compression_threshold: 256
-timeout: 30000
 log_pings: true
 connection_throttle_limit: 3
 prevent_proxy_connections: true
+timeout: 30000
 player_limit: -1
 ip_forward: true
 groups:

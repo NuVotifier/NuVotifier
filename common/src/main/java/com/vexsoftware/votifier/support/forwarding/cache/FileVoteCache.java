@@ -3,7 +3,6 @@ package com.vexsoftware.votifier.support.forwarding.cache;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.ScheduledVotifierTask;
@@ -12,6 +11,7 @@ import com.vexsoftware.votifier.util.GsonInst;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +50,11 @@ public class FileVoteCache extends MemoryVoteCache {
         JsonObject object;
         try (BufferedReader reader = Files.newBufferedReader(cacheFile.toPath(), StandardCharsets.UTF_8)) {
             object = GsonInst.gson.fromJson(reader, JsonObject.class);
-            if (object == null)
+            if (object == null) {
                 // When the input is not malformed but instead empty, this returns null. Simply assume it is empty.
                 object = new JsonObject();
-        } catch (FileNotFoundException e) {
+            }
+        } catch (NoSuchFileException e) {
             object = new JsonObject();
         }
 

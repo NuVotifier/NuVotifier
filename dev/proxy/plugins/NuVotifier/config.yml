@@ -7,7 +7,7 @@ port: 8192
 
 # Whether or not to print debug messages. In a production system, this should be set to false.
 # This is useful when initially setting up NuVotifier to ensure votes are being delivered.
-debug: false
+debug: true
 
 # All tokens, labeled by the serviceName of each server list.
 tokens:
@@ -24,7 +24,7 @@ forwarding:
   # - none - Does not set up a forwarding method.
   # - pluginMessaging - Sets up plugin messaging.
   # - proxy - Proxies votes to other NuVotifier servers from this server.
-  method: none
+  method: pluginMessaging
   pluginMessaging:
     channel: nuvotifier:votes
 
@@ -46,11 +46,11 @@ forwarding:
     #   most set ups.
     cache: file
     # Only sends the vote to the server in which the player is currently joined.
-    onlySendToJoinedServer: false
+    onlySendToJoinedServer: true
     #Sets which server to send the vote in the event the player is not online when the vote is cast
     #If you do not want the vote forwarded to a fallback, set this value to empty ('')
     #ONLY USED IF onlySendToJoinedServer is true!!
-    joinedServerFallback: 'Hub'
+    joinedServerFallback: 's1'
     # Defines how quickly to dump votes over a player's connection when offloading a cache in votes per second
     dumpRate: 5
     # Options for file caching.

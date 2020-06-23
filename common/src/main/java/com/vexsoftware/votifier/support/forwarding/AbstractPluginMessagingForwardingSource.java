@@ -39,7 +39,11 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         byte[] rawData = v.serialize().toString().getBytes(StandardCharsets.UTF_8);
         for (BackendServer server : plugin.getAllBackendServers()) {
             if (!serverFilter.isAllowed(server.getName())) continue;
-            if (!forwardSpecific(server, rawData)) attemptToAddToCache(v, server.getName());
+            if (!forwardSpecific(server, rawData)) {
+                attemptToAddToCache(v, server.getName());
+            } else if (plugin.isDebug()) {
+                plugin.getPluginLogger().info("Successfully forwarded vote " + v + " to server " + server.getName());
+            }
         }
     }
 

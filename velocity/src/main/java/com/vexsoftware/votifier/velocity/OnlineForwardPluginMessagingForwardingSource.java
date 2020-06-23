@@ -38,6 +38,9 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
                 serverFilter.isAllowed(sc.get().getServerInfo().getName())
         ) {
             if (forwardSpecific(new VelocityBackendServer(plugin.getServer(), sc.get().getServer()), v)) {
+                if (plugin.isDebug()) {
+                    plugin.getPluginLogger().info("Successfully forwarded vote " + v + " to server " + sc.get().getServerInfo().getName());
+                }
                 return;
             }
         }
