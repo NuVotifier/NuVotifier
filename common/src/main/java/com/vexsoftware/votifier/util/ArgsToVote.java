@@ -26,19 +26,25 @@ public class ArgsToVote {
             if (m.matches()) {
                 String key = m.group(1).toLowerCase();
                 String v = m.group(2);
-                if (key.equals("servicename")) {
-                    serviceName = v;
-                } else if (key.equals("username")) {
-                    if (v.length() > 16)
-                        throw new IllegalArgumentException("Illegal username - must be less than 16 characters long.");
-                    username = v;
-                } else if (key.equals("address")) {
-                    address = v;
-                } else if (key.equals("timestamp")) {
-                    timestamp = v;
-                } else {
-                    if (additionalArgs != null)
-                        additionalArgs.put(key, v);
+                switch (key) {
+                    case "servicename":
+                        serviceName = v;
+                        break;
+                    case "username":
+                        if (v.length() > 16)
+                            throw new IllegalArgumentException("Illegal username - must be less than 16 characters long.");
+                        username = v;
+                        break;
+                    case "address":
+                        address = v;
+                        break;
+                    case "timestamp":
+                        timestamp = v;
+                        break;
+                    default:
+                        if (additionalArgs != null)
+                            additionalArgs.put(key, v);
+                        break;
                 }
 
             } else {
