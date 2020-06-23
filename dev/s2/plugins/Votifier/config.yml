@@ -3,7 +3,7 @@
 host: 0.0.0.0
 
 # Port to listen for new votes on
-port: 8194
+port: 8195
 
 # Whether or not to print debug messages. In a production system, this should be set to false.
 # This is useful when initially setting up NuVotifier to ensure votes are being delivered.

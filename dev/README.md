@@ -1,7 +1,8 @@
 ## Using this testbed
 
-This testbed runs one Bungeecord as well as two Paper servers behind it, labeled
-s1 and s2. Ports for where everything is bound is listed below.
+This testbed runs two proxies (Waterfall and Velocity, labeled p1 and p2)
+as well as two Paper servers behind it, labeled s1 and s2. Ports for where
+everything is bound is listed below.
 
 First, download required sources using the following command:
 
@@ -21,6 +22,7 @@ FYI, this only works in Linux afaik because thats what I do my development on.
 
 | Server | MC Port | Votifier Port |
 | ------ | ------- | ------------- |
-| proxy  | 25577   | 8192          |
-| s1     | 25565   | 8193          |
-| s2     | 25566   | 8194          |
+| p1     | 25577   | 8192          |
+| p2     | 25578   | 8193          |
+| s1     | 25565   | 8194          |
+| s2     | 25566   | 8195          |

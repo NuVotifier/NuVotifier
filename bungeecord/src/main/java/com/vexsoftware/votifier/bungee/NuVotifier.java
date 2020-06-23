@@ -1,5 +1,6 @@
 package com.vexsoftware.votifier.bungee;
 
+import com.google.common.collect.ImmutableList;
 import com.vexsoftware.votifier.VoteHandler;
 import com.vexsoftware.votifier.bungee.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.bungee.cmd.TestVoteCmd;

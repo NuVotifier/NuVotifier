@@ -1,4 +1,4 @@
-server_connect_timeout: 5000
+prevent_proxy_connections: true
 listeners:
 - query_port: 25577
   motd: '&4its a bungee cord surbur'
@@ -27,7 +27,7 @@ permissions:
   - bungeecord.command.reload
 log_pings: true
 connection_throttle_limit: 3
-prevent_proxy_connections: true
+server_connect_timeout: 5000
 timeout: 30000
 player_limit: -1
 ip_forward: true

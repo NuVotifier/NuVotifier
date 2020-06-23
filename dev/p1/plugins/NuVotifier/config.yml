@@ -12,7 +12,7 @@ debug: true
 # All tokens, labeled by the serviceName of each server list.
 tokens:
   # Default token for all server lists, if another isn't supplied.
-  default: jqpli3gnd8l67qsg2d81vje09h
+  default: proxy1token
 
 # Setting this option to true will disable handling of Protocol v1 packets. While the old protocol is not secure, this
 # option is currently not recommended as most voting sites only support the old protocol at present.

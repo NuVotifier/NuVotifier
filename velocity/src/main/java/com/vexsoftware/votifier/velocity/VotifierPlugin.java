@@ -156,7 +156,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             int dumpRate = pmCfg.getLong("dumpRate", 5L).intValue();
 
             ServerFilter filter = new ServerFilter(
-                    pmCfg.getList("excludedServers"),
+                    pmCfg.getList("excludedServers", Collections.emptyList()),
                     pmCfg.getBoolean("whitelist", false)
             );
 
@@ -262,7 +262,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     @Subscribe
     public void onServerStop(ProxyShutdownEvent event) {
-
+        this.halt();
         logger.info("Votifier disabled.");
     }
 

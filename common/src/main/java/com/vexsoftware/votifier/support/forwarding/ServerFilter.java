@@ -11,7 +11,7 @@ public class ServerFilter {
     }
 
     public ServerFilter() {
-        this(Collections.EMPTY_SET, true);
+        this(Collections.emptySet(), true);
     }
 
     private final Collection<String> names;
