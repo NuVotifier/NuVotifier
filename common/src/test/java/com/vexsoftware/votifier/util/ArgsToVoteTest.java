@@ -1,12 +1,18 @@
 package com.vexsoftware.votifier.util;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.vexsoftware.votifier.model.Vote;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,5 +75,34 @@ public class ArgsToVoteTest {
         }
 
         fail("Unable to find appropriate getter - this is a bug");
+    }
+
+    @ParameterizedTest
+    @MethodSource("powerSetArgs")
+    void handlesMixedKeywordArguments(Set<String> keys) throws Exception {
+        String[] args = new String[keys.size() + 1];
+        args[0] = "abc123";
+        for (int i = 0; i < keys.size(); i++) {
+            args[i + 1] = ImmutableList.copyOf(keys).get(i) + "=dummy";
+        }
+        Vote vote = ArgsToVote.parse(args);
+
+        assertEquals("abc123", vote.getUsername());
+
+        // Find the getters on the Vote object
+        outer: for (String key : keys) {
+            for (Method method : Vote.class.getDeclaredMethods()) {
+                if (method.getName().toLowerCase(Locale.ENGLISH).equals("get" + key)) {
+                    assertEquals("dummy", method.invoke(vote));
+                    continue outer;
+                }
+            }
+
+            fail("Unable to find appropriate getter - this is a bug");
+        }
+    }
+
+    private static Stream<Set<String>> powerSetArgs() {
+        return Sets.powerSet(ImmutableSet.of("servicename", "address", "timestamp")).stream();
     }
 }
