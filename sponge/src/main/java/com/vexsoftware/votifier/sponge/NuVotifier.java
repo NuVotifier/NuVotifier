@@ -36,7 +36,7 @@ import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
 
-@Plugin(id = "nuvotifier", name = "NuVotifier", version = "2.7.0", authors = "Ichbinjoe",
+@Plugin(id = "nuvotifier", name = "NuVotifier", version = "3.0.0-SNAPSHOT", authors = "Ichbinjoe",
         description = "Safe, smart, and secure Votifier server plugin")
 public class NuVotifier implements VoteHandler, VotifierPlugin, ForwardedVoteListener {
 
