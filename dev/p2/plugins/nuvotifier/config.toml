@@ -21,7 +21,7 @@ default = "proxy2token"
 # - none - Does not set up a forwarding method.
 # - pluginMessaging - Sets up plugin messaging.
 # - proxy - Proxies votes to other NuVotifier servers from this server.
-method = "pluginMessaging"
+method = "proxy"
 
 [forwarding.pluginMessaging]
 channel = "nuvotifier:votes"
@@ -70,10 +70,10 @@ cacheTime = 10
 
 [forwarding.proxy.Hub]
 address = "127.0.0.1"
-port = 8193
-token = "MyKeyHere"
+port = 8194
+token = "server1token"
 
 [forwarding.proxy.Hub2]
 address = "127.0.0.1"
-port = 8194
-token = "MyKeyHere"
+port = 8195
+token = "server2token"

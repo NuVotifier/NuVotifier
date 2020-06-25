@@ -24,7 +24,7 @@ forwarding:
   # - none - Does not set up a forwarding method.
   # - pluginMessaging - Sets up plugin messaging.
   # - proxy - Proxies votes to other NuVotifier servers from this server.
-  method: pluginMessaging
+  method: proxy
   pluginMessaging:
     channel: nuvotifier:votes
 
@@ -66,9 +66,9 @@ forwarding:
   proxy:
     Hub:
       address: 127.0.0.1
-      port: 8193
-      token: MyKeyHere
+      port: 8194
+      token: server1token
     Hub2:
       address: 127.0.0.1
-      port: 8194
-      token: AnotherKeyHere
+      port: 8195
+      token: server2token
