@@ -10,7 +10,7 @@ import com.vexsoftware.votifier.model.Vote;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
@@ -53,9 +53,9 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
 
     private void forwardVote(final BackendServer server, final Vote v, final int tries) {
         nettyBootstrap.get()
-                .handler(new ChannelInitializer<NioSocketChannel>() {
+                .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel channel) {
+                    protected void initChannel(SocketChannel channel) {
                         channel.pipeline().addLast(new DelimiterBasedFrameDecoder(256, true, Delimiters.lineDelimiter()));
                         channel.pipeline().addLast(new ReadTimeoutHandler(5, TimeUnit.SECONDS));
                         channel.pipeline().addLast(STRING_DECODER);
