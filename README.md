@@ -6,7 +6,7 @@ Votifier will also support NuVotifier.
 
 NuVotifier supports many different platforms using the same universal JAR:
 
-+ Bukkit / Spigot / Paper >=1.8
++ Bukkit / Spigot / Paper >=1.7.10
 + Sponge 7
 + BungeeCord / Waterfall
 + Velocity
