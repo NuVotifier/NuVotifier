@@ -23,7 +23,7 @@ FYI, this only works in Linux afaik because thats what I do my development on.
 | ------ | ---------------------- | ------- | ------------- |
 | p1     | Waterfall/BungeeCord   | 25577   | 8192          |
 | p2     | Velocity               | 25578   | 8193          |
-| s1     | Paper (1.15.2)         | 25565   | 8194          |
+| s1     | Paper (1.16.1)         | 25565   | 8194          |
 | s2     | SpongeVanilla (1.12.2) | 25566   | 8195          |
 
-For compatibility with 1.15.2, s2 includes ViaVersion.
+For compatibility with 1.16.1, s2 includes ViaVersion.

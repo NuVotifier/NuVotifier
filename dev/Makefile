@@ -7,7 +7,7 @@ resources :
 	mkdir resources
 
 resources/paper.jar : resources
-	wget -O resources/paper.jar https://papermc.io/api/v1/paper/1.15.2/353/download
+	wget -O resources/paper.jar https://papermc.io/api/v1/paper/1.16.1/78/download
 
 resources/waterfall.jar : resources
 	wget -O resources/waterfall.jar https://papermc.io/ci/job/Waterfall/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterfall.jar

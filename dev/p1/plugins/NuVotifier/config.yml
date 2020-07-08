@@ -24,7 +24,7 @@ forwarding:
   # - none - Does not set up a forwarding method.
   # - pluginMessaging - Sets up plugin messaging.
   # - proxy - Proxies votes to other NuVotifier servers from this server.
-  method: proxy
+  method: pluginMessaging
   pluginMessaging:
     channel: nuvotifier:votes
 

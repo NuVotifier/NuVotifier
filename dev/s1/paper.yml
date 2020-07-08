@@ -10,7 +10,6 @@
 # Website: https://papermc.io/ 
 # Docs: https://paper.readthedocs.org/ 
 
-allow-perm-block-break-exploits: false
 verbose: false
 config-version: 20
 settings:
@@ -47,7 +46,14 @@ settings:
     threads: -1
   use-alternative-luck-formula: false
   unsupported-settings:
-    allow-tnt-duplication: false
+    allow-permanent-block-break-exploits: false
+    allow-piston-duplication: false
+    allow-permanent-block-break-exploits-readme: This setting controls if players
+      should be able to break bedrock, end portals and other intended to be permanent
+      blocks.
+    allow-piston-duplication-readme: This setting controls if player should be able
+      to use TNT duplication, but this also allows duplicating carpet, rails and potentially
+      other items
 messages:
   no-permission: '&cI''m sorry, but you do not have permission to perform this command.
     Please contact the server administrators if you believe that this is in error.'

@@ -61,6 +61,11 @@ advancements:
   - minecraft:story/disabled
 world-settings:
   default:
+    seed-bastion: 30084232
+    seed-fortress: 30084232
+    seed-mansion: 10387319
+    seed-fossil: 14357921
+    seed-portal: 34222645
     seed-outpost: 165745296
     seed-endcity: 10387313
     view-distance: default
