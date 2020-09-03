@@ -21,7 +21,7 @@ default = "proxy2token"
 # - none - Does not set up a forwarding method.
 # - pluginMessaging - Sets up plugin messaging.
 # - proxy - Proxies votes to other NuVotifier servers from this server.
-method = "proxy"
+method = "pluginMessaging"
 
 [forwarding.pluginMessaging]
 channel = "nuvotifier:votes"
@@ -42,7 +42,7 @@ channel = "nuvotifier:votes"
 #   most set ups.
 cache = "file"
 # Only sends the vote to the server in which the player is currently joined.
-onlySendToJoinedServer = true
+onlySendToJoinedServer = false
 
 # Sets which server to send the vote in the event the player is not online when the vote is cast
 # If you do not want the vote forwarded to a fallback, set this value to empty ('')

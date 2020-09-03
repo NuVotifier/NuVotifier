@@ -13,6 +13,7 @@
 verbose: false
 config-version: 20
 settings:
+  max-joins-per-tick: 3
   console-has-all-permissions: false
   chunk-tasks-per-tick: 1000
   load-permissions-yml-before-plugins: true
@@ -46,6 +47,7 @@ settings:
     threads: -1
   use-alternative-luck-formula: false
   unsupported-settings:
+    allow-headless-pistons: false
     allow-permanent-block-break-exploits: false
     allow-piston-duplication: false
     allow-permanent-block-break-exploits-readme: This setting controls if players
@@ -54,6 +56,8 @@ settings:
     allow-piston-duplication-readme: This setting controls if player should be able
       to use TNT duplication, but this also allows duplicating carpet, rails and potentially
       other items
+    allow-headless-pistons-readme: This setting controls if players should be able
+      to create headless pistons.
 messages:
   no-permission: '&cI''m sorry, but you do not have permission to perform this command.
     Please contact the server administrators if you believe that this is in error.'
@@ -74,6 +78,7 @@ timings:
   history-length: 3600
 world-settings:
   default:
+    zombies-target-turtle-eggs: true
     per-player-mob-spawns: false
     phantoms-do-not-spawn-on-creative-players: true
     phantoms-only-attack-insomniacs: true
