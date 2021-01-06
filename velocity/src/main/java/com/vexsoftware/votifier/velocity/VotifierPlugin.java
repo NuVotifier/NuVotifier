@@ -172,6 +172,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
                     String fallbackServer = pmCfg.getString("joinedServerFallback", null);
                     if (fallbackServer != null && fallbackServer.isEmpty()) fallbackServer = null;
                     forwardingMethod = new OnlineForwardPluginMessagingForwardingSource(channel, filter, this, voteCache, fallbackServer, dumpRate);
+                    getLogger().info("Forwarding votes over PluginMessaging channel '" + channel + "' for vote forwarding for online players!");
                 } catch (RuntimeException e) {
                     getLogger().error("NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }
