@@ -45,7 +45,9 @@ public final class OnlineForwardPluginMessagingForwardingSource extends Abstract
             }
         }
 
-        Optional<RegisteredServer> fs = plugin.getServer().getServer(fallbackServer);
+        Optional<RegisteredServer> fs = fallbackServer == null ?
+                Optional.empty() :
+                plugin.getServer().getServer(fallbackServer);
         // nowhere to fall back to, yet still not online. lets save this vote yet!
         if (!fs.isPresent())
             attemptToAddToPlayerCache(v, v.getUsername());
