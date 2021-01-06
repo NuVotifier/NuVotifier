@@ -58,6 +58,7 @@ shadowJar {
     relocate "io.netty", "com.vexsoftware.votifier.io.netty"
     relocate "org.json", "com.vexsoftware.votifier.json"
     relocate new SimpleRelocator("com.google.code", "com.vexsoftware.votifier.google.code", new ArrayList<String>(), Collections.singletonList("com.vexsoftware.votifier.sponge"))
+    relocate "com.google.gson", "com.vexsoftware.votifier.google.gson"
     relocate "org.apache.commons.io", "com.vexsoftware.votifier.commons.io"
 
     transform(NettyEpollTransformer.class)
