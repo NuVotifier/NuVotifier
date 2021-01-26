@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group 'com.vexsoftware'
-    version '3.0.0-SNAPSHOT'
+    version '2.7.2'
 }
 
 subprojects {
