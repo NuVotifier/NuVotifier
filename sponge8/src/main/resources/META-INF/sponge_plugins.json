@@ -1,0 +1,35 @@
+{
+    "loader": {
+        "name": "java_plain",
+        "version": "1.0"
+    },
+    "license": "GPLv3",
+    "plugins": [
+        {
+            "id": "nuvotifier",
+            "name": "NuVotifier",
+            "version": "${version}",
+            "entrypoint": "com.vexsoftware.votifier.sponge8.NuVotifier",
+            "description": "Safe, smart, and secure Votifier server plugin",
+            "links": {
+                "homepage": "https://github.com/NuVotifier/NuVotifier",
+                "source": "https://github.com/NuVotifier/NuVotifier",
+                "issues": "https://github.com/NuVotifier/NuVotifier/issues"
+            },
+            "contributors": [
+                {
+                    "name": "Ichbinjoe",
+                    "description": "Lead Developer"
+                }
+            ],
+            "dependencies": [
+                {
+                    "id": "spongeapi",
+                    "version": "8.0.0",
+                    "load-order": "AFTER",
+                    "optional": false
+                }
+            ]
+        }
+    ]
+}
