@@ -2,12 +2,13 @@ package com.vexsoftware.votifier.velocity.cmd;
 
 import com.velocitypowered.api.command.Command;
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.command.SimpleCommand;
 import com.vexsoftware.votifier.velocity.VotifierPlugin;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class NVReloadCmd implements Command {
+public class NVReloadCmd implements SimpleCommand {
 
     private final VotifierPlugin plugin;
 
@@ -16,17 +17,18 @@ public class NVReloadCmd implements Command {
     }
 
     @Override
-    public void execute(CommandSource sender, @NonNull String[] args) {
-        sender.sendMessage(TextComponent.of("Reloading NuVotifier...").color(TextColor.GRAY));
+    public void execute(SimpleCommand.Invocation invocation) {
+        CommandSource sender = invocation.source();
+        sender.sendMessage(Component.text("Reloading NuVotifier...").color(NamedTextColor.GRAY));
         if (plugin.reload()) {
-            sender.sendMessage(TextComponent.of("NuVotifier has been reloaded!").color(TextColor.DARK_GREEN));
+            sender.sendMessage(Component.text("NuVotifier has been reloaded!").color(NamedTextColor.DARK_GREEN));
         } else {
-            sender.sendMessage(TextComponent.of("Looks like there was a problem reloading NuVotifier, check the console!").color(TextColor.DARK_RED));
+            sender.sendMessage(Component.text("Looks like there was a problem reloading NuVotifier, check the console!").color(NamedTextColor.DARK_RED));
         }
     }
 
     @Override
-    public boolean hasPermission(CommandSource sender, @NonNull String[] args) {
-        return sender.hasPermission("nuvotifier.reload");
+    public boolean hasPermission(Invocation invocation) {
+        return invocation.source().hasPermission("nuvotifier.reload");
     }
 }

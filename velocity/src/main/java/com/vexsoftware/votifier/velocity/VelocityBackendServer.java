@@ -15,7 +15,7 @@ class VelocityBackendServer implements BackendServer {
 
     @Override
     public String getName() {
-        return rs.getServerInfo().getName();
+        return rs.serverInfo().name();
     }
 
     @Override
@@ -25,6 +25,6 @@ class VelocityBackendServer implements BackendServer {
 
     @Override
     public String toString() {
-        return rs.getServerInfo().getName();
+        return rs.serverInfo().name();
     }
 }

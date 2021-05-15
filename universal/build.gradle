@@ -19,6 +19,8 @@ buildscript {
     }
 }
 
+sourceCompatibility = 11
+
 class NettyEpollTransformer implements Transformer {
     private java.nio.file.Path extractedNettyNative
 
