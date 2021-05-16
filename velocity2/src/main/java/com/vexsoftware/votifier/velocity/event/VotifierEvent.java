@@ -1,8 +1,9 @@
 package com.vexsoftware.votifier.velocity.event;
 
+import com.velocitypowered.api.event.Event;
 import com.vexsoftware.votifier.model.Vote;
 
-public class VotifierEvent {
+public class VotifierEvent implements Event {
     private final Vote vote;
 
     public VotifierEvent(Vote vote) {

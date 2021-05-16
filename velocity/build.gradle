@@ -4,12 +4,9 @@ blossom {
     replaceToken '@version@', project.version
 }
 
-sourceCompatibility = 11
-
 dependencies {
-    compileOnly "com.velocitypowered:velocity-api:2.0.0-SNAPSHOT"
-    annotationProcessor "com.velocitypowered:velocity-annotation-processor:2.0.0-SNAPSHOT"
-    implementation "com.moandjiezana.toml:toml4j:0.7.2"
+    compileOnly "com.velocitypowered:velocity-api:1.0.0-SNAPSHOT"
+    annotationProcessor "com.velocitypowered:velocity-api:1.0.0-SNAPSHOT"
     implementation project(":nuvotifier-api")
     implementation project(":nuvotifier-common")
 }

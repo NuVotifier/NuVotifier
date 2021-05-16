@@ -3,9 +3,10 @@ package com.vexsoftware.votifier.velocity;
 import com.google.inject.Inject;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.event.lifecycle.ProxyInitializeEvent;
+import com.velocitypowered.api.event.lifecycle.ProxyReloadEvent;
+import com.velocitypowered.api.event.lifecycle.ProxyShutdownEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -51,7 +52,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Plugin(id = "nuvotifier", name = "NuVotifier", version = "@version@", authors = "Ichbinjoe",
-        description = "Safe, smart, and secure Votifier server plugin")
+        description = "Safe, smart, and secure Votifier server plugin",
+        dependencies = {
+                @Dependency(id = "velocity", version = "2.x.x")
+        })
 public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     @Inject
@@ -254,8 +258,8 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
         this.scheduler = new VelocityScheduler(server, this);
         this.loggingAdapter = new SLF4JLogger(logger);
 
-        this.getServer().getCommandManager().register(new NVReloadCmd(this), "pnvreload");
-        this.getServer().getCommandManager().register(new TestVoteCmd(this), "ptestvote");
+        this.getServer().commandManager().register("pnvreload", new NVReloadCmd(this));
+        this.getServer().commandManager().register("ptestvote", new TestVoteCmd(this));
 
         if (!loadAndBind())
             gracefulExit();
@@ -292,7 +296,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
             String cfgStr = new String(IOUtil.readAllBytes(VotifierPlugin.class.getResourceAsStream("/config.toml")), StandardCharsets.UTF_8);
             String token = TokenUtil.newToken();
-            cfgStr = cfgStr.replace("%ip%", server.getBoundAddress().getAddress().getHostAddress());
+            cfgStr = cfgStr.replace("%ip%", "0.0.0.0"); // TODO: Fix
             cfgStr = cfgStr.replace("%default_token%", token);
 
             /*
@@ -391,7 +395,7 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             }
         }
 
-        server.getEventManager().fireAndForget(new VotifierEvent(vote));
+        server.eventManager().fireAndForget(new VotifierEvent(vote));
         if (forwardingMethod != null) {
             forwardingMethod.forward(vote);
         }
@@ -413,11 +417,11 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
     @Override
     public Collection<BackendServer> getAllBackendServers() {
-        return server.getAllServers().stream().map(s -> new VelocityBackendServer(server, s)).collect(Collectors.toList());
+        return server.registeredServers().stream().map(s -> new VelocityBackendServer(server, s)).collect(Collectors.toList());
     }
 
     @Override
     public Optional<BackendServer> getServer(String name) {
-        return server.getServer(name).map(s -> new VelocityBackendServer(server, s));
+        return Optional.ofNullable(server.server(name)).map(s -> new VelocityBackendServer(server, s));
     }
 }

@@ -1,19 +1,19 @@
 package com.vexsoftware.votifier.velocity;
 
-import com.velocitypowered.api.proxy.messages.PluginChannelId;
-import net.kyori.adventure.key.Key;
+import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
+import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
+import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
 public class VelocityUtil {
-    private static final Key MODERN_CHANNEL = Key.key("nuvotifier", "votes");
-
     private VelocityUtil() {
         throw new AssertionError();
     }
 
-    public static PluginChannelId getId(String channel) {
+    public static ChannelIdentifier getId(String channel) {
         if (channel.contains(":")) {
-            return PluginChannelId.wrap(Key.key(channel));
+            String[] split = channel.split(":");
+            return MinecraftChannelIdentifier.create(split[0], split[1]);
         }
-        return PluginChannelId.withLegacy(channel, MODERN_CHANNEL);
+        return new LegacyChannelIdentifier(channel);
     }
 }

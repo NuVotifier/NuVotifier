@@ -1,14 +1,16 @@
 package com.vexsoftware.votifier.velocity.cmd;
 
-import com.velocitypowered.api.command.SimpleCommand;
+import com.velocitypowered.api.command.Command;
+import com.velocitypowered.api.command.CommandSource;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
 import com.vexsoftware.votifier.util.ArgsToVote;
 import com.vexsoftware.votifier.velocity.VotifierPlugin;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class TestVoteCmd implements SimpleCommand {
+public class TestVoteCmd implements Command {
 
     private final VotifierPlugin plugin;
 
@@ -17,22 +19,22 @@ public class TestVoteCmd implements SimpleCommand {
     }
 
     @Override
-    public void execute(Invocation invocation) {
+    public void execute(CommandSource sender, @NonNull String[] args) {
         Vote v;
         try {
-            v = ArgsToVote.parse(invocation.arguments());
+            v = ArgsToVote.parse(args);
         } catch (IllegalArgumentException e) {
-            invocation.source().sendMessage(Component.text("Error while parsing arguments to create test vote: " + e.getMessage()).color(NamedTextColor.DARK_RED));
-            invocation.source().sendMessage(Component.text("Usage hint: /testvote [username] [serviceName=?] [username=?] [address=?] [localTimestamp=?] [timestamp=?]").color(NamedTextColor.GRAY));
+            sender.sendMessage(TextComponent.of("Error while parsing arguments to create test vote: " + e.getMessage()).color(TextColor.DARK_RED));
+            sender.sendMessage(TextComponent.of("Usage hint: /testvote [username] [serviceName=?] [username=?] [address=?] [localTimestamp=?] [timestamp=?]").color(TextColor.GRAY));
             return;
         }
 
         plugin.onVoteReceived(v, VotifierSession.ProtocolVersion.TEST, "localhost.test");
-        invocation.source().sendMessage(Component.text("Test vote executed: " + v.toString()).color(NamedTextColor.GREEN));
+        sender.sendMessage(TextComponent.of("Test vote executed: " + v.toString()).color(TextColor.GREEN));
     }
 
     @Override
-    public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission("nuvotifier.testvote");
+    public boolean hasPermission(CommandSource source, @NonNull String[] args) {
+        return source.hasPermission("nuvotifier.testvote");
     }
 }

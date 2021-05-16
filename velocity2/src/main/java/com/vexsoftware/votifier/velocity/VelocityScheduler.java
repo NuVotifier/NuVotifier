@@ -18,7 +18,7 @@ class VelocityScheduler implements VotifierScheduler {
     }
 
     private Scheduler.TaskBuilder builder(Runnable runnable) {
-        return server.getScheduler().buildTask(plugin, runnable);
+        return server.scheduler().buildTask(plugin, runnable);
     }
 
     @Override
