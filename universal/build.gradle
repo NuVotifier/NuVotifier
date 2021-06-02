@@ -1,23 +1,13 @@
 import com.github.jengelman.gradle.plugins.shadow.relocation.SimpleRelocator
+import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
+import shadow.org.apache.tools.zip.ZipEntry
 
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.regex.Pattern
-import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
-import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
-import shadow.org.apache.tools.zip.ZipEntry
-import shadow.org.apache.tools.zip.ZipOutputStream
-import org.gradle.api.file.FileTreeElement
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
-    }
-}
 
 class NettyEpollTransformer implements Transformer {
     private java.nio.file.Path extractedNettyNative
@@ -33,7 +23,7 @@ class NettyEpollTransformer implements Transformer {
 
     boolean hasTransformedResource() { this.extractedNettyNative != null }
 
-    void modifyOutputStream(ZipOutputStream jos, boolean preserveFileTimestamps) {
+    void modifyOutputStream(shadow.org.apache.tools.zip.ZipOutputStream jos, boolean preserveFileTimestamps) {
         ZipEntry entry = new ZipEntry("META-INF/native/libcom_vexsoftware_votifier_netty_transport_native_epoll_x86_64.so")
         entry.time = TransformerContext.getEntryTimestamp(preserveFileTimestamps, entry.time)
         jos.putNextEntry(entry)
@@ -54,7 +44,8 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName = 'nuvotifier'
+    archiveBaseName.set('nuvotifier')
+    archiveClassifier.set('')
     relocate "io.netty", "com.vexsoftware.votifier.io.netty"
     relocate "org.json", "com.vexsoftware.votifier.json"
     relocate new SimpleRelocator("com.google.code", "com.vexsoftware.votifier.google.code", new ArrayList<String>(), Collections.singletonList("com.vexsoftware.votifier.sponge"))

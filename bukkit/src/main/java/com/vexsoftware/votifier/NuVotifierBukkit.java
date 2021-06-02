@@ -18,29 +18,6 @@
 
 package com.vexsoftware.votifier;
 
-import com.vexsoftware.votifier.cmd.NVReloadCmd;
-import com.vexsoftware.votifier.cmd.TestVoteCmd;
-import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
-import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
-import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
-import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.model.VotifierEvent;
-import com.vexsoftware.votifier.net.VotifierServerBootstrap;
-import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
-import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
-import com.vexsoftware.votifier.platform.JavaUtilLogger;
-import com.vexsoftware.votifier.platform.LoggingAdapter;
-import com.vexsoftware.votifier.platform.VotifierPlugin;
-import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
-import com.vexsoftware.votifier.util.IOUtil;
-import com.vexsoftware.votifier.util.KeyCreator;
-import com.vexsoftware.votifier.util.TokenUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +28,33 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import com.vexsoftware.votifier.cmd.NVReloadCmd;
+import com.vexsoftware.votifier.cmd.TestVoteCmd;
+import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
+import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.model.VotifierEvent;
+import com.vexsoftware.votifier.net.VotifierServerBootstrap;
+import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
+import com.vexsoftware.votifier.net.protocol.v1crypto.RSAKeygen;
+import com.vexsoftware.votifier.platform.JavaUtilLogger;
+import com.vexsoftware.votifier.platform.LoggingAdapter;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
+import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
+import com.vexsoftware.votifier.util.IOUtil;
+import com.vexsoftware.votifier.util.KeyCreator;
+import com.vexsoftware.votifier.util.TokenUtil;
 
 /**
  * The main Votifier plugin class.
@@ -79,7 +82,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     /**
      * Keys used for websites.
      */
-    private Map<String, Key> tokens = new HashMap<>();
+    private final Map<String, Key> tokens = new HashMap<>();
 
     private ForwardingVoteSink forwardingMethod;
     private VotifierScheduler scheduler;
@@ -104,7 +107,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
          * assigned to the server.
          */
         String hostAddr = Bukkit.getServer().getIp();
-        if (hostAddr == null || hostAddr.length() == 0)
+        if (hostAddr.length() == 0)
             hostAddr = "0.0.0.0";
 
         /*

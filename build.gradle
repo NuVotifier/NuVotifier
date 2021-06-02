@@ -2,8 +2,10 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id "com.github.spotbugs" version "4.2.4" apply false
-    id "net.kyori.blossom" version "1.1.0" apply false
+    id 'java-library'
+    id "com.github.spotbugs" version "4.7.1" apply false
+    id "net.kyori.blossom" version "1.2.0" apply false
+    id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
 }
 
 allprojects {
@@ -14,8 +16,6 @@ allprojects {
 subprojects {
     apply plugin: 'java'
     apply plugin: "com.github.spotbugs"
-
-    sourceCompatibility = 1.8
 
     repositories {
         mavenCentral()
@@ -34,10 +34,10 @@ subprojects {
     }
 
     dependencies {
-        testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.2"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.4.2"
-        testImplementation "org.junit.jupiter:junit-jupiter-params:5.4.2"
-        testImplementation "org.mockito:mockito-core:2.+"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.2"
+        testImplementation "org.mockito:mockito-core:3.10.0"
     }
 
     processResources {
@@ -46,6 +46,13 @@ subprojects {
 
     test {
         useJUnitPlatform()
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+            vendor = JvmVendorSpec.ADOPTOPENJDK
+        }
     }
 
     tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {

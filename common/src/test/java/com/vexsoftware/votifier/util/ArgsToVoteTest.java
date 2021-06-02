@@ -44,7 +44,7 @@ public class ArgsToVoteTest {
 
         // Find the getter on the Vote object
         for (Method method : Vote.class.getDeclaredMethods()) {
-            if (method.getName().toLowerCase(Locale.ENGLISH).equals("get" + key)) {
+            if (method.getName().toLowerCase(Locale.ENGLISH).equals("get" + key) && method.getParameterCount()==0) {
                 assertEquals("dummy", method.invoke(vote));
                 return;
             }
@@ -68,7 +68,7 @@ public class ArgsToVoteTest {
 
         // Find the getter on the Vote object
         for (Method method : Vote.class.getDeclaredMethods()) {
-            if (method.getName().toLowerCase(Locale.ENGLISH).equals("get" + key)) {
+            if (method.getName().toLowerCase(Locale.ENGLISH).equals("get" + key) && method.getParameterCount() == 0) {
                 assertEquals("dummy", method.invoke(vote));
                 return;
             }
@@ -92,7 +92,7 @@ public class ArgsToVoteTest {
         // Find the getters on the Vote object
         outer: for (String key : keys) {
             for (Method method : Vote.class.getDeclaredMethods()) {
-                if (method.getName().toLowerCase(Locale.ENGLISH).equals("get" + key)) {
+                if (method.getName().toLowerCase(Locale.ENGLISH).equals("get" + key) && method.getParameterCount() == 0) {
                     assertEquals("dummy", method.invoke(vote));
                     continue outer;
                 }
