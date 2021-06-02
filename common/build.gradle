@@ -1,8 +1,8 @@
 dependencies {
     implementation project(":nuvotifier-api")
-    implementation group: "io.netty", name: "netty-handler", version: "4.1.49.Final"
-    implementation group: "io.netty", name: "netty-transport-native-epoll", version: "4.1.49.Final", classifier: "linux-x86_64"
-    implementation 'com.google.code.gson:gson:2.8.0'
+    implementation group: "io.netty", name: "netty-handler", version: "4.1.65.Final"
+    implementation group: "io.netty", name: "netty-transport-native-epoll", version: "4.1.65.Final", classifier: "linux-x86_64"
+    implementation 'com.google.code.gson:gson:2.8.7'
     testImplementation group: "org.json", name: "json", version: "20180130" // retain this for testing reasons
-    testImplementation 'com.google.guava:guava:28.1-jre'
+    testImplementation 'com.google.guava:guava:30.1.1-jre'
 }

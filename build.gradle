@@ -2,8 +2,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id "com.github.spotbugs" version "4.2.4" apply false
-    id "net.kyori.blossom" version "1.1.0" apply false
+   // id "com.github.spotbugs" version "4.2.4" apply false
+    id "net.kyori.blossom" version "1.2.0" apply false
+    id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
 }
 
 allprojects {
@@ -13,9 +14,9 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: "com.github.spotbugs"
+    // apply plugin: "com.github.spotbugs"
 
-    sourceCompatibility = 1.8
+    sourceCompatibility = 16
 
     repositories {
         mavenCentral()
@@ -34,10 +35,10 @@ subprojects {
     }
 
     dependencies {
-        testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.2"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.4.2"
-        testImplementation "org.junit.jupiter:junit-jupiter-params:5.4.2"
-        testImplementation "org.mockito:mockito-core:2.+"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.2"
+        testImplementation "org.mockito:mockito-core:3.10.0"
     }
 
     processResources {
@@ -46,15 +47,5 @@ subprojects {
 
     test {
         useJUnitPlatform()
-    }
-
-    tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
-        reports {
-            html {
-                enabled = true
-                destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
-                stylesheet = 'fancy-hist.xsl'
-            }
-        }
     }
 }

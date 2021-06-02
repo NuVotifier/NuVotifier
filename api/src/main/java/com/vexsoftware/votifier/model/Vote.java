@@ -78,7 +78,7 @@ public class Vote {
                 vote.getAdditionalData() == null ? null : vote.getAdditionalData().clone());
     }
 
-    private static String getTimestamp(JsonElement object) {
+    public static String getTimestamp(JsonElement object) {
         try {
             return Long.toString(object.getAsLong());
         } catch (Exception e) {

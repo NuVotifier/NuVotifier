@@ -51,6 +51,6 @@ public interface VoteCache {
      * @return A collection of all votes which were previously in the cache under the player
      */
     default Collection<Vote> evictPlayer(String player) {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }
