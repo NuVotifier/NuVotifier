@@ -1,3 +1,3 @@
-open module nuvotifier.nuvotifier.api {
+open module com.vexsoftware.votifier {
   requires transitive com.google.gson;
 }
