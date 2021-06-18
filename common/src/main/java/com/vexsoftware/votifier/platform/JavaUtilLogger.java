@@ -1,6 +1,7 @@
 package com.vexsoftware.votifier.platform;
 
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class JavaUtilLogger implements LoggingAdapter {
@@ -19,6 +20,14 @@ public class JavaUtilLogger implements LoggingAdapter {
     @Override
     public void error(String s, Object... o) {
         logger.log(Level.SEVERE, s, o);
+    }
+
+    @Override
+    public void error(String s, Throwable e, Object... o) {
+        LogRecord lr = new LogRecord(Level.SEVERE, s);
+        lr.setParameters(o);
+        lr.setThrown(e);
+        logger.log(lr);
     }
 
     @Override

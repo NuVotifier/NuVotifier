@@ -21,6 +21,11 @@ public class SLF4JLogger implements LoggingAdapter {
     }
 
     @Override
+    public void error(String s, Throwable e, Object... o) {
+        l.error(s, e, o);
+    }
+
+    @Override
     public void warn(String s) {
         l.warn(s);
     }
