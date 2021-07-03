@@ -141,7 +141,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
 
                 // cachedVotes contains any votes which have yet to be evicted
                 cb.accept(cachedVotes);
-            }, 1, TimeUnit.SECONDS);
+            }, evictedAlready == 0 ? 3 : 1, TimeUnit.SECONDS);
         } else {
             cb.accept(cachedVotes);
         }
