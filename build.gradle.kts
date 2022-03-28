@@ -29,39 +29,3 @@ if (!project.hasProperty("gitCommitHash")) {
         "no.git.id"
     }
 }
-/*
-subprojects {
-    apply plugin: 'java'
-
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
-        }
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-        }
-        maven {
-            url "https://repo.spongepowered.org/maven"
-        }
-        maven {
-            url "https://repo.velocitypowered.com/snapshots/"
-        }
-    }
-
-    dependencies {
-        testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
-        testImplementation "org.junit.jupiter:junit-jupiter-params:5.8.2"
-        testImplementation "org.mockito:mockito-core:4.4.0"
-    }
-
-    processResources {
-        filter(ReplaceTokens, tokens: ["app.version": this.project.version])
-    }
-
-    test {
-        useJUnitPlatform()
-    }
-}
-*/
