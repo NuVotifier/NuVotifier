@@ -391,10 +391,11 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
             }
         }
 
-        server.getEventManager().fireAndForget(new VotifierEvent(vote));
-        if (forwardingMethod != null) {
-            forwardingMethod.forward(vote);
-        }
+        server.getEventManager().fire(new VotifierEvent(vote)).thenAccept(v -> {
+            if (v.getResult().isAllowed() && forwardingMethod != null) {
+                forwardingMethod.forward(v.getVote());
+            }
+        });
     }
 
     @Override

@@ -364,11 +364,15 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
             }
         }
 
-        getProxy().getScheduler().runAsync(this, () -> getProxy().getPluginManager().callEvent(new VotifierEvent(vote)));
-
-        if (forwardingMethod != null) {
-            getProxy().getScheduler().runAsync(this, () -> forwardingMethod.forward(vote));
-        }
+        getProxy().getPluginManager().callEvent(new VotifierEvent(vote, (result, error) -> {
+            if (error != null) {
+                getLogger().log(Level.WARNING, "Unable to process the votifier event due to an error", error);
+                return;
+            }
+            if (!result.isCancelled() && forwardingMethod != null) {
+                getProxy().getScheduler().runAsync(this, () -> forwardingMethod.forward(vote));
+            }
+        }));
     }
 
     @Override

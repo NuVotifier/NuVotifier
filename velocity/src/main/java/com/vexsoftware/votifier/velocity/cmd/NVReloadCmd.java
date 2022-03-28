@@ -1,5 +1,6 @@
 package com.vexsoftware.votifier.velocity.cmd;
 
+import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.vexsoftware.votifier.velocity.VotifierPlugin;
 import net.kyori.adventure.text.Component;
@@ -13,18 +14,20 @@ public class NVReloadCmd implements SimpleCommand {
         this.plugin = plugin;
     }
 
+
     @Override
-    public void execute(SimpleCommand.Invocation invocation) {
-        invocation.source().sendMessage(Component.text("Reloading NuVotifier...", NamedTextColor.GRAY));
+    public void execute(Invocation invocation) {
+        CommandSource sender = invocation.source();
+        sender.sendMessage(Component.text("Reloading NuVotifier...", NamedTextColor.GRAY));
         if (plugin.reload()) {
-            invocation.source().sendMessage(Component.text("NuVotifier has been reloaded!", NamedTextColor.DARK_GREEN));
+            sender.sendMessage(Component.text("NuVotifier has been reloaded!", NamedTextColor.DARK_GREEN));
         } else {
-            invocation.source().sendMessage(Component.text("Looks like there was a problem reloading NuVotifier, check the console!", NamedTextColor.DARK_RED));
+            sender.sendMessage(Component.text("Looks like there was a problem reloading NuVotifier, check the console!", NamedTextColor.DARK_RED));
         }
     }
 
     @Override
-    public boolean hasPermission(SimpleCommand.Invocation invocation) {
+    public boolean hasPermission(Invocation invocation) {
         return invocation.source().hasPermission("nuvotifier.reload");
     }
 }
