@@ -6,6 +6,7 @@ plugins {
 }
 
 applyPlatformAndCoreConfiguration()
+applyCommonArtifactoryConfig()
 applyShadowConfiguration()
 
 blossom {

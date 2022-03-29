@@ -1,4 +1,4 @@
 name: NuVotifier
 main: com.vexsoftware.votifier.bungee.NuVotifier
-version: @app.version@
+version: "${internalVersion}"
 author: Ichbinjoe, blakeman8192, Kramer, tuxed

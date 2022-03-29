@@ -5,33 +5,19 @@ plugins {
 }
 
 applyPlatformAndCoreConfiguration()
-applyCommonArtifactoryConfig()
 applyShadowConfiguration()
-
-repositories {
-    maven {
-        name = "bungeecord"
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-    }
-}
 
 configurations {
     compileClasspath.get().extendsFrom(create("shadeOnly"))
 }
 
 dependencies {
-    "compileOnly"("net.md-5:bungeecord-api:1.18-R0.1-SNAPSHOT")
-    "api"(project(":nuvotifier-api"))
-    "api"(project(":nuvotifier-common"))
-}
-
-
-tasks.named<Copy>("processResources") {
-    val internalVersion = project.ext["internalVersion"]
-    inputs.property("internalVersion", internalVersion)
-    filesMatching("bungee.yml") {
-        expand("internalVersion" to internalVersion)
-    }
+    "implementation"(project(":nuvotifier-api"))
+    "implementation"(project(":nuvotifier-common"))
+    "implementation"(project(":nuvotifier-bukkit"))
+    "implementation"(project(":nuvotifier-bungeecord"))
+    "implementation"(project(":nuvotifier-sponge"))
+    "implementation"(project(":nuvotifier-velocity"))
 }
 
 tasks.named<Jar>("jar") {
@@ -48,7 +34,21 @@ tasks.named<ShadowJar>("shadowJar") {
     dependencies {
         include(dependency(":nuvotifier-api"))
         include(dependency(":nuvotifier-common"))
+        include(dependency(":nuvotifier-bukkit"))
+        include(dependency(":nuvotifier-bungeecord"))
+        include(dependency(":nuvotifier-sponge"))
+        include(dependency(":nuvotifier-velocity"))
     }
+
+    exclude("GradleStart**")
+    exclude(".cache");
+    exclude("LICENSE*")
+    exclude("META-INF/services/**")
+    exclude("META-INF/maven/**")
+    exclude("META-INF/versions/**")
+    exclude("org/intellij/**")
+    exclude("org/jetbrains/**")
+    exclude("**/module-info.class")
 }
 
 tasks.named("assemble").configure {

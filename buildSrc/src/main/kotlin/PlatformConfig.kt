@@ -1,13 +1,9 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.Project
 import org.gradle.api.component.AdhocComponentWithVariants
-import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.named
-import org.gradle.kotlin.dsl.register
 
 fun Project.applyPlatformAndCoreConfiguration(javaRelease: Int = 17) {
     applyCommonConfiguration()
@@ -21,24 +17,6 @@ fun Project.applyPlatformAndCoreConfiguration(javaRelease: Int = 17) {
     )
 
     ext["internalVersion"] = "$version+${rootProject.ext["gitCommitHash"]}"
-
-    configure<PublishingExtension> {
-        publications {
-            register<MavenPublication>("maven") {
-                from(components["java"])
-                versionMapping {
-                    usage("java-api") {
-                        fromResolutionOf("runtimeClasspath")
-                    }
-                    usage("java-runtime") {
-                        fromResolutionResult()
-                    }
-                }
-            }
-        }
-    }
-
-    applyCommonArtifactoryConfig()
 }
 
 fun Project.applyShadowConfiguration() {

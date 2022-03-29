@@ -15,3 +15,6 @@ include("nuvotifier-sponge")
 project(":nuvotifier-sponge").projectDir = file("sponge")
 include("nuvotifier-velocity")
 project(":nuvotifier-velocity").projectDir = file("velocity")
+
+include("nuvotifier-universal")
+project(":nuvotifier-universal").projectDir = file("universal")

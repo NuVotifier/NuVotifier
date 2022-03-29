@@ -1,7 +1,7 @@
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.named
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.kotlin.dsl.*
 import org.jfrog.gradle.plugin.artifactory.dsl.ArtifactoryPluginConvention
 import org.jfrog.gradle.plugin.artifactory.task.ArtifactoryTask
 
@@ -34,6 +34,22 @@ fun Project.applyRootArtifactoryConfig() {
 }
 
 fun Project.applyCommonArtifactoryConfig() {
+    configure<PublishingExtension> {
+        publications {
+            register<MavenPublication>("maven") {
+                from(components["java"])
+                versionMapping {
+                    usage("java-api") {
+                        fromResolutionOf("runtimeClasspath")
+                    }
+                    usage("java-runtime") {
+                        fromResolutionResult()
+                    }
+                }
+            }
+        }
+    }
+
     tasks.named<ArtifactoryTask>("artifactoryPublish") {
         publications("maven")
     }
