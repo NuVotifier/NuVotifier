@@ -68,12 +68,6 @@ dependencies {
     "api"(project(":nuvotifier-common"))
 }
 
-val javaTarget = 8 // Sponge targets a minimum of Java 8
-java {
-    sourceCompatibility = JavaVersion.toVersion(javaTarget)
-    targetCompatibility = JavaVersion.toVersion(javaTarget)
-}
-
 tasks.named<Jar>("jar") {
     val projectVersion = project.version
     inputs.property("projectVersion", projectVersion)

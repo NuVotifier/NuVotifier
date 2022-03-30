@@ -5,7 +5,7 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.named
 
-fun Project.applyPlatformAndCoreConfiguration(javaRelease: Int = 17) {
+fun Project.applyPlatformAndCoreConfiguration(javaRelease: Int = 8) {
     applyCommonConfiguration()
     apply(plugin = "java")
     apply(plugin = "maven-publish")
