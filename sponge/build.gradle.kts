@@ -25,27 +25,21 @@ sponge {
 
     license("GNU General Public License v3.0")
 
-    plugin("banmanager") {
-        displayName("BanManager")
-        entrypoint("me.confuser.banmanager.sponge.BMSpongePlugin")
-        description("A database driven punishment system")
+    plugin("nuvotifier") {
+        displayName("NuVotifier")
+        entrypoint("com.vexsoftware.votifier.sponge.NuVotifier")
+        description("Safe, smart, and secure Votifier server plugin")
         links {
-            homepage("https://banmanagement.com/")
-            source("https://github.com/BanManagment/BanManager")
-            issues("https://github.com/BanManagment/BanManager")
+            source("https://github.com/NuVotifier/NuVotifier")
+            issues("https://github.com/NuVotifier/NuVotifier")
         }
-        contributor("confuser") {
+        contributor("Ichbinjoe") {
             description("Lead Developer")
         }
         dependency("spongeapi") {
             loadOrder(PluginDependency.LoadOrder.AFTER)
             optional(false)
             version("7.2.0")
-        }
-        dependency("magibridge") {
-            loadOrder(PluginDependency.LoadOrder.AFTER)
-            optional(true)
-            version("api-7-SNAPSHOT")
         }
     }
 }
