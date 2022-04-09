@@ -1,5 +1,0 @@
-dependencies {
-    compileOnly group: "net.md-5", name: "bungeecord-api", version: "1.8-SNAPSHOT"
-    implementation project(":nuvotifier-api")
-    implementation project(":nuvotifier-common")
-}
