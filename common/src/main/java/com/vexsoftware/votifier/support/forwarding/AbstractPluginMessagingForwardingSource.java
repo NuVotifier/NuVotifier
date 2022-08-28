@@ -96,7 +96,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
 
     protected void attemptToAddToPlayerCache(Vote v, String player) {
         if (cache != null) {
-            cache.addToCachePlayer(v, player);
+            cache.addToCachePlayer(v, player.toLowerCase());
             if (plugin.isDebug())
                 plugin.getPluginLogger().info("Added to forwarding cache: " + v + " -> (player) " + player);
         } else if (plugin.isDebug())
@@ -151,10 +151,10 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         if (cache == null) return;
         if (!serverFilter.isAllowed(server.getName())) return;
 
-        final Collection<Vote> cachedVotes = cache.evictPlayer(playerName);
+        final Collection<Vote> cachedVotes = cache.evictPlayer(playerName.toLowerCase());
         dumpVotesToServer(cachedVotes, server, "player '" + playerName + "'", failedVotes -> {
             for (Vote v : failedVotes)
-                cache.addToCachePlayer(v, playerName);
+                cache.addToCachePlayer(v, playerName.toLowerCase());
         });
     }
 }
