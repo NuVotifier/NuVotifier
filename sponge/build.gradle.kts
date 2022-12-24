@@ -49,6 +49,7 @@ repositories {
         name = "sponge"
         url = uri("https://repo.spongepowered.org/maven/")
     }
+    mavenCentral()
 }
 
 configurations {
@@ -79,7 +80,7 @@ tasks.named<ShadowJar>("shadowJar") {
     }
 
     exclude("GradleStart**")
-    exclude(".cache");
+    exclude(".cache")
     exclude("LICENSE*")
     exclude("META-INF/services/**")
     exclude("META-INF/maven/**")

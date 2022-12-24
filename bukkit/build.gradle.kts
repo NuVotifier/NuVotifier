@@ -21,6 +21,7 @@ configurations {
 
 dependencies {
     "compileOnly"("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
+    "implementation"("redis.clients:jedis:${Versions.JEDIS}")
     "api"(project(":nuvotifier-api"))
     "api"(project(":nuvotifier-common"))
 }
