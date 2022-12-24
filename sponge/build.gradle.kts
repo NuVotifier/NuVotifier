@@ -61,6 +61,7 @@ dependencies {
 
     "api"(project(":nuvotifier-api"))
     "api"(project(":nuvotifier-common"))
+    "implementation"("redis.clients:jedis:${Versions.JEDIS}")
 }
 
 tasks.named<Jar>("jar") {

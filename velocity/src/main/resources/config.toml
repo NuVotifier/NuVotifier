@@ -21,6 +21,7 @@ default = "%default_token%"
 # - none - Does not set up a forwarding method.
 # - pluginMessaging - Sets up plugin messaging.
 # - proxy - Proxies votes to other NuVotifier servers from this server.
+# - redis - Uses redis to forward messages to other servers.
 method = "none"
 
 [forwarding.pluginMessaging]
@@ -77,3 +78,20 @@ token = "MyKeyHere"
 address = "127.0.0.1"
 port = 8194
 token = "MyKeyHere"
+
+# Options for redis messages forwarding.
+[forwarding.redis]
+address = "127.0.0.1"
+port = 6379
+password = "" # If you use NOAUTH redis authentication, keep this option empty.
+channel = "nuvotifier:votes"
+
+[forwarding.redis.pool]
+timeout = 5000
+max-total = 128
+max-idle = 128
+min-idle = 16
+min-evictable-idle-time = 60000
+time-between-eviction-runs = 30000
+num-tests-per-eviction-run = 3
+block-when-exhausted = true

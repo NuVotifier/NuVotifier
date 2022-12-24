@@ -25,6 +25,9 @@ import com.vexsoftware.votifier.support.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.MemoryVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.support.forwarding.proxy.ProxyForwardingVoteSource;
+import com.vexsoftware.votifier.support.forwarding.redis.RedisCredentials;
+import com.vexsoftware.votifier.support.forwarding.redis.RedisForwardingVoteSource;
+import com.vexsoftware.votifier.support.forwarding.redis.RedisPoolConfiguration;
 import com.vexsoftware.votifier.util.IOUtil;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
@@ -209,6 +212,33 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
 
             forwardingMethod = bootstrap.createForwardingSource(serverList, null);
             getLogger().info("Forwarding votes from this NuVotifier instance to another NuVotifier server.");
+        } else if ("redis".equals(fwdMethod)) {
+
+            Toml redisSection = fwdCfg.getTable("redis"),
+                    redisPoolSection = redisSection.getTable("pool");
+
+            // Load redis credentials
+            RedisCredentials redisCredentials = RedisCredentials.builder()
+                    .host(redisSection.getString("address"))
+                    .port(redisSection.getLong("port").intValue())
+                    .password(redisSection.getString("password"))
+                    .channel(redisSection.getString("channel"))
+                    .build();
+
+            // Load redis pool parameters
+            RedisPoolConfiguration redisPoolConfiguration = RedisPoolConfiguration.builder()
+                    .timeout(redisPoolSection.getLong("timeout").intValue())
+                    .maxTotal(redisPoolSection.getLong("max-total").intValue())
+                    .maxIdle(redisPoolSection.getLong("max-idle").intValue())
+                    .minIdle(redisPoolSection.getLong("min-idle").intValue())
+                    .minEvictableIdleTime(redisPoolSection.getLong("min-evictable-idle.time").intValue())
+                    .timeBetweenEvictionRuns(redisPoolSection.getLong("time-between-eviction-runs").intValue())
+                    .numTestsPerEvictionRun(redisPoolSection.getLong("num-tests-per-eviction-run").intValue())
+                    .blockWhenExhausted(redisPoolSection.getBoolean("block-when-exhausted"))
+                    .build();
+
+            forwardingMethod = new RedisForwardingVoteSource(redisCredentials, redisPoolConfiguration);
+
         } else {
             getLogger().error("No vote forwarding method '" + fwdMethod + "' known. Defaulting to noop implementation.");
         }

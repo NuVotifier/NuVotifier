@@ -39,17 +39,68 @@ public class SpongeConfig {
 
         @Setting(comment = "Sets whether to set up a remote method for fowarding. Supported methods:\n" +
                 "- none - Does not set up a forwarding method.\n" +
-                "- pluginMessaging - Sets up plugin messaging")
+                "- pluginMessaging - Sets up plugin messaging\n" +
+                "- redis - Sets up redis forwarding.")
         public String method = "none";
 
         @Setting
         public PluginMessaging pluginMessaging = new PluginMessaging();
+        @Setting
+        public Redis redis = new Redis();
 
         @ConfigSerializable
         public static class PluginMessaging {
 
             @Setting
             public String channel = "nuvotifier:votes";
+        }
+
+        @ConfigSerializable
+        public static class Redis {
+
+            @Setting
+            public String address = "127.0.0.1";
+
+            @Setting
+            public int port = 6379;
+
+            @Setting
+            public String password = "your-redis-password-here";
+
+            @Setting
+            public String channel = "nuvotifier:votes";
+
+            @Setting(value = "pool-settings")
+            public PoolSettings poolSettings = new PoolSettings();
+
+            @ConfigSerializable
+            public class PoolSettings {
+
+                @Setting
+                public int timeout = 5000;
+
+                @Setting(value = "max-total")
+                public int maxTotal = 128;
+
+                @Setting(value = "max-idle")
+                public int maxIdle = 128;
+
+                @Setting(value = "min-idle")
+                public int minIdle = 16;
+
+                @Setting(value = "min-evictable-idle-time")
+                public int minEvictableIdleTime = 60000;
+
+                @Setting(value = "time-between-eviction-runs")
+                public int timeBetweenEvictionRuns = 30000;
+
+                @Setting(value = "num-tests-per-eviction-run")
+                public int numTestsPerEvictionRun = 3;
+
+                @Setting(value = "block-when-exhausted")
+                public boolean blockWhenExhausted = true;
+
+            }
         }
     }
 }
