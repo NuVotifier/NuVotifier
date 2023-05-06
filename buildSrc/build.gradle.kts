@@ -10,6 +10,10 @@ repositories {
         name = "sponge"
         url = uri("https://repo.spongepowered.org/repository/maven-public/")
     }
+    maven {
+        name = "Fabric"
+        url = uri("https://maven.fabricmc.net/")
+    }
 }
 
 dependencies {
@@ -18,4 +22,5 @@ dependencies {
     implementation("gradle.plugin.com.github.johnrengelman:shadow:7.1.2")
     implementation("org.jfrog.buildinfo:build-info-extractor-gradle:4.27.1")
     implementation("org.spongepowered:spongegradle-plugin-development:2.0.0")
+    implementation("net.fabricmc:fabric-loom:1.0-SNAPSHOT")
 }

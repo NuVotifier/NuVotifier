@@ -19,21 +19,6 @@ class SpongeScheduler implements VotifierScheduler {
     }
 
     @Override
-    public ScheduledVotifierTask sync(Runnable runnable) {
-        return new TaskWrapper(taskBuilder(runnable).submit(plugin));
-    }
-
-    @Override
-    public ScheduledVotifierTask onPool(Runnable runnable) {
-        return new TaskWrapper(taskBuilder(runnable).async().submit(plugin));
-    }
-
-    @Override
-    public ScheduledVotifierTask delayedSync(Runnable runnable, int delay, TimeUnit unit) {
-        return new TaskWrapper(taskBuilder(runnable).delay(delay, unit).submit(plugin));
-    }
-
-    @Override
     public ScheduledVotifierTask delayedOnPool(Runnable runnable, int delay, TimeUnit unit) {
         return new TaskWrapper(taskBuilder(runnable).delay(delay, unit).async().submit(plugin));
     }

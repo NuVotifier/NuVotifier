@@ -22,21 +22,6 @@ class VelocityScheduler implements VotifierScheduler {
     }
 
     @Override
-    public ScheduledVotifierTask sync(Runnable runnable) {
-        return onPool(runnable);
-    }
-
-    @Override
-    public ScheduledVotifierTask onPool(Runnable runnable) {
-        return new TaskWrapper(builder(runnable).schedule());
-    }
-
-    @Override
-    public ScheduledVotifierTask delayedSync(Runnable runnable, int delay, TimeUnit unit) {
-        return delayedOnPool(runnable, delay, unit);
-    }
-
-    @Override
     public ScheduledVotifierTask delayedOnPool(Runnable runnable, int delay, TimeUnit unit) {
         return new TaskWrapper(builder(runnable).delay(delay, unit).schedule());
     }

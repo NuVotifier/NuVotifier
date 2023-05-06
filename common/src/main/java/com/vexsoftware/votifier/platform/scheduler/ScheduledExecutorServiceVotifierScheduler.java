@@ -13,21 +13,6 @@ public class ScheduledExecutorServiceVotifierScheduler implements VotifierSchedu
     }
 
     @Override
-    public ScheduledVotifierTask sync(Runnable runnable) {
-        return new ScheduledVotifierTaskWrapper(service.submit(runnable));
-    }
-
-    @Override
-    public ScheduledVotifierTask onPool(Runnable runnable) {
-        return new ScheduledVotifierTaskWrapper(service.submit(runnable));
-    }
-
-    @Override
-    public ScheduledVotifierTask delayedSync(Runnable runnable, int delay, TimeUnit unit) {
-        return new ScheduledVotifierTaskWrapper(service.schedule(runnable, delay, unit));
-    }
-
-    @Override
     public ScheduledVotifierTask delayedOnPool(Runnable runnable, int delay, TimeUnit unit) {
         return new ScheduledVotifierTaskWrapper(service.schedule(runnable, delay, unit));
     }

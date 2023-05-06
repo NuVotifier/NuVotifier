@@ -14,21 +14,6 @@ class BungeeScheduler implements VotifierScheduler {
     }
 
     @Override
-    public ScheduledVotifierTask sync(Runnable runnable) {
-        return onPool(runnable);
-    }
-
-    @Override
-    public ScheduledVotifierTask onPool(Runnable runnable) {
-        return new BungeeTaskWrapper(plugin.getProxy().getScheduler().runAsync(plugin, runnable));
-    }
-
-    @Override
-    public ScheduledVotifierTask delayedSync(Runnable runnable, int delay, TimeUnit unit) {
-        return delayedOnPool(runnable, delay, unit);
-    }
-
-    @Override
     public ScheduledVotifierTask delayedOnPool(Runnable runnable, int delay, TimeUnit unit) {
         return new BungeeTaskWrapper(plugin.getProxy().getScheduler().schedule(plugin, runnable, delay, unit));
     }
