@@ -402,13 +402,13 @@ public class VotifierPlugin implements VoteHandler, ProxyVotifierPlugin {
     public void onError(Throwable throwable, boolean alreadyHandledVote, String remoteAddress) {
         if (debug) {
             if (alreadyHandledVote) {
-                logger.error("Vote processed, however an exception " +
+                logger.warn("Vote processed, however an exception " +
                         "occurred with a vote from " + remoteAddress, throwable);
             } else {
-                logger.error("Unable to process vote from " + remoteAddress, throwable);
+                logger.warn("Unable to process vote from " + remoteAddress, throwable);
             }
         } else if (!alreadyHandledVote) {
-            logger.error("Unable to process vote from " + remoteAddress);
+            logger.warn("Unable to process vote from " + remoteAddress);
         }
     }
 
