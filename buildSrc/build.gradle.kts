@@ -11,7 +11,7 @@ repositories {
         url = uri("https://repo.spongepowered.org/repository/maven-public/")
     }
     maven {
-        name = "Fabric"
+        name = "fabric"
         url = uri("https://maven.fabricmc.net/")
     }
 }

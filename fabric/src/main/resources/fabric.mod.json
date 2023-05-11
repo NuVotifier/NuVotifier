@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "nuvotifier",
   "version": "${internalVersion}",
-
   "name": "NuVotifier",
   "description": "Safe, smart, and secure Votifier server mod",
   "authors": [

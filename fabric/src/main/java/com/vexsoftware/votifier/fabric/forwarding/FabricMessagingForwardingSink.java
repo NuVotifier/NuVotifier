@@ -28,10 +28,8 @@ public class FabricMessagingForwardingSink extends AbstractPluginMessagingForwar
 
     @Override
     public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        byte[] data = new byte[buf.capacity()];
-        for (int i = 0; i < buf.capacity(); i++) {
-            data[i] = buf.getByte(i);
-        }
+        byte[] data = new byte[buf.readableBytes()];
+        buf.readBytes(data);
         try {
             this.handlePluginMessage(data);
         } catch (Exception e) {
