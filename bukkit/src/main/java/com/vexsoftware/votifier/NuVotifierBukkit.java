@@ -84,8 +84,18 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     private ForwardingVoteSink forwardingMethod;
     private VotifierScheduler scheduler;
     private LoggingAdapter pluginLogger;
+    private boolean isFolia;
 
     private boolean loadAndBind() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.scheduler.AsyncScheduler");
+            isFolia = true;
+
+            getLogger().info("Using Folia; VotifierEvent will be fired asynchronously.");
+        } catch (ClassNotFoundException e) {
+            isFolia = false;
+        }
+
         scheduler = new BukkitScheduler(this);
         pluginLogger = new JavaUtilLogger(getLogger());
         if (!getDataFolder().exists()) {
@@ -338,7 +348,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         if (debug) {
             getLogger().info("Got a " + protocolVersion.humanReadable + " vote record from " + remoteAddress + " -> " + vote);
         }
-        Bukkit.getScheduler().runTask(this, () -> fireVotifierEvent(vote));
+        fireVotifierEvent(vote);
     }
 
     @Override
@@ -360,7 +370,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         if (debug) {
             getLogger().info("Got a forwarded vote -> " + v);
         }
-        Bukkit.getScheduler().runTask(this, () -> fireVotifierEvent(v));
+        fireVotifierEvent(v);
     }
 
     private void fireVotifierEvent(Vote vote) {
@@ -369,6 +379,15 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             getLogger().log(Level.SEVERE, "See https://github.com/NuVotifier/NuVotifier/wiki/Setup-Guide#vote-listeners for");
             getLogger().log(Level.SEVERE, "a list of listeners you can configure.");
         }
-        Bukkit.getPluginManager().callEvent(new VotifierEvent(vote));
+
+        if (!isFolia) {
+            getServer().getScheduler().runTask(
+                    this, () -> getServer().getPluginManager().callEvent(new VotifierEvent(vote))
+            );
+        } else {
+            getServer().getScheduler().runTaskAsynchronously(
+                    this, () -> getServer().getPluginManager().callEvent(new VotifierEvent(vote, true))
+            );
+        }
     }
 }
