@@ -18,21 +18,6 @@ class BukkitScheduler implements VotifierScheduler {
     }
 
     @Override
-    public ScheduledVotifierTask sync(Runnable runnable) {
-        return new BukkitTaskWrapper(plugin.getServer().getScheduler().runTask(plugin, runnable));
-    }
-
-    @Override
-    public ScheduledVotifierTask onPool(Runnable runnable) {
-        return new BukkitTaskWrapper(plugin.getServer().getScheduler().runTaskAsynchronously(plugin, runnable));
-    }
-
-    @Override
-    public ScheduledVotifierTask delayedSync(Runnable runnable, int delay, TimeUnit unit) {
-        return new BukkitTaskWrapper(plugin.getServer().getScheduler().runTaskLater(plugin, runnable, toTicks(delay, unit)));
-    }
-
-    @Override
     public ScheduledVotifierTask delayedOnPool(Runnable runnable, int delay, TimeUnit unit) {
         return new BukkitTaskWrapper(plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, runnable, toTicks(delay, unit)));
     }
