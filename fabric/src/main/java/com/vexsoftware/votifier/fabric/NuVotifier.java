@@ -221,13 +221,13 @@ public class NuVotifier implements VoteHandler, VotifierPlugin, ForwardedVoteLis
     public void onError(Throwable throwable, boolean alreadyHandledVote, String remoteAddress) {
         if (debug) {
             if (alreadyHandledVote) {
-                LOGGER.error("Vote processed, however an exception " +
+                LOGGER.warn("Vote processed, however an exception " +
                         "occurred with a vote from " + remoteAddress, throwable);
             } else {
-                LOGGER.error("Unable to process vote from " + remoteAddress, throwable);
+                LOGGER.warn("Unable to process vote from " + remoteAddress, throwable);
             }
         } else if (!alreadyHandledVote) {
-            LOGGER.error("Unable to process vote from " + remoteAddress);
+            LOGGER.warn("Unable to process vote from " + remoteAddress);
         }
     }
 
