@@ -17,6 +17,7 @@ dependencies {
     "implementation"(project(":nuvotifier-bukkit"))
     "implementation"(project(":nuvotifier-bungeecord"))
     "implementation"(project(":nuvotifier-sponge"))
+    "implementation"(project(":nuvotifier-sponge8"))
     "implementation"(project(":nuvotifier-fabric"))
     "implementation"(project(":nuvotifier-velocity"))
 }
@@ -38,6 +39,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(dependency(":nuvotifier-bukkit"))
         include(dependency(":nuvotifier-bungeecord"))
         include(dependency(":nuvotifier-sponge"))
+        include(dependency(":nuvotifier-sponge8"))
         include(dependency(":nuvotifier-fabric"))
         include(dependency(":nuvotifier-velocity"))
     }
