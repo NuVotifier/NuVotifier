@@ -17,6 +17,7 @@ import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import com.vexsoftware.votifier.sponge.forwarding.SpongePluginMessagingForwardingSink;
 import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
+import com.vexsoftware.votifier.support.forwarding.redis.*;
 import com.vexsoftware.votifier.util.KeyCreator;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -122,6 +123,29 @@ public class NuVotifier implements VoteHandler, VotifierPlugin, ForwardedVoteLis
                 } catch (RuntimeException e) {
                     logger.error("NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }
+            } else if ("redis".equals(method)) {
+
+                // Load redis credentials
+                RedisCredentials redisCredentials = RedisCredentials.builder()
+                        .host(ConfigLoader.getSpongeConfig().forwarding.redis.address)
+                        .port(ConfigLoader.getSpongeConfig().forwarding.redis.port)
+                        .password(ConfigLoader.getSpongeConfig().forwarding.redis.password)
+                        .channel(ConfigLoader.getSpongeConfig().forwarding.redis.channel)
+                        .build();
+
+                // Load redis pool parameters
+                RedisPoolConfiguration redisPoolConfiguration = RedisPoolConfiguration.builder()
+                        .timeout(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.timeout)
+                        .maxTotal(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.maxTotal)
+                        .maxIdle(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.maxIdle)
+                        .minIdle(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.minIdle)
+                        .minEvictableIdleTime(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.minEvictableIdleTime)
+                        .timeBetweenEvictionRuns(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.timeBetweenEvictionRuns)
+                        .numTestsPerEvictionRun(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.numTestsPerEvictionRun)
+                        .blockWhenExhausted(ConfigLoader.getSpongeConfig().forwarding.redis.poolSettings.blockWhenExhausted)
+                        .build();
+
+                forwardingMethod = new RedisForwardingSink(redisCredentials, redisPoolConfiguration, this);
             } else {
                 logger.error("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
             }

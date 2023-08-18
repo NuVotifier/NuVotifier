@@ -20,6 +20,7 @@ forwarding:
   # - none - Does not set up a forwarding method.
   # - pluginMessaging - Sets up plugin messaging.
   # - proxy - Proxies votes to other NuVotifier servers from this server.
+  # - redis - Sets up redis forwarding.
   method: none
   pluginMessaging:
     channel: nuvotifier:votes
@@ -68,3 +69,17 @@ forwarding:
       address: 127.0.0.1
       port: 8194
       token: AnotherKeyHere
+  redis:
+    address: 127.0.0.1
+    port: 6379
+    password: your-redis-password-here
+    channel: nuvotifier:votes
+    pool-settings:
+      timeout: 5000
+      max-total: 128
+      max-idle: 128
+      min-idle: 16
+      min-evictable-idle-time: 60000
+      time-between-eviction-runs: 30000
+      num-tests-per-eviction-run: 3
+      block-when-exhausted: true

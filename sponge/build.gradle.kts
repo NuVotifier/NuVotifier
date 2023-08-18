@@ -49,6 +49,7 @@ repositories {
         name = "sponge"
         url = uri("https://repo.spongepowered.org/maven/")
     }
+    mavenCentral()
 }
 
 configurations {
@@ -60,6 +61,7 @@ dependencies {
 
     "api"(project(":nuvotifier-api"))
     "api"(project(":nuvotifier-common"))
+    "implementation"("redis.clients:jedis:${Versions.JEDIS}")
 }
 
 tasks.named<Jar>("jar") {
@@ -79,7 +81,7 @@ tasks.named<ShadowJar>("shadowJar") {
     }
 
     exclude("GradleStart**")
-    exclude(".cache");
+    exclude(".cache")
     exclude("LICENSE*")
     exclude("META-INF/services/**")
     exclude("META-INF/maven/**")
