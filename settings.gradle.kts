@@ -13,6 +13,8 @@ include("nuvotifier-bungeecord")
 project(":nuvotifier-bungeecord").projectDir = file("bungeecord")
 include("nuvotifier-sponge")
 project(":nuvotifier-sponge").projectDir = file("sponge")
+include("nuvotifier-fabric")
+project(":nuvotifier-fabric").projectDir = file("fabric")
 include("nuvotifier-velocity")
 project(":nuvotifier-velocity").projectDir = file("velocity")
 

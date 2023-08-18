@@ -405,13 +405,13 @@ public class NuVotifier extends Plugin implements VoteHandler, ProxyVotifierPlug
     public void onError(Throwable throwable, boolean alreadyHandledVote, String remoteAddress) {
         if (debug) {
             if (alreadyHandledVote) {
-                getLogger().log(Level.SEVERE, "Vote processed, however an exception " +
+                getLogger().log(Level.WARNING, "Vote processed, however an exception " +
                         "occurred with a vote from " + remoteAddress, throwable);
             } else {
-                getLogger().log(Level.SEVERE, "Unable to process vote from " + remoteAddress, throwable);
+                getLogger().log(Level.WARNING, "Unable to process vote from " + remoteAddress, throwable);
             }
         } else if (!alreadyHandledVote) {
-            getLogger().log(Level.SEVERE, "Unable to process vote from " + remoteAddress);
+            getLogger().log(Level.WARNING, "Unable to process vote from " + remoteAddress);
         }
     }
 

@@ -5,7 +5,7 @@ import org.bukkit.event.HandlerList;
 
 /**
  * {@code VotifierEvent} is a custom Bukkit event class that is sent
- * synchronously to CraftBukkit's main thread allowing other plugins to listener
+ * synchronously to CraftBukkit's main thread allowing other plugins to listen
  * for votes.
  *
  * @author frelling
@@ -27,6 +27,17 @@ public class VotifierEvent extends Event {
      * @param vote vote record
      */
     public VotifierEvent(final Vote vote) {
+        this.vote = vote;
+    }
+
+    /**
+     * Constructs a vote event that encapsulated the given vote record.
+     *
+     * @param vote vote record
+     * @param async whether the event will be fired asynchronously
+     */
+    public VotifierEvent(final Vote vote, final boolean async) {
+        super(async);
         this.vote = vote;
     }
 
