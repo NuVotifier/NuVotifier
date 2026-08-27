@@ -21,7 +21,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.FastThreadLocalThread;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.concurrent.Future;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -33,6 +33,9 @@ import java.util.function.Consumer;
 
 public class VotifierServerBootstrap {
     private static final boolean USE_EPOLL = Epoll.isAvailable();
+    private static final long SHUTDOWN_QUIET_PERIOD_SECONDS = 1;
+    private static final long SHUTDOWN_TIMEOUT_SECONDS = 5;
+    private static final long SHUTDOWN_AWAIT_SECONDS = 10;
 
     private final String host;
     private final int port;
@@ -41,6 +44,8 @@ public class VotifierServerBootstrap {
     private final VotifierPlugin plugin;
     private final boolean v1Disable;
 
+    private final Object lifecycleLock = new Object();
+    private volatile boolean shuttingDown;
     private Channel serverChannel;
 
     public VotifierServerBootstrap(String host, int port, VotifierPlugin plugin, boolean v1Disable) {
@@ -70,6 +75,13 @@ public class VotifierServerBootstrap {
     public void start(Consumer<Throwable> error) {
         Objects.requireNonNull(error, "error");
 
+        synchronized (lifecycleLock) {
+            if (shuttingDown) {
+                error.accept(new IllegalStateException("Votifier server is shutting down"));
+                return;
+            }
+        }
+
         VoteInboundHandler voteInboundHandler = new VoteInboundHandler(plugin);
 
         new ServerBootstrap()
@@ -88,10 +100,22 @@ public class VotifierServerBootstrap {
                 .bind(host, port)
                 .addListener((ChannelFutureListener) future -> {
                     if (future.isSuccess()) {
-                        serverChannel = future.channel();
-                        plugin.getPluginLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
+                        Channel boundChannel = future.channel();
+                        synchronized (lifecycleLock) {
+                            if (shuttingDown) {
+                                boundChannel.close();
+                                return;
+                            }
+                            serverChannel = boundChannel;
+                        }
+                        plugin.getPluginLogger().info("Votifier enabled on socket " + boundChannel.localAddress() + ".");
                         error.accept(null);
                     } else {
+                        synchronized (lifecycleLock) {
+                            if (shuttingDown) {
+                                return;
+                            }
+                        }
                         SocketAddress socketAddress = future.channel().localAddress();
                         if (socketAddress == null) {
                             socketAddress = new InetSocketAddress(host, port);
@@ -103,6 +127,10 @@ public class VotifierServerBootstrap {
     }
 
     private Bootstrap client() {
+        if (shuttingDown) {
+            throw new IllegalStateException("Votifier server is shutting down");
+        }
+
         return new Bootstrap()
                 .channel(USE_EPOLL ? EpollSocketChannel.class : NioSocketChannel.class)
                 .group(eventLoopGroup);
@@ -114,21 +142,24 @@ public class VotifierServerBootstrap {
     }
 
     public void shutdown() {
-        if (serverChannel != null) {
-            try {
-                serverChannel.close().syncUninterruptibly();
-            } catch (Exception e) {
-                plugin.getPluginLogger().error("Unable to shutdown server channel", e);
+        final Channel channel;
+        synchronized (lifecycleLock) {
+            if (shuttingDown) {
+                return;
             }
-        }
-        eventLoopGroup.shutdownGracefully();
-        bossLoopGroup.shutdownGracefully();
 
-        try {
-            bossLoopGroup.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-            eventLoopGroup.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            shuttingDown = true;
+            channel = serverChannel;
         }
+
+        Future<?> channelCloseFuture = channel == null ? null : channel.close();
+        Future<?> bossShutdownFuture = bossLoopGroup.shutdownGracefully(
+                SHUTDOWN_QUIET_PERIOD_SECONDS, SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        Future<?> workerShutdownFuture = eventLoopGroup.shutdownGracefully(
+                SHUTDOWN_QUIET_PERIOD_SECONDS, SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        new NettyShutdownVerifier(plugin.getPluginLogger()).awaitTermination(
+                channelCloseFuture, bossShutdownFuture, workerShutdownFuture,
+                SHUTDOWN_AWAIT_SECONDS, TimeUnit.SECONDS);
     }
 }
